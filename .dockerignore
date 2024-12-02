@@ -1,1 +1,18 @@
-Format
+# General
+.DS_Store
+*.log
+*.tmp
+
+# Flutter
+build/
+.dart_tool/
+.pub-cache/
+.packages
+
+# Backend (Java)
+target/
+*.class
+
+# Git
+.git
+.gitignore
