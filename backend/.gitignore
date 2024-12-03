@@ -1,0 +1,21 @@
+# Compiled Java files
+*.class
+
+# Logs
+*.log
+logs/
+
+# Maven/Gradle files
+target/
+build/
+
+# IDE/Editor related
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Temporary files
+*.swp
+*.bak
+*.tmp
