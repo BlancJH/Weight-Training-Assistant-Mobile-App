@@ -1,20 +1,20 @@
-# Use a Node.js image for Flutter web
+# Use Flutter image
 FROM cirrusci/flutter:latest
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the Flutter app code
+# Copy all project files into the container
 COPY . .
 
-# Install dependencies
+# Install Flutter dependencies
 RUN flutter pub get
 
-# Build the Flutter app
+# Build the Flutter project (for web or specific target platforms)
 RUN flutter build web
 
-# Expose the Flutter app's web server port (if using web)
-EXPOSE 8080
+# Expose the server port (if running as a web app)
+EXPOSE 3000
 
-# Serve the built Flutter web app (if required)
+# Command to serve the app (if targeting web)
 CMD ["flutter", "run", "--release"]
