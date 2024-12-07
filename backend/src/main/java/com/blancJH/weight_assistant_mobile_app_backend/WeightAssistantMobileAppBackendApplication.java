@@ -9,5 +9,4 @@ public class WeightAssistantMobileAppBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(WeightAssistantMobileAppBackendApplication.class, args);
 	}
-
 }
