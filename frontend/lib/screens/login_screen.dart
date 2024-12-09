@@ -1,5 +1,6 @@
 // Import the module which contains pre-designed UI components
 import 'package:flutter/material.dart';
+import 'register_screen.dart'; // Import register screen
 
 // Create LoginScreen class // StatelessWidget: immutable, not change state( Look into it later )
 class LoginScreen extends StatelessWidget {
@@ -33,6 +34,20 @@ class LoginScreen extends StatelessWidget {
                 // Call login logic
               },
               child: Text('Login'),
+            ),
+            SizedBox(height: 10), // Add spacing between buttons
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to the Register screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey, // Optional: Customize button color
+              ),
+              child: Text('Register'),
             ),
           ],
         ),
