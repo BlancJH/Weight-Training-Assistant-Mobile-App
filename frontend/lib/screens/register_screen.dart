@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 // Sample register screen
 class RegisterScreen extends StatelessWidget {
   @override
