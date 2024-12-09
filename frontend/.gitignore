@@ -30,6 +30,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+.packages
 
 # Symbolication related
 app.*.symbols
@@ -41,3 +42,57 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+**/android/.gradle/
+/android/build/
+
+# iOS specific
+ios/Pods/
+ios/Flutter/Flutter.framework
+ios/Flutter/App.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/.generated/
+ios/Flutter/ephemeral/
+/ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcodeproj/xcuserdata/
+ios/Runner.xcodeproj/xcshareddata/
+ios/Runner.xcworkspace/
+/ios/.dart_tool/
+
+# macOS specific
+**/.DS_Store
+
+# Web specific
+/web/.dart_tool/
+/web/build/
+
+# Editors and IDEs
+.vscode/
+*.code-workspace
+
+# Android Studio and IntelliJ
+.idea/
+*.iml
+
+# Package manager files
+.pipfile
+.env
+
+# CI/CD related
+.metal
+.dart_tool/package_config.json
+dart_tool/
+coverage/
+
+# Flutter build
+.flutter-plugins-dependencies
+flutter_export_environment.sh
+
+# Additional iOS Signing-related files (optional)
+ios/Flutter/Generated.xcconfig
+ios/Runner.xcodeproj/project.pbxproj
+ios/Runner/GeneratedPluginRegistrant.*
+
+# Logs and Debugging
+*.log
+*.tmp
