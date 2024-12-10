@@ -28,7 +28,7 @@ class RegisterScreen extends StatelessWidget {
                 border: OutlineInputBorder(),
                 hintText: 'Enter your Last Name',
               ),
-              keyboardType: TextInputType.emailAddress, // Optimised keyboard for email
+              keyboardType: TextInputType.name,
               autocorrect: false,
             ),
             SizedBox(height: 16.0),
