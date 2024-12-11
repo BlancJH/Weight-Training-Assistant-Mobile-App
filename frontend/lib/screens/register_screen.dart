@@ -2,6 +2,8 @@
 
 // Flutter material package provides UI components and theming
 import 'package:flutter/material.dart';
+import '../widgets/submit_button.dart';
+import '../models/user.dart';
 
 // Define a stateful widget for the Register screen
 class RegisterScreen extends StatefulWidget {
@@ -13,9 +15,22 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   // Key to uniquely identify the form and validate it
   final _formKey = GlobalKey<FormState>();
-
-  // Controller to capture and manage the input for the password field
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  Future<void> _registerUser() async {
+    if (_formKey.currentState!.validate()) {
+      final user = User(
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      print('Registering user: ${user.toJson()}');
+      // Send user data to backend
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               // Name input field
               TextFormField(
+                controller: _nameController, // 
                 decoration: InputDecoration(
                   labelText: 'Name', // Label text for the field
                   border: OutlineInputBorder(), // Adds a border around the input
@@ -52,6 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               // Email input field
               TextFormField(
+                controller: _emailController,
                 decoration: InputDecoration(
                   labelText: 'Email', // Label text for the field
                   border: OutlineInputBorder(), // Adds a border around the input
@@ -109,18 +126,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(height: 24.0), // Add more space before the button
 
               // Register button
-              ElevatedButton(
-                onPressed: () {
-                  // Check if the form is valid
-                  if (_formKey.currentState!.validate()) {
-                    // All fields passed validation
-                    print('Form is valid'); // Debug output
-                  } else {
-                    // Validation failed
-                    print('Form is invalid'); // Debug output
-                  }
-                },
-                child: Text('Register'), // Button text
+              SubmitButton(
+                text: 'Register',
+                onPressed: _registerUser,
               ),
             ],
           ),
