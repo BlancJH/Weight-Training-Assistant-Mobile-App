@@ -1,58 +1,79 @@
 class Validators {
-  // Helper: Check if a field is required
-  static String? _checkRequired(String? value, String fieldName) {
-    if (value == null || value.trim().isEmpty) {
+  // Generic helper: Check if input meets conditions
+  static String? _validate(
+    String? value, // Input value
+    String fieldName, // Field name for error messages
+    {bool required = true, // Is the field required?
+    bool noSpaces = false, // Disallow spaces?
+    int? minLength, // Minimum length
+    bool Function(String)? customCondition, // Additional condition
+    String? customErrorMessage, // Error message for custom condition
+    }) {
+    // Check required
+    if (required && (value == null || value.trim().isEmpty)) {
       return '$fieldName is required';
     }
+
+    // If empty, no further checks needed
+    if (value == null || value.isEmpty) return null;
+
+    // Check for spaces
+    if (noSpaces && value.contains(' ')) {
+      return '$fieldName cannot contain spaces';
+    }
+
+    // Check minimum length
+    if (minLength != null && value.length < minLength) {
+      return '$fieldName must be at least $minLength characters long';
+    }
+
+    // Check custom condition
+    if (customCondition != null && !customCondition(value)) {
+      return customErrorMessage ?? '$fieldName is invalid';
+    }
+
     return null;
   }
 
-  // Validate required field with no spaces in the middle
+  // Validate required field with no spaces
   static String? validateRequired(String? value, String fieldName) {
-    final requiredError = _checkRequired(value, fieldName);
-    if (requiredError != null) return requiredError;
-
-    if (value!.contains(' ')) {
-      return '$fieldName cannot contain spaces in the middle';
-    }
-    return null;
+    return _validate(value, fieldName, noSpaces: true);
   }
 
   // Validate email format
   static String? validateEmail(String? value) {
-    final requiredError = _checkRequired(value, 'Email');
-    if (requiredError != null) return requiredError;
-
-    if (value!.contains(' ')) {
-      return 'Email cannot contain spaces';
-    }
-
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Enter a valid email address';
-    }
-    return null;
+    return _validate(
+      value,
+      'Email',
+      noSpaces: true,
+      customCondition: (val) => emailRegex.hasMatch(val),
+      customErrorMessage: 'Enter a valid email address',
+    );
   }
 
   // Validate password strength
   static String? validatePassword(String? value) {
-    final requiredError = _checkRequired(value, 'Password');
-    if (requiredError != null) return requiredError;
-
-    if (value!.length < 6) {
-      return 'Password must be at least 6 characters long';
-    }
-    return null;
+    return _validate(
+      value,
+      'Password',
+      minLength: 6,
+    );
   }
 
   // Validate matching fields
-  static String? validateMatch(String? value, String? matchValue, String fieldName) {
-    final requiredError = _checkRequired(value, fieldName);
-    if (requiredError != null) return requiredError;
+  static String? validateMatch(
+    String? value,
+    String? matchValue,
+    String fieldName,
+  ) {
+    final error = _validate(value, fieldName);
+    if (error != null) return error;
 
     if (value != matchValue) {
       return '$fieldName does not match';
     }
+
     return null;
   }
 }
