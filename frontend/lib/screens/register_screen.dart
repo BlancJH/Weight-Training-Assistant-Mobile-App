@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/submit_button.dart';
 import '../models/user.dart';
+import '../utils/validator.dart';
 
 // Define a stateful widget for the Register screen
 class RegisterScreen extends StatefulWidget {
@@ -22,9 +23,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
       final user = User(
-        name: _nameController.text,
-        email: _emailController.text,
-        password: _passwordController.text,
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
       print('Registering user: ${user.toJson()}');
       // Send user data to backend
@@ -56,13 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   labelText: 'Name', // Label text for the field
                   border: OutlineInputBorder(), // Adds a border around the input
                 ),
-                validator: (value) {
-                  // Validation logic to check if the name is empty
-                  if (value == null || value.isEmpty) {
-                    return 'Name is required'; // Error message if validation fails
-                  }
-                  return null; // Validation passed
-                },
+                validator: (value) => Validators.validateRequired(value, 'Name'),
               ),
               SizedBox(height: 16.0), // Add vertical space between fields
 
@@ -73,18 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   labelText: 'Email', // Label text for the field
                   border: OutlineInputBorder(), // Adds a border around the input
                 ),
-                validator: (value) {
-                  // Validation logic to check if the email is empty
-                  if (value == null || value.isEmpty) {
-                    return 'Email is required'; // Error message if validation fails
-                  }
-                  // Regular expression for email validation
-                  final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                  if (!emailRegex.hasMatch(value)) {
-                    return 'Enter a valid email address'; // Error message for invalid email
-                  }
-                  return null; // Validation passed
-                },
+                validator: (value) => Validators.validateEmail(value)
               ),
               SizedBox(height: 16.0), // Add vertical space between fields
 
@@ -96,13 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   border: OutlineInputBorder(), // Adds a border around the input
                 ),
                 obscureText: true, // Masks the input for privacy (e.g., "••••")
-                validator: (value) {
-                  // Validation logic to check if the password is empty
-                  if (value == null || value.isEmpty) {
-                    return 'Password is required'; // Error message if validation fails
-                  }
-                  return null; // Validation passed
-                },
+                validator: (value) => Validators.validatePassword(value)
               ),
               SizedBox(height: 16.0), // Add vertical space between fields
 
@@ -113,15 +91,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   border: OutlineInputBorder(), // Adds a border around the input
                 ),
                 obscureText: true, // Masks the input for privacy (e.g., "••••")
-                validator: (value) {
-                  // Validation logic for the repeat password field
-                  if (value == null || value.isEmpty) {
-                    return 'Please repeat your password'; // Error message if field is empty
-                  } else if (value != _passwordController.text) {
-                    return 'Passwords do not match'; // Error message if passwords mismatch
-                  }
-                  return null; // Validation passed
-                },
+                validator: (value) => Validators.validatePassword(value)
               ),
               SizedBox(height: 24.0), // Add more space before the button
 
