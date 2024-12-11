@@ -54,10 +54,17 @@ class Validators {
 
   // Validate password strength
   static String? validatePassword(String? value) {
+    final passwordRegex = RegExp(
+      r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+    );
+
     return _validate(
       value,
       'Password',
-      minLength: 6,
+      minLength: 8, // Enforces minimum length
+      customCondition: (val) => passwordRegex.hasMatch(val),
+      customErrorMessage:
+          'Password must include at least one uppercase letter, one lowercase letter, one number, and one special character',
     );
   }
 
