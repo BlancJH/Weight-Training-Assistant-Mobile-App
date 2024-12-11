@@ -33,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch child widgets to full width
             children: [
+
               // Name input field
               TextFormField(
                 decoration: InputDecoration(
@@ -59,6 +60,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Validation logic to check if the email is empty
                   if (value == null || value.isEmpty) {
                     return 'Email is required'; // Error message if validation fails
+                  }
+                  // Regular expression for email validation
+                  final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+                  if (!emailRegex.hasMatch(value)) {
+                    return 'Enter a valid email address'; // Error message for invalid email
                   }
                   return null; // Validation passed
                 },
