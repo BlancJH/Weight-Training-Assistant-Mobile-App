@@ -25,7 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final user = User(
         name: _nameController.text.trim(),
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        password: _passwordController.text,
       );
       print('Registering user: ${user.toJson()}');
       // Send user data to backend
@@ -91,7 +91,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   border: OutlineInputBorder(), // Adds a border around the input
                 ),
                 obscureText: true, // Masks the input for privacy (e.g., "••••")
-                validator: (value) => Validators.validatePassword(value)
+                validator: (value) => Validators.validateMatch(value, _passwordController.text, 'Repeat Password')
               ),
               SizedBox(height: 24.0), // Add more space before the button
 
