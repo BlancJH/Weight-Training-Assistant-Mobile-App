@@ -32,15 +32,25 @@ class RegisterScreen extends StatelessWidget {
               autocorrect: false,
             ),
             SizedBox(height: 16.0),
-            TextField( // Phone number field
+            TextField( // Password field
               decoration: InputDecoration( 
-                labelText: 'Mobile Phone',
+                labelText: 'Password',
                 border: OutlineInputBorder(),
-                hintText: 'Enter your phone number',
+                hintText: 'Enter your password',
               ),
-              keyboardType: TextInputType.phone, // Optimised keyboard for number
+              keyboardType: TextInputType.text,
               autocorrect: false,
-            ),            
+            ),
+            SizedBox(height: 16.0),
+            TextField( // Password field
+              decoration: InputDecoration( 
+                labelText: 'Repeat Password',
+                border: OutlineInputBorder(),
+                hintText: 'Enter your password',
+              ),
+              keyboardType: TextInputType.text,
+              autocorrect: false,
+            ),                   
           ],
         ),
       ),
