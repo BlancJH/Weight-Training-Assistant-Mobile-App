@@ -64,9 +64,9 @@ class Validators {
       minLength: 8, // Enforces minimum length
       customCondition: (val) => passwordRegex.hasMatch(val),
       customErrorMessage:
-          'Password must include at least one uppercase letter, one lowercase letter, one number, and one special character',
+          'Password must include at least:\nOne uppercase letter\nOne lowercase letter\nOne number\nOne special character',
     );
-  }
+  } //TODO: add error message widget to show invalid option for the password live time.
 
   // Validate matching fields
   static String? validateMatch(
