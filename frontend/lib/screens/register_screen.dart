@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../widgets/submit_button.dart';
 import '../models/user.dart';
 import '../utils/validator.dart';
+import '../widgets/custom_text_field.dart';
 
 // Define a stateful widget for the Register screen
 class RegisterScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _repeatPasswordController = TextEditingController();
 
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
@@ -51,47 +53,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
 
               // Name input field
-              TextFormField(
-                controller: _nameController, // 
-                decoration: InputDecoration(
-                  labelText: 'Name', // Label text for the field
-                  border: OutlineInputBorder(), // Adds a border around the input
-                ),
+              CustomTextField(
+                labelText: 'Name', // Label text for the field
+                controller: _nameController,
                 validator: (value) => Validators.validateRequired(value, 'Name'),
               ),
               SizedBox(height: 16.0), // Add vertical space between fields
 
               // Email input field
-              TextFormField(
+              CustomTextField(
+                labelText: 'Email',
                 controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email', // Label text for the field
-                  border: OutlineInputBorder(), // Adds a border around the input
-                ),
                 validator: (value) => Validators.validateEmail(value)
               ),
               SizedBox(height: 16.0), // Add vertical space between fields
 
               // Password input field
-              TextFormField(
-                controller: _passwordController, // Connects the field to the controller
-                decoration: InputDecoration(
-                  labelText: 'Password', // Label text for the field
-                  border: OutlineInputBorder(), // Adds a border around the input
-                ),
-                obscureText: true, // Masks the input for privacy (e.g., "••••")
-                validator: (value) => Validators.validatePassword(value)
+              CustomTextField(
+                labelText: 'Password',
+                controller: _passwordController,
+                validator: Validators.validatePassword,
+                obscureText: true,
               ),
               SizedBox(height: 16.0), // Add vertical space between fields
 
               // Repeat password input field
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Repeat Password', // Label text for the field
-                  border: OutlineInputBorder(), // Adds a border around the input
-                ),
-                obscureText: true, // Masks the input for privacy (e.g., "••••")
-                validator: (value) => Validators.validateMatch(value, _passwordController.text, 'Repeat Password')
+              CustomTextField(
+                labelText: 'Repeat Password',
+                controller: _repeatPasswordController,
+                validator: (value) => Validators.validateMatch(value, _passwordController.text, 'Repeat Password'),
+                obscureText: true,
               ),
               SizedBox(height: 24.0), // Add more space before the button
 
