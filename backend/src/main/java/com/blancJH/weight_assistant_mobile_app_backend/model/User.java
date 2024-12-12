@@ -3,11 +3,14 @@ package com.blancJH.weight_assistant_mobile_app_backend.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users") // SQLite table name
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String username;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -16,12 +19,19 @@ public class User {
     private String password;
 
     // Getters and Setters
-
-    public String getName() {
-        return name;
+    public Long getId() {
+        return id;
     }
 
-    public void setName(String name) {
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUserName() {
+        return username;
+    }
+
+    public void setUserName(String name) {
         this.name = name;
     }
 
