@@ -12,8 +12,17 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public String registerUser(@RequestParam String username, @RequestParam String password) {
-        return authService.registerUser(username, password);
+    public ResponseEntity<String> registerUser(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
+        String email = payload.get("email");
+        String password = payload.get("password");
+
+        String result = authService.registerUser(username, email, password);
+        if (result.equals("User registered successfully!")) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 
     @PostMapping("/login")
