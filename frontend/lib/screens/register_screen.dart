@@ -54,7 +54,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               // Name input field
               CustomTextField(
-                labelText: 'Name', // Label text for the field
+                labelText: 'User Name', // Label text for the field
                 controller: _nameController,
                 validator: (value) => Validators.validateRequired(value, 'Name'),
               ),
