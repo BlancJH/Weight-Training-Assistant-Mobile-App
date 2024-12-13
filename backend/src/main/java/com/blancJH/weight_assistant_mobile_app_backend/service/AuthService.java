@@ -31,7 +31,7 @@ public class AuthService {
     }
 
     public String loginUser(String username, String password) {
-        Optional<User> existingUser = userRepository.findByUsername(username);
+        Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isEmpty()) {
             return "Invalid username or password!";
         }
