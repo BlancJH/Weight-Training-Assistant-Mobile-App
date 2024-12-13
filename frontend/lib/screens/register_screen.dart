@@ -6,6 +6,7 @@ import '../widgets/submit_button.dart';
 import '../models/user.dart';
 import '../utils/validator.dart';
 import '../widgets/custom_text_field.dart';
+import '../services/auth_service.dart';
 
 // Define a stateful widget for the Register screen
 class RegisterScreen extends StatefulWidget {
@@ -21,16 +22,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _repeatPasswordController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   Future<void> _registerUser() async {
-    if (_formKey.currentState!.validate()) {
-      final user = User(
-        name: _nameController.text.trim(),
+    if (!_formKey.currentState!.validate()) return;
+
+    // Show a loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Registering user...')),
+    );
+
+    try {
+      // Call the registerUser method from AuthService
+      final response = await _authService.registerUser(
+        username: _nameController.text.trim(),
         email: _emailController.text.trim(),
-        password: _passwordController.text,
+        password: _passwordController.text.trim(),
       );
-      print('Registering user: ${user.toJson()}');
-      // Send user data to backend
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration successful!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      // Handle errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
