@@ -29,18 +29,4 @@ public class AuthService {
 
         return "User registered successfully!";
     }
-
-    public String loginUser(String username, String password) {
-        Optional<User> existingUser = userRepository.findByEmail(email);
-        if (existingUser.isEmpty()) {
-            return "Invalid username or password!";
-        }
-
-        User user = existingUser.get();
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return "Login successful!";
-        }
-
-        return "Invalid username or password!";
-    }
 }
