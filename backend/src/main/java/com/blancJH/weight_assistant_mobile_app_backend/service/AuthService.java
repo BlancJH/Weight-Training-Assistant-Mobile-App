@@ -15,14 +15,15 @@ public class AuthService {
 
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public String registerUser(String username, String password) {
-        Optional<User> existingUser = userRepository.findByUsername(username);
+    public String registerUser(String username, String email, String password) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
-            return "Username already exists!";
+            return "Email already exists!";
         }
 
         User newUser = new User();
         newUser.setUsername(username);
+        newUser.setEmail(email);
         newUser.setPassword(passwordEncoder.encode(password));
         userRepository.save(newUser);
 
