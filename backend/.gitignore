@@ -1,24 +1,49 @@
-# Compiled Java files
-*.class
+# Gradle files
+.gradle/
+build/
+
+# IDEs and Editors
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# Operating System files
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
 logs/
 
-# Maven/Gradle files
-target/
-build/
+# Spring Boot specific
+*.jar
+*.war
+*.ear
 
-# IDE/Editor related
-.idea/
-*.iml
-.vscode/
-.DS_Store
+# Local Environment
+.env
+*.properties.local
+
+# Maven wrapper files if not using Gradle wrapper
+!mvnw
+!mvnw.cmd
+
+# Gradle Wrapper
+.gradle/
+gradle/wrapper/gradle-wrapper.properties
+gradle/wrapper/gradle-wrapper.jar
 
 # Temporary files
-*.swp
-*.bak
 *.tmp
-
-# Environment file
-.env
+*.temp
+*.swp
+*.swo
