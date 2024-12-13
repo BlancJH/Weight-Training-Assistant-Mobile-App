@@ -1,0 +1,7 @@
+/Users/Junha/Weight-Training-Assistant-Mobile-App/backend/src/main/java/com/blancJH/weight_assistant_mobile_app_backend/WeightAssistantMobileAppBackendApplication.java
+/Users/Junha/Weight-Training-Assistant-Mobile-App/backend/src/main/java/com/blancJH/weight_assistant_mobile_app_backend/config/CorsConfig.java
+/Users/Junha/Weight-Training-Assistant-Mobile-App/backend/src/main/java/com/blancJH/weight_assistant_mobile_app_backend/config/StartupListener.java
+/Users/Junha/Weight-Training-Assistant-Mobile-App/backend/src/main/java/com/blancJH/weight_assistant_mobile_app_backend/controller/AuthController.java
+/Users/Junha/Weight-Training-Assistant-Mobile-App/backend/src/main/java/com/blancJH/weight_assistant_mobile_app_backend/model/User.java
+/Users/Junha/Weight-Training-Assistant-Mobile-App/backend/src/main/java/com/blancJH/weight_assistant_mobile_app_backend/repository/UserRepository.java
+/Users/Junha/Weight-Training-Assistant-Mobile-App/backend/src/main/java/com/blancJH/weight_assistant_mobile_app_backend/service/AuthService.java

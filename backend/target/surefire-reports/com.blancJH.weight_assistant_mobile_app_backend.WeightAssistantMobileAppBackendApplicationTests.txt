@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.blancJH.weight_assistant_mobile_app_backend.WeightAssistantMobileAppBackendApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.368 s -- in com.blancJH.weight_assistant_mobile_app_backend.WeightAssistantMobileAppBackendApplicationTests
