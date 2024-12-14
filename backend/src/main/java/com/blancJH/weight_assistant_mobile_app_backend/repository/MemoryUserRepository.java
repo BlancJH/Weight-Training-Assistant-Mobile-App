@@ -1,6 +1,10 @@
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository; 
 
 import java.util.Optional;
+import java.util.Map;
+import java.util.Optional;
+import java.util.List;
+import java.util.HashMap; 
 
 public class MemoryUserRepository implements UserRepository {
 
