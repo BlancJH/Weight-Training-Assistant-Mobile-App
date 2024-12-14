@@ -1,3 +1,5 @@
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository; 
+
 import java.util.Optional;
 
 public class MemoryUserRepository implements UserRepository {
