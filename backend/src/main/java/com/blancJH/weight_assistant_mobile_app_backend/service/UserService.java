@@ -1,7 +1,8 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
-import com.blancJH.weight_assistant_mobile_app_backend.UserRepository;
-import com.blancJH.weight_assistant_mobile_app_backend.MemoryUserRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.MemoryUserRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 
 import java.util.Optional;
 import java.util.List;
@@ -26,16 +27,16 @@ public class UserService {
             throw new IllegalStateException("The email is already registered.");
             });
     }
-}
 
-/**
- * Find all user
- */
+    /**
+     * Find all user
+     */
 
-public List<User> findUsers() {
-    return userRepository.findAll();
-}
+    public List<User> findUsers() {
+        return userRepository.findAll();
+    }
 
-public Optional<User> findOne(Long userId) {
-    return userRepository.findById(userId);
+    public Optional<User> findOne(Long userId) {
+        return userRepository.findById(userId);
+    }
 }
