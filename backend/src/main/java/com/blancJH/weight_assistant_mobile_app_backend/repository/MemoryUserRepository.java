@@ -3,8 +3,6 @@ package com.blancJH.weight_assistant_mobile_app_backend.repository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository; 
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 
-
-import java.util.Optional;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
