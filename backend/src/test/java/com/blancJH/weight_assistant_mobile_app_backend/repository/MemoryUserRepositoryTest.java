@@ -1,7 +1,13 @@
-package weight_assistant_mobile_app_backend.repository;
+package com.blancJH.weight_assistant_mobile_app_backend.repository;
+
+import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 class MemoryUserRepositoryTest {
-    MemoryRepository repository = new MemoryUserRepository();
+    MemoryUserRepository repository = new MemoryUserRepository();
 
     @Test
     public void save(){
