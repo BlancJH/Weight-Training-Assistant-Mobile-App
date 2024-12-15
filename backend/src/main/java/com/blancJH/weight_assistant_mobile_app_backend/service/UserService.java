@@ -3,6 +3,9 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 import com.blancJH.weight_assistant_mobile_app_backend.UserRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.MemoryUserRepository;
 
+import java.util.Optional;
+import java.util.List;
+
 public class UserService {
 
     private final UserRepository userRepository = new MemoryUserRepository();
