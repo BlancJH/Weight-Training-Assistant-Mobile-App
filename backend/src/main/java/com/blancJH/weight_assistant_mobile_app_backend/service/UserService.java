@@ -32,3 +32,7 @@ public class UserService {
 public List<User> findUsers() {
     return userRepository.findAll();
 }
+
+public Optional<User> findOne(Long userId) {
+    return userRepository.findById(userId);
+}
