@@ -1,14 +1,19 @@
+package com.blancJH.weight_assistant_mobile_app_backend.repository;
+
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository; 
+import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+
 
 import java.util.Optional;
 import java.util.Map;
 import java.util.Optional;
 import java.util.List;
 import java.util.HashMap; 
+import java.util.ArrayList;
 
 public class MemoryUserRepository implements UserRepository {
 
-    private static Map<String, User> store = new HashMap<>();
+    private static Map<Long, User> store = new HashMap<>();
     private static long sequence = 0L;
 
     @Override
@@ -25,20 +30,20 @@ public class MemoryUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return store.value().stream()
+        return store.values().stream()
                 .filter(user -> user.getEmail().equals(email))
                 .findAny();
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        return store.value().stream()
+        return store.values().stream()
                 .filter(user -> user.getUsername().equals(username))
                 .findAny();
     }
 
     @Override
     public List<User> findAll() {
-        return new Array<>(store.value());
+        return new ArrayList<>(store.values());
     }
 }   
