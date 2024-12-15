@@ -25,3 +25,10 @@ public class UserService {
     }
 }
 
+/**
+ * Find all user
+ */
+
+public List<User> findUsers() {
+    return userRepository.findAll();
+}
