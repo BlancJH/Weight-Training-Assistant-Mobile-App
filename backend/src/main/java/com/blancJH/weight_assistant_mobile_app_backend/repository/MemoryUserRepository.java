@@ -2,6 +2,7 @@ package com.blancJH.weight_assistant_mobile_app_backend.repository;
 
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository; 
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.HashMap; 
 import java.util.ArrayList;
 
+@Repository
 public class MemoryUserRepository implements UserRepository {
 
     private static Map<Long, User> store = new HashMap<>();

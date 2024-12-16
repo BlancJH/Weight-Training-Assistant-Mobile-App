@@ -3,12 +3,16 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.MemoryUserRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.List;
 
+@Service
 public class UserService {
 
+    @Autowired
     private final UserRepository userRepository = new MemoryUserRepository();
 
     /**
