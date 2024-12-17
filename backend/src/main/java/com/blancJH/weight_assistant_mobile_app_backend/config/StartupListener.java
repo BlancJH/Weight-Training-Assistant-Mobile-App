@@ -1,3 +1,5 @@
+package com.blancJH.weight_assistant_mobile_app_backend.config;
+
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;

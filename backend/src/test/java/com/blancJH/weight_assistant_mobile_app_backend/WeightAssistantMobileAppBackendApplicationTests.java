@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class WeightAssistantMobileAppBackendApplicationTests {
+class BackendApplicationTest {
 
     @Test
     void contextLoads() {
+        // This test ensures the application context loads successfully.
+        // If there are any misconfigurations, this test will fail.
     }
 }
