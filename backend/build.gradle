@@ -34,9 +34,15 @@ dependencies {
 
     // Spring Boot Starter Security (for Bcrypt Encoder)
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    
+
     // JUnit 5 (Jupiter API) for testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
+    // Lombok
+    implementation 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+
 }
 
 tasks.withType(JavaCompile) {
