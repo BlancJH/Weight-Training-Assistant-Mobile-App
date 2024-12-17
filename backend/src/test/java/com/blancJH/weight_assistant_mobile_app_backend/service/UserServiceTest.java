@@ -2,6 +2,7 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.MemoryUserRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,11 +12,13 @@ import java.util.Optional;
 class UserServiceTest {
 
     private UserService userService;
+    private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        // Initialise UserService with MemoryUserRepository
-        userService = new UserService();
+        // Initialise the in-memory repository and pass it to the service
+        userRepository = new MemoryUserRepository();
+        userService = new UserService(userRepository);
     }
 
     @Test
