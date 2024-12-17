@@ -12,9 +12,12 @@ import java.util.List;
 @Service
 public class UserService {
 
-    @Autowired
-    private final UserRepository userRepository = new MemoryUserRepository();
+    private final UserRepository userRepository;
 
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
     /**
      * User Register method
      */
