@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class AuthService {
   // Base URL for your backend
-  final String _baseUrl = 'http://127.0.0.1:8080/api/auth';
+  final String _baseUrl = 'http://localhost:8080/api/auth';
 
   Future<http.Response> registerUser({
     required String username,
