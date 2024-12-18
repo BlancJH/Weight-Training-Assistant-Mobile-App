@@ -41,6 +41,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text.trim(),
       );
 
+      Navigator.of(context).pop(); // Dismiss loading dialog
+
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Registration successful!')),
@@ -57,6 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       // Handle errors
+      Navigator.of(context).pop(); // Ensure dialog is dismissed on error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
