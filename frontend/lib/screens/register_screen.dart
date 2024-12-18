@@ -7,6 +7,7 @@ import '../models/user.dart';
 import '../utils/validator.dart';
 import '../widgets/custom_text_field.dart';
 import '../services/auth_service.dart';
+import 'login_screen.dart';
 
 // Define a stateful widget for the Register screen
 class RegisterScreen extends StatefulWidget {
@@ -44,6 +45,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Registration successful!')),
         );
+        // Navigate to the LoginScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed: ${response.body}')),
