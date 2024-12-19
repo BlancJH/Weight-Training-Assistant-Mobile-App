@@ -40,5 +40,3 @@ Future<void> submitRequest({
     );
   }
 }
-
-}
