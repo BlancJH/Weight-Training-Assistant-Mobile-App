@@ -37,4 +37,18 @@ public class AuthController {
             return ResponseEntity.badRequest().body(result);
         }
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        String password = payload.get("password");
+
+        String result = userService.loginUser(email, password);
+        if (result.equals("Login successful!")) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
+
 }
