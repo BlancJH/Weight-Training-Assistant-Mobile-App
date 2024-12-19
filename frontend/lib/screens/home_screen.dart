@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../widgets/profile_avatar.dart';
+import '../widgets/table_calendar.dart';
 
 class HomeScreen extends StatelessWidget {
+  final Map<DateTime, List<String>> _events = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,32 +25,28 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Example TextField
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Placeholder Field',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16.0),
-
-              // Example Submit Button
-              ElevatedButton(
-                onPressed: () {
-                  // Do nothing for now
-                  print('Submit button pressed');
-                },
-                child: Text('Submit'),
-              ),
-            ],
+      body: Column(
+        children: [
+          // Use the CustomCalendar widget
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: CustomCalendar(
+              events: _events, // Pass events to the widget
+              onDaySelected: (selectedDay, events) {
+                print('Selected day: $selectedDay');
+                print('Events: $events');
+              },
+            ),
           ),
-        ),
+          Expanded(
+            child: Center(
+              child: Text(
+                'Main Content Area',
+                style: TextStyle(fontSize: 18.0),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
