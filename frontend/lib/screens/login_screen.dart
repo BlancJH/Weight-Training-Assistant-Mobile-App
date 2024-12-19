@@ -4,6 +4,7 @@ import 'register_screen.dart'; // Import register screen
 import '../services/auth_service.dart'; // Import AuthService
 import '../utils/validator.dart'; // Import Validator
 import '../widgets/custom_text_field.dart'; // Import custom text field
+import '../widgets/submit_button.dart'; // Import submit button
 
 // Create LoginScreen class // StatelessWidget: immutable, not change state( Look into it later )
 class LoginScreen extends StatelessWidget {
@@ -32,7 +33,7 @@ class LoginScreen extends StatelessWidget {
         child:Form(
           key: _formKey, // Attach the form key
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch, // Make buttons full-width
             children: [
               // Email input field
               CustomTextField(
@@ -51,23 +52,21 @@ class LoginScreen extends StatelessWidget {
               ),
               SizedBox(height: 16.0), // Add vertical space between fields
 
-              ElevatedButton(
-                onPressed: () => _loginUser(),
-                  child: Text('Login'),
+              // Login button
+              SubmitButton(
+                text: 'Login',
+                onPressed: _loginUser,
               ),
               SizedBox(height: 10), // Add spacing between buttons
-              ElevatedButton(
+
+              SubmitButton(
+                text: 'Register', // Button label
                 onPressed: () {
-                  // Navigate to the Register screen
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RegisterScreen()),
+                    MaterialPageRoute(builder: (context) => RegisterScreen()), // Navigate to the Register screen
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey, // Optional: Customize button color
-                ),
-                child: Text('Register'),
               ),
             ],
           ),
