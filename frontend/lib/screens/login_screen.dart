@@ -31,9 +31,11 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       successMessage: 'Login successful!',
       onSuccess: () {
+        _emailController.clear();
+        _passwordController.clear();
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()), // Navigate to HomeScreen
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       },
     );
