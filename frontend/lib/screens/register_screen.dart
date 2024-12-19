@@ -3,7 +3,7 @@
 // Flutter material package provides UI components and theming
 import 'package:flutter/material.dart';
 import '../widgets/submit_button.dart';
-import '../models/user.dart';
+import '../utils/http_requester.dart';
 import '../utils/validator.dart';
 import '../widgets/custom_text_field.dart';
 import '../services/auth_service.dart';
@@ -28,44 +28,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _registerUser() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Show a loading indicator
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Registering user...')),
-    );
-
-    try {
-      // Call the registerUser method from AuthService
-      final response = await _authService.registerUser(
+    await submitRequest(
+      context: context,
+      request: () => _authService.registerUser(
         username: _nameController.text.trim(),
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
-      );
-
-      Navigator.of(context).pop(); // Dismiss loading dialog
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration successful!')),
-        );
-        // Navigate to the LoginScreen
+      ),
+      successMessage: 'Registration successful!',
+      onSuccess: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed: ${response.body}')),
         );
-      }
-    } catch (e) {
-      // Handle errors
-      Navigator.of(context).pop(); // Ensure dialog is dismissed on error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+      },
+    );
   }
-
 
   @override
   Widget build(BuildContext context) {
