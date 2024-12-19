@@ -37,4 +37,28 @@ class AuthService {
       throw Exception('Failed to register user: $e');
     }
   }
+
+  Future<http.Response> loginUser({
+    required String email,
+    required String password,
+  }) async {
+    final url = '$_baseUrl/login';
+
+    try {
+      final body = json.encode({
+        'email': email,
+        'password': password,
+      });
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      return response; // Return the response to the caller
+    } catch (e) {
+      throw Exception('Failed to login: $e');
+    }
+  }
 }
