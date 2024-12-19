@@ -23,6 +23,8 @@ class CustomTextField extends StatelessWidget {
       ),
       obscureText: obscureText,
       validator: validator,
+      autocorrect: false,
+      enableSuggestions: false,
     );
   }
 }
