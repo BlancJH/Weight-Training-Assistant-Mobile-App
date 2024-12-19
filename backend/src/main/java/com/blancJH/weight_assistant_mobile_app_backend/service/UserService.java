@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -28,5 +30,18 @@ public class UserService {
 
         userRepository.save(user);
         return "User registered successfully!";
+    }
+
+    public String loginUser(String email, String password) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            return "Invalid email or password!";
+        }
+
+        if (passwordEncoder.matches(password, user.get().getPassword())) {
+            return "Login successful!";
+        } else {
+            return "Invalid email or password!";
+        }
     }
 }
