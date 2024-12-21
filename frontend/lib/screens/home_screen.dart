@@ -6,6 +6,7 @@ import '../widgets/profile_avatar.dart';
 import '../widgets/table_calendar.dart';
 import '../widgets/gif_widget.dart';
 import '../widgets/custome_list_view.dart';
+import '../widgets/submit_button.dart';
 
 class HomeScreen extends StatelessWidget {
   final Map<DateTime, List<String>> _events = {};
@@ -74,27 +75,55 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
-          // Horizontal list of GIF widgets
-          Expanded(
-            child: CustomListView(
-              itemCount: mockData.length,
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              itemBuilder: (context, index) {
-                final gif = mockData[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: GifWidget(
-                    gifUrl: gif.gifUrl,
-                    text: gif.text,
-                    optionalText: gif.optionalText,
-                    width: 200, // Adjust width as needed
-                    height: 150, // Adjust height as needed
+
+          // Horizontal list of GIF widgets and Submit Button
+          Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 16.0), // Add spacing below the list
+                height: 170, // Increased height to accommodate optional text
+                child: CustomListView(
+                  itemCount: mockData.length,
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemBuilder: (context, index) {
+                    final gif = mockData[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: GifWidget(
+                        gifUrl: gif.gifUrl,
+                        text: gif.text,
+                        optionalText: gif.optionalText,
+                        width: 200, // Adjust width as needed
+                        height: 150, // Adjust height as needed
+                      ),
+                    );
+                  },
+                  emptyWidget: Center(
+                    child: Text('No GIFs available'),
                   ),
-                );
-              },
-              emptyWidget: Center(
-                child: Text('No GIFs available'),
+                ),
+              ),
+              
+              // Start workout button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: SubmitButton(
+                  text: 'Start workout!',
+                  onPressed: () {
+                    print('Workout button pressed!');
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          // Remaining space content
+          Expanded(
+            child: Center(
+              child: Text(
+                'Additional content here',
+                style: TextStyle(fontSize: 16.0, color: Colors.grey),
               ),
             ),
           ),
