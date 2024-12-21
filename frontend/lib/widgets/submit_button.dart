@@ -6,6 +6,7 @@ class SubmitButton extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final double borderRadius;
+  final double? width;
 
   const SubmitButton({
     required this.text, // The button's label text
@@ -13,12 +14,15 @@ class SubmitButton extends StatelessWidget {
     this.backgroundColor = Colors.blue, // Default button color
     this.textColor = Colors.white, // Default text color
     this.borderRadius = 8.0, // Default rounded corners
+    this.width, // Optional custom width
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return SizedBox(
+    width: width ?? double.infinity,
+    child: ElevatedButton(
       onPressed: onPressed, // Call the provided callback
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor, // Button background color
@@ -32,6 +36,7 @@ class SubmitButton extends StatelessWidget {
         text,
         style: TextStyle(fontSize: 16.0),
       ),
+    ),
     );
   }
 }
