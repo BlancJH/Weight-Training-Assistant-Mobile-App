@@ -79,6 +79,33 @@ class HomeScreen extends StatelessWidget {
           // Horizontal list of GIF widgets and Submit Button
           Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Your Exercises',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        print('Re-plan button pressed!');
+                      },
+                      child: Text(
+                        'Re-plan >',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Container(
                 margin: const EdgeInsets.only(bottom: 16.0), // Add spacing below the list
                 height: 170, // Increased height to accommodate optional text
