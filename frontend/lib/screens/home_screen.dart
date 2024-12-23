@@ -144,16 +144,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-
-          // Remaining space content
-          Expanded(
-            child: Center(
-              child: Text(
-                'Additional content here',
-                style: TextStyle(fontSize: 16.0, color: Colors.grey),
-              ),
-            ),
-          ),
         ],
       ),
     );
