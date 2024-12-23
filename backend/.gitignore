@@ -47,3 +47,8 @@ gradle/wrapper/gradle-wrapper.jar
 *.temp
 *.swp
 *.swo
+
+# Application.properties
+**/application.properties
+src/main/resources/application.properties
+
