@@ -2,6 +2,7 @@ package com.blancJH.weight_assistant_mobile_app_backend.controller;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserService;
+import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
