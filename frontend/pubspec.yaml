@@ -42,6 +42,13 @@ dependencies:
   # Calendar
   table_calendar: ^3.0.6
 
+  # Secure storage
+  flutter_secure_storage: ^5.0.2
+
+  # JWT decoder
+  jwt_decoder: ^2.0.1
+  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
