@@ -42,12 +42,24 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@RequestBody Map<String, String> payload) {
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String, String> payload) {
         String email = payload.get("email");
         String password = payload.get("password");
 
+        // Authenticate user and get the token
         String token = userService.loginUser(email, password);
-        return ResponseEntity.ok(Map.of("token", token));
+
+        // Fetch user details from the database
+        User user = userService.getUserByEmail(email);
+
+        // Return token and additional user info
+        Map<String, Object> response = Map.of(
+                "token", token,
+                "username", user.getUsername(),
+                "profileUrl", user.getProfileUrl()
+        );
+
+        return ResponseEntity.ok(response);
     }
     
 }
