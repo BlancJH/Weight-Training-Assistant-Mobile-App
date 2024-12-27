@@ -42,6 +42,28 @@ public class UserService {
         }
 
         // Generate JWT Token
-        return jwtUtil.generateToken(user.getEmail(), user.getUsername());
+        return jwtUtil.generateToken(user.getUserID());
+    }
+
+    public User updateUser(Long userId, String newUsername, String profileUrl) {
+        // Find the user by ID
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Update username if provided
+        if (newUsername != null && !newUsername.isBlank()) {
+            if (userRepository.findByUsername(newUsername).isPresent()) {
+                throw new IllegalStateException("Username is already taken.");
+            }
+            user.setUsername(newUsername);
+        }
+
+        // Update profile picture URL if provided
+        if (profileUrl != null) {
+            user.setProfileUrl(profileUrl);
+        }
+
+        // Save and return the updated user
+        return userRepository.save(user);
     }
 }
