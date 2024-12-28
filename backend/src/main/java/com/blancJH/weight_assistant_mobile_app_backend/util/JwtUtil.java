@@ -22,9 +22,11 @@ public class JwtUtil {
     /**
      * Generate a JWT token with email and username.
      */
-    public String generateToken(Long userId) {
+    public String generateToken(Long id, String username, String profileUrl) {
         return Jwts.builder()
-                .setSubject(userId.toString()) // Convert userId to String
+                .setSubject(String.valueOf(id))
+                .claim("username", username)
+                .claim("profileUrl", profileUrl)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(SignatureAlgorithm.HS512, secret)
