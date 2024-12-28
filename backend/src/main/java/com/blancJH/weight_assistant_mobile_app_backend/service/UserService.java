@@ -42,7 +42,7 @@ public class UserService {
         }
 
         // Generate JWT Token
-        return jwtUtil.generateToken(user.getId());
+        return jwtUtil.generateToken(user.getId(), user.getUsername(), user.getProfileUrl());
     }
 
     public User getUserByEmail(String email) {
