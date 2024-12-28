@@ -20,11 +20,11 @@ class ProfileAvatar extends StatelessWidget {
       onTap: onTap,
       child: CircleAvatar(
         radius: size / 2,
-        backgroundImage: (imageUrl != null && imageUrl!.isNotEmpty)
+        backgroundImage: (imageUrl != "Default" && imageUrl!.isNotEmpty)
             ? NetworkImage(imageUrl!) // Show image if URL is valid
             : null,
         backgroundColor: Colors.grey.shade200, // Default background color
-        child: (imageUrl == null || imageUrl!.isEmpty)
+        child: (imageUrl == "Default" || imageUrl!.isEmpty)
             ? Text(
                 _getInitials(username),
                 style: TextStyle(
