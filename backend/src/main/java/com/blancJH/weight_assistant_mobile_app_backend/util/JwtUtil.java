@@ -22,13 +22,12 @@ public class JwtUtil {
     /**
      * Generate a JWT token with email and username.
      */
-    public String generateToken(String email, String username) {
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .setSubject(email) // Primary subject is email
-                .claim("username", username) // Include username as a custom claim
-                .setIssuedAt(new Date()) // Current timestamp
-                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // Expiration time
-                .signWith(SignatureAlgorithm.HS512, secret) // Sign with secret key and HS512 algorithm
+                .setSubject(userId.toString()) // Convert userId to String
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
 
