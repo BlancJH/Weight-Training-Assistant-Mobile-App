@@ -42,7 +42,12 @@ public class UserService {
         }
 
         // Generate JWT Token
-        return jwtUtil.generateToken(user.getUserID());
+        return jwtUtil.generateToken(user.getId());
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
     }
 
     public User updateUser(Long userId, String newUsername, String profileUrl) {
