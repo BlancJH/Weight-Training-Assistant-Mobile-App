@@ -56,7 +56,7 @@ public class AuthController {
         Map<String, Object> response = Map.of(
                 "token", token,
                 "username", user.getUsername(),
-                "profileUrl", user.getProfileUrl()
+                "profileUrl", user.getProfileUrl() != null ? user.getProfileUrl() : "Default" // Send "Default" as string might need to be fixed later.
         );
 
         return ResponseEntity.ok(response);
