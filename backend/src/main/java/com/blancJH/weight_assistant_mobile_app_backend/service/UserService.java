@@ -71,4 +71,9 @@ public class UserService {
         // Save and return the updated user
         return userRepository.save(user);
     }
+
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+    }
 }
