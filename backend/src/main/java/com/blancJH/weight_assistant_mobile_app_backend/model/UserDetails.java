@@ -34,6 +34,15 @@ public class UserDetails {
     @Column(nullable = true)
     private Integer workoutDuration;
 
+    @Column(nullable = true)
+    private Integer numberOfSplit;
+
+    @Column(nullable = true)
+    private String injuriesOrConstraints;
+
+    @Column(nullable = true)
+    private String additionalNotes;
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -97,5 +106,29 @@ public class UserDetails {
 
     public void setWorkoutDuration(Integer workoutDuration) {
         this.workoutDuration = workoutDuration;
+    }
+
+    public Integer getNumberOfSplit() {
+        return numberOfSplit;
+    }
+
+    public void setNumberOfSplit(Integer numberOfSplit) {
+        this.numberOfSplit = numberOfSplit;
+    }
+
+    public String getInjuriesOrConstraints() {
+        return injuriesOrConstraints;
+    }
+
+    public void setInjuriesOrConstraints(String injuriesOrConstraints) {
+        this.injuriesOrConstraints = injuriesOrConstraints;
+    }
+
+    public String getAdditionalNotes() {
+        return additionalNotes;
+    }
+
+    public void setAdditionalNotes(String additionalNotes) {
+        this.additionalNotes = additionalNotes;
     }
 }

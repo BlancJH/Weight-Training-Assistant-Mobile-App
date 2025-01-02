@@ -26,6 +26,11 @@ class UserDetailsJsonTest {
         userDetails.setHeight(175.5);
         userDetails.setGender("Male");
         userDetails.setPurpose("Bulk up");
+        userDetails.setWorkoutFrequency("5 times a week");
+        userDetails.setWorkoutDuration(90);
+        userDetails.setNumberOfSplit(3);
+        userDetails.setInjuriesOrConstraints("mild lower-back strain");
+        userDetails.setAdditionalNotes("Focus on proper form, avoid heavy loads on deadlift");
 
         String json = userDetailsJsonService.convertUserDetailsToJson(userDetails);
 
@@ -34,5 +39,11 @@ class UserDetailsJsonTest {
         assertTrue(json.contains("\"gender\":\"Male\""));
         assertTrue(json.contains("\"height\":175.5"));
         assertTrue(json.contains("\"purpose\":\"Bulk up\""));
+        assertTrue(json.contains("\"workoutFrequency\":\"5 times a week\""));
+        assertTrue(json.contains("\"workoutDuration\":90"));
+        assertTrue(json.contains("\"numberOfSplit\":3"));
+        assertTrue(json.contains("\"injuriesOrConstraints\":\"mild lower-back strain\""));
+        assertTrue(json.contains("\"additionalNotes\":\"Focus on proper form, avoid heavy loads on deadlift\""));
+        
     }
 }

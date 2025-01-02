@@ -15,6 +15,9 @@ public class UserDetailsMapper {
         dto.setPurpose(userDetails.getPurpose());
         dto.setWorkoutFrequency(userDetails.getWorkoutFrequency());
         dto.setWorkoutDuration(userDetails.getWorkoutDuration());
+        dto.setNumberOfSplit(userDetails.getNumberOfSplit());
+        dto.setInjuriesOrConstraints(userDetails.getInjuriesOrConstraints());
+        dto.setAdditionalNotes(userDetails.getAdditionalNotes());
         return dto;
     }
 }
