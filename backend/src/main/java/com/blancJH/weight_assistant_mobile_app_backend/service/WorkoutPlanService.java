@@ -5,6 +5,8 @@ import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
 import org.springframework.stereotype.Service;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutHistory;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutHistoryRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,10 +18,12 @@ import java.util.Comparator;
 public class WorkoutPlanService {
 
     private final WorkoutPlanRepository workoutPlanRepository;
+    private final WorkoutHistoryRepository workoutHistoryRepository;
     private final ObjectMapper objectMapper;
 
-    public WorkoutPlanService(WorkoutPlanRepository workoutPlanRepository, ObjectMapper objectMapper) {
+    public WorkoutPlanService(WorkoutPlanRepository workoutPlanRepository, ObjectMapper objectMapper, WorkoutHistoryRepository workoutHistoryRepository) {
         this.workoutPlanRepository = workoutPlanRepository;
+        this.workoutHistoryRepository = workoutHistoryRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -77,6 +81,24 @@ public class WorkoutPlanService {
         }
 
         workoutPlanRepository.saveAll(plans);
+    }
+
+    public void markPlanAsDone(Long planId) {
+        WorkoutPlan plan = workoutPlanRepository.findById(planId)
+                .orElseThrow(() -> new RuntimeException("Workout Plan not found"));
+
+        // Save to workout history
+        WorkoutHistory history = new WorkoutHistory();
+        history.setUser(plan.getUser());
+        history.setCompletedDate(plan.getPlannedDate());
+        history.setSplit(plan.getSplit());
+        history.setExercises(plan.getExercises());
+
+        workoutHistoryRepository.save(history);
+
+        // Mark the plan as done
+        plan.setStatus(true);
+        workoutPlanRepository.save(plan);
     }
 
 }
