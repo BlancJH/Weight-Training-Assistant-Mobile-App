@@ -50,4 +50,17 @@ public class WorkoutPlanController {
         user.setId(1L); // Example ID
         return user;
     }
+
+    // Complete workout
+    @PostMapping("/{planId}/complete")
+    public ResponseEntity<?> markWorkoutAsDone(@PathVariable Long planId) {
+        try {
+            workoutPlanService.markPlanAsDone(planId);
+            return ResponseEntity.ok("Workout marked as done and saved to history");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error marking workout as done: " + e.getMessage());
+        }
+    }
+
 }
