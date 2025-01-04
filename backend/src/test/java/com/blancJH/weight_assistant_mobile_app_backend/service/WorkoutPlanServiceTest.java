@@ -2,8 +2,10 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutHistory;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutHistoryRepository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class WorkoutPlanServiceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private WorkoutHistoryRepository workoutHistoryRepository;
 
     @Test
     public void testWorkoutPlanAllocationAndDateAdjustment() {
@@ -186,4 +191,72 @@ public class WorkoutPlanServiceTest {
         assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(2).getPlannedDate()); // Day 3 shifted
     }
 
+    @Test
+    public void testWorkoutPlanGoesToHistoryWhenMarkedDone() {
+        // Set up user
+        User user = new User();
+        user.setEmail("historytestuser@example.com");
+        user.setPassword("password");
+        user.setUsername("historytestuser");
+        user = userRepository.save(user);
+
+        // Create workout plans
+        String mockResponse = """
+        {
+            "workout_plan": [
+                {
+                    "day": 1,
+                    "split": "Chest",
+                    "exercises": [
+                        {
+                            "exerciseName": "Bench Press",
+                            "sets": 3,
+                            "reps": 10
+                        }
+                    ]
+                },
+                {
+                    "day": 2,
+                    "split": "Back",
+                    "exercises": [
+                        {
+                            "exerciseName": "Deadlift",
+                            "sets": 3,
+                            "reps": 8
+                        }
+                    ]
+                }
+            ]
+        }
+        """;
+
+        List<WorkoutPlan> savedPlans = workoutPlanService.saveWorkoutPlanFromChatGptResponse(mockResponse, user);
+
+        // Assertions on allocation
+        assertNotNull(savedPlans);
+        assertEquals(2, savedPlans.size());
+
+        // Mark Day 1 as done
+        WorkoutPlan day1Plan = savedPlans.get(0);
+        day1Plan.setStatus(true);
+        workoutPlanRepository.save(day1Plan);
+
+        // Check workout history after marking as done
+        workoutPlanService.markPlanAsDone(day1Plan.getId());
+
+        // Verify history record
+        List<WorkoutHistory> historyEntries = workoutHistoryRepository.findAll();
+        assertEquals(1, historyEntries.size());
+
+        WorkoutHistory history = historyEntries.get(0);
+        assertNotNull(history);
+        assertEquals(user.getId(), history.getUser().getId());
+        assertEquals(day1Plan.getPlannedDate(), history.getCompletedDate());
+        assertEquals(day1Plan.getSplit(), history.getSplit());
+        assertEquals(day1Plan.getExercises(), history.getExercises());
+
+        // Verify the status in the workout plan
+        WorkoutPlan updatedPlan = workoutPlanRepository.findById(day1Plan.getId()).orElseThrow();
+        assertTrue(updatedPlan.isStatus());
+    }
 }
