@@ -63,4 +63,14 @@ public class WorkoutPlanController {
         }
     }
 
+    @PostMapping("/reset")
+    public ResponseEntity<?> resetWorkoutPlans(@RequestParam Long userId) {
+        try {
+            List<WorkoutPlan> updatedPlans = workoutPlanService.resetAndRescheduleWorkoutPlans(userId);
+            return ResponseEntity.ok(updatedPlans);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }
