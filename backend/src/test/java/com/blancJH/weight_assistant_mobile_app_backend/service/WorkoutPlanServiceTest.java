@@ -287,5 +287,30 @@ public class WorkoutPlanServiceTest {
         assertEquals(LocalDate.now().plusDays(4), updatedPlans.get(1).getPlannedDate());
         assertEquals(LocalDate.now().plusDays(5), updatedPlans.get(2).getPlannedDate());
     }
-    
+
+    @Test
+    public void testAutoRepeatWorkoutPlans() {
+        // Arrange
+        User user = new User();
+        user.setEmail("testuser@example.com");
+        user.setPassword("password");
+        user.setUsername("testuser");
+        user = userRepository.save(user);
+
+        List<WorkoutPlan> plans = List.of(
+            new WorkoutPlan(user, LocalDate.now(), "Chest", "{}", true),
+            new WorkoutPlan(user, LocalDate.now().plusDays(1), "Back", "{}", true),
+            new WorkoutPlan(user, LocalDate.now().plusDays(2), "Legs", "{}", true)
+        );
+        workoutPlanRepository.saveAll(plans);
+
+        // Act
+        workoutPlanService.markPlanAsDone(plans.get(2).getId());
+
+        // Assert
+        List<WorkoutPlan> updatedPlans = workoutPlanRepository.findByUserId(user.getId());
+        assertEquals(3, updatedPlans.size());
+        assertFalse(updatedPlans.get(0).isStatus());
+        assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(0).getPlannedDate());
+    }
 }
