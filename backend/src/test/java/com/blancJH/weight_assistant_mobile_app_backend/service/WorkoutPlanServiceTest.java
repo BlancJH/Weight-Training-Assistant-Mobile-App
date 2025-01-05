@@ -259,4 +259,33 @@ public class WorkoutPlanServiceTest {
         WorkoutPlan updatedPlan = workoutPlanRepository.findById(day1Plan.getId()).orElseThrow();
         assertTrue(updatedPlan.isStatus());
     }
+
+    @Test
+    public void testResetAndRescheduleWorkoutPlans() {
+        // Create a mock user
+        User user = new User();
+        user.setEmail("testuser@example.com");
+        user.setPassword("password");
+        user.setUsername("testuser");
+        user = userRepository.save(user);
+
+        // Create mock workout plans
+        WorkoutPlan plan1 = new WorkoutPlan(user, LocalDate.now(), "Chest", "{}", true);
+        WorkoutPlan plan2 = new WorkoutPlan(user, LocalDate.now().plusDays(1), "Back", "{}", true);
+        WorkoutPlan plan3 = new WorkoutPlan(user, LocalDate.now().plusDays(2), "Legs", "{}", true);
+
+        workoutPlanRepository.saveAll(List.of(plan1, plan2, plan3));
+
+        // Reset and reschedule
+        List<WorkoutPlan> updatedPlans = workoutPlanService.resetAndRescheduleWorkoutPlans(user.getId());
+
+        // Validate
+        assertNotNull(updatedPlans);
+        assertEquals(3, updatedPlans.size());
+        assertFalse(updatedPlans.get(0).isStatus());
+        assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(0).getPlannedDate());
+        assertEquals(LocalDate.now().plusDays(4), updatedPlans.get(1).getPlannedDate());
+        assertEquals(LocalDate.now().plusDays(5), updatedPlans.get(2).getPlannedDate());
+    }
+    
 }
