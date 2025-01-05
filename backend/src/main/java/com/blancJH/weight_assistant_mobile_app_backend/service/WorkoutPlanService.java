@@ -7,6 +7,7 @@ import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRep
 import org.springframework.stereotype.Service;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutHistory;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutHistoryRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,11 +20,13 @@ public class WorkoutPlanService {
 
     private final WorkoutPlanRepository workoutPlanRepository;
     private final WorkoutHistoryRepository workoutHistoryRepository;
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    public WorkoutPlanService(WorkoutPlanRepository workoutPlanRepository, ObjectMapper objectMapper, WorkoutHistoryRepository workoutHistoryRepository) {
+    public WorkoutPlanService(WorkoutPlanRepository workoutPlanRepository, ObjectMapper objectMapper, WorkoutHistoryRepository workoutHistoryRepository, UserRepository userRepository) {
         this.workoutPlanRepository = workoutPlanRepository;
         this.workoutHistoryRepository = workoutHistoryRepository;
+        this.userRepository = userRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -99,6 +102,37 @@ public class WorkoutPlanService {
         // Mark the plan as done
         plan.setStatus(true);
         workoutPlanRepository.save(plan);
+    }
+
+    public List<WorkoutPlan> resetAndRescheduleWorkoutPlans(Long userId) {
+        // Fetch the user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Fetch all workout plans for the user
+        List<WorkoutPlan> userPlans = workoutPlanRepository.findByUserId(userId);
+
+        if (userPlans.isEmpty()) {
+            throw new RuntimeException("No workout plans found for this user.");
+        }
+
+        // Find the last completed workout plan
+        LocalDate lastCompletedDate = userPlans.stream()
+                .filter(WorkoutPlan::isStatus)
+                .map(WorkoutPlan::getPlannedDate)
+                .max(LocalDate::compareTo)
+                .orElseThrow(() -> new RuntimeException("No completed workout plans found."));
+
+        // Reset status and adjust dates
+        LocalDate newStartDate = lastCompletedDate.plusDays(1);
+        for (int i = 0; i < userPlans.size(); i++) {
+            WorkoutPlan plan = userPlans.get(i);
+            plan.setStatus(false); // Reset status to not done
+            plan.setPlannedDate(newStartDate.plusDays(i)); // Adjust planned date
+        }
+
+        // Save updated plans
+        return workoutPlanRepository.saveAll(userPlans);
     }
 
 }
