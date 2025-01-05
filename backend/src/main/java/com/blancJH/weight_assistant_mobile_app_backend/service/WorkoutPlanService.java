@@ -102,6 +102,16 @@ public class WorkoutPlanService {
         // Mark the plan as done
         plan.setStatus(true);
         workoutPlanRepository.save(plan);
+
+        // Check if all plans are done
+        Long userId = plan.getUser().getId();
+        boolean allPlansDone = workoutPlanRepository.findByUserId(userId)
+                .stream()
+                .allMatch(WorkoutPlan::isStatus);
+
+        if (allPlansDone) {
+            resetAndRescheduleWorkoutPlans(userId);
+    }
     }
 
     public List<WorkoutPlan> resetAndRescheduleWorkoutPlans(Long userId) {
