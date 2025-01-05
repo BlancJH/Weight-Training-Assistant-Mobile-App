@@ -27,6 +27,18 @@ public class WorkoutPlan {
     @Column(name = "status", nullable = false)
     private boolean status; // true = done, false = not done
 
+    public WorkoutPlan() {
+        // Default constructor
+    }
+
+    public WorkoutPlan(User user, LocalDate plannedDate, String split, String exercises, boolean status) {
+        this.user = user;
+        this.plannedDate = plannedDate;
+        this.split = split;
+        this.exercises = exercises;
+        this.status = status;
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;
