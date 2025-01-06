@@ -145,4 +145,21 @@ public class WorkoutPlanService {
         return workoutPlanRepository.saveAll(userPlans);
     }
 
+    public WorkoutPlan editWorkoutPlan(Long planId, List<Map<String, Object>> updatedExercises) {
+        // Fetch the workout plan by ID
+        WorkoutPlan plan = workoutPlanRepository.findById(planId)
+                .orElseThrow(() -> new RuntimeException("Workout Plan not found"));
+
+        try {
+            // Convert updated exercises to JSON and set it to the plan
+            String exercisesJson = objectMapper.writeValueAsString(updatedExercises);
+            plan.setExercises(exercisesJson);
+
+            // Save the updated plan
+            return workoutPlanRepository.save(plan);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating workout plan", e);
+        }
+    }
 }
