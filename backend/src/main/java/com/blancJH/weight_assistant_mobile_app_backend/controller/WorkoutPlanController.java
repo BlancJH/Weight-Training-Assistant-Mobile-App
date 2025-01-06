@@ -73,4 +73,17 @@ public class WorkoutPlanController {
         }
     }
 
+    @PutMapping("/{planId}/edit")
+    public ResponseEntity<?> editWorkoutPlan(
+            @PathVariable Long planId,
+            @RequestBody List<Map<String, Object>> updatedExercises) {
+        try {
+            WorkoutPlan updatedPlan = workoutPlanService.editWorkoutPlan(planId, updatedExercises);
+            return ResponseEntity.ok(updatedPlan);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Error editing workout plan: " + e.getMessage());
+        }
+    }
+
 }
