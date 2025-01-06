@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -312,5 +313,88 @@ public class WorkoutPlanServiceTest {
         assertEquals(3, updatedPlans.size());
         assertFalse(updatedPlans.get(0).isStatus());
         assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(0).getPlannedDate());
+    }
+
+    @Test
+    public void testModifyWorkoutPlans() {
+        // Create a user
+        User user = new User();
+        user.setEmail("testuser@example.com");
+        user.setPassword("password");
+        user.setUsername("testuser");
+        user = userRepository.save(user);
+
+        // Create original workout plans
+        String mockResponse = """
+        {
+            "workout_plan": [
+                {
+                    "day": 1,
+                    "split": "Push",
+                    "exercises": [
+                        {
+                            "exerciseName": "Push-up",
+                            "sets": 3,
+                            "reps": 10
+                        },
+                        {
+                            "exerciseName": "Overhead Press",
+                            "sets": 3,
+                            "reps": 8
+                        }
+                    ]
+                },
+                {
+                    "day": 2,
+                    "split": "Pull",
+                    "exercises": [
+                        {
+                            "exerciseName": "Pull-up",
+                            "sets": 3,
+                            "reps": 8
+                        },
+                        {
+                            "exerciseName": "Bent-over Rows",
+                            "sets": 3,
+                            "reps": 12
+                        }
+                    ]
+                }
+            ]
+        }
+        """;
+
+        // Save the plans
+        List<WorkoutPlan> savedPlans = workoutPlanService.saveWorkoutPlanFromChatGptResponse(mockResponse, user);
+
+        // Verify original plans
+        assertEquals(2, savedPlans.size());
+
+        WorkoutPlan firstPlan = savedPlans.get(0);
+        WorkoutPlan secondPlan = savedPlans.get(1);
+
+        assertEquals("Push", firstPlan.getSplit());
+        assertEquals("Pull", secondPlan.getSplit());
+
+        // Original second plan's first exercise
+        String originalSecondPlanExercises = secondPlan.getExercises();
+        assertTrue(originalSecondPlanExercises.contains("Pull-up"));
+
+        // Modify the second split's first exercise
+        List<Map<String, Object>> updatedExercises = List.of(
+            Map.of("exerciseName", "Barbell Rows", "sets", 4, "reps", 10),
+            Map.of("exerciseName", "Bent-over Rows", "sets", 3, "reps", 12)
+        );
+
+        WorkoutPlan updatedPlan = workoutPlanService.editWorkoutPlan(secondPlan.getId(), updatedExercises);
+
+        // Verify the update
+        String updatedSecondPlanExercises = updatedPlan.getExercises();
+        assertTrue(updatedSecondPlanExercises.contains("Barbell Rows"));
+        assertFalse(updatedSecondPlanExercises.contains("Pull-up"));
+
+        // Clean up
+        workoutPlanRepository.deleteAll();
+        userRepository.delete(user);
     }
 }
