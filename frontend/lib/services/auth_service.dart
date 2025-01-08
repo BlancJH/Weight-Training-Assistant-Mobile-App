@@ -1,6 +1,7 @@
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   // Base URL for your backend
@@ -81,4 +82,14 @@ class AuthService {
   Future<void> logoutUser() async {
     await _storage.delete(key: 'jwt'); // Delete the token from secure storage
   }
+
+  /// Decode JWT and extract user data
+  Future<Map<String, dynamic>?> decodeToken() async {
+    final token = await getToken();
+    if (token != null) {
+      return JwtDecoder.decode(token); // Decodes the JWT
+    }
+    return null; // Return null if no token exists
+  }
+
 }

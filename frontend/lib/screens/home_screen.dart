@@ -1,16 +1,22 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
-import 'package:frontend_1/models/exercise_gif.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/table_calendar.dart';
 import '../widgets/gif_widget.dart';
 import '../widgets/custome_list_view.dart';
 import '../widgets/submit_button.dart';
+import '../services/auth_service.dart';
+import '../models/exercise_gif.dart';
 
-class HomeScreen extends StatelessWidget {
-  final Map<DateTime, List<String>> _events = {};
-    // Mock data
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final AuthService _authService = AuthService();
+  String? username;
+  String? profileUrl;
+
   final List<ExerciseGifModel> mockData = [
     ExerciseGifModel(
       gifUrl: 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
@@ -25,38 +31,49 @@ class HomeScreen extends StatelessWidget {
       gifUrl: 'https://media.giphy.com/media/26xBRBfwnZFWFuGiM/giphy.gif',
       text: 'Third GIF with no optional text.',
     ),
-        ExerciseGifModel(
+    ExerciseGifModel(
       gifUrl: 'https://media.giphy.com/media/26xBRBfwnZFWFuGiM/giphy.gif',
       text: 'Fourth GIF with no optional text.',
     ),
   ];
 
   @override
-  Widget build(BuildContext context) {
-    // Build widgets from mock data
-    final gifWidgets = mockData.map((gif) {
-      return GifWidget(
-        gifUrl: gif.gifUrl,
-        text: gif.text,
-        optionalText: gif.optionalText,
-        width: 300, // Set custom width
-        height: 150, // Set custom height
-      );
-    }).toList();
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
 
+  Future<void> _fetchUserData() async {
+    try {
+      final userData = await _authService.decodeToken(); // Adjusted to use decodeToken
+      setState(() {
+        username = userData?['username'] ?? 'Guest'; // Default to 'Guest'
+        profileUrl = userData?['profileUrl']; // Default to null if missing
+      });
+    } catch (e) {
+      print('Error fetching user data: $e');
+      setState(() {
+        username = 'Guest';
+        profileUrl = null;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Blank white screen
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, // Remove shadow
+        elevation: 0,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0, top: 8.0),
             child: ProfileAvatar(
-              username: 'John Doe', // Example name, requires to be replaced to the actual
-              imageUrl: '', // requires to be replaced to the actual
+              username: username ?? 'Loading...', // Show username
+              imageUrl: profileUrl ?? '', // Show profile URL or fallback
               onTap: () {
-                print('Profile tapped!'); // Function need to show floating box
+                print('Profile tapped!');
               },
             ),
           ),
@@ -64,19 +81,16 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Use the CustomCalendar widget
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: CustomCalendar(
-              events: _events, // Pass events to the widget
+              events: {}, // Replace with your event data
               onDaySelected: (selectedDay, events) {
                 print('Selected day: $selectedDay');
                 print('Events: $events');
               },
             ),
           ),
-
-          // Horizontal list of GIF widgets and Submit Button
           Column(
             children: [
               Padding(
@@ -107,8 +121,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.only(bottom: 16.0), // Add spacing below the list
-                height: 170, // Increased height to accommodate optional text
+                margin: const EdgeInsets.only(bottom: 16.0),
+                height: 170,
                 child: CustomListView(
                   itemCount: mockData.length,
                   scrollDirection: Axis.horizontal,
@@ -121,8 +135,8 @@ class HomeScreen extends StatelessWidget {
                         gifUrl: gif.gifUrl,
                         text: gif.text,
                         optionalText: gif.optionalText,
-                        width: 200, // Adjust width as needed
-                        height: 150, // Adjust height as needed
+                        width: 200,
+                        height: 150,
                       ),
                     );
                   },
@@ -131,8 +145,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              
-              // Start workout button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: SubmitButton(
