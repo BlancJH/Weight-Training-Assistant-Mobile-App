@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
 
 @Repository
 public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Long> {
@@ -20,7 +21,7 @@ public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Long> 
     Optional<WorkoutPlan> findByIdAndUserId(Long id, Long userId);
 
     // Find all workout plans scheduled for a specific date
-    List<WorkoutPlan> findByPlannedDate(String plannedDate);
+    List<WorkoutPlan> findByPlannedDate(LocalDate plannedDate);
 
     // Find all workout plans with status false
     List<WorkoutPlan> findByUserIdAndStatusFalse(Long userId);
