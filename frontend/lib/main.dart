@@ -10,9 +10,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // Hides the debug banner
-      //home: LoginScreen(),              // Sets LoginScreen as the starting page
-      home: HomeScreen()
+      title: 'My App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomeScreen(),
+        '/login': (context) => LoginScreen(), // Add this route
+      },
     );
   }
 }
