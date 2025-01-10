@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 enum MenuOptions { profile, settings, logout }
 
 class PopupMenuWidget extends StatelessWidget {
-  final ValueChanged<MenuOptions> onSelected;
   final Widget trigger;
+  final ValueChanged<MenuOptions> onSelected;
 
   const PopupMenuWidget({
-    Key? key,
-    required this.onSelected,
     required this.trigger,
+    required this.onSelected,
+    Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<MenuOptions>(
       onSelected: onSelected,
+      offset: const Offset(0, 50), // Adjusts the position (x, y)
       itemBuilder: (BuildContext context) => [
         PopupMenuItem(
           value: MenuOptions.profile,
@@ -30,7 +31,7 @@ class PopupMenuWidget extends StatelessWidget {
           child: Text('Logout'),
         ),
       ],
-      child: trigger, 
+      child: trigger,
     );
   }
 }
