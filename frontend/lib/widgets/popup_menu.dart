@@ -16,19 +16,37 @@ class PopupMenuWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<MenuOptions>(
       onSelected: onSelected,
-      offset: const Offset(0, 50), // Adjusts the position (x, y)
+      offset: const Offset(0, 50), // Adjusts the position
       itemBuilder: (BuildContext context) => [
         PopupMenuItem(
           value: MenuOptions.profile,
-          child: Text('View Profile'),
+          child: Row(
+            children: const [
+              Icon(Icons.person, color: Colors.blue),
+              SizedBox(width: 10),
+              Text('View Profile'),
+            ],
+          ),
         ),
         PopupMenuItem(
           value: MenuOptions.settings,
-          child: Text('Settings'),
+          child: Row(
+            children: const [
+              Icon(Icons.settings, color: Colors.grey),
+              SizedBox(width: 10),
+              Text('Settings'),
+            ],
+          ),
         ),
         PopupMenuItem(
           value: MenuOptions.logout,
-          child: Text('Logout'),
+          child: Row(
+            children: const [
+              Icon(Icons.logout, color: Colors.red),
+              SizedBox(width: 10),
+              Text('Logout'),
+            ],
+          ),
         ),
       ],
       child: trigger,
