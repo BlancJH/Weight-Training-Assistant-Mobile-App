@@ -6,6 +6,7 @@ import '../widgets/custome_list_view.dart';
 import '../widgets/submit_button.dart';
 import '../services/auth_service.dart';
 import '../models/exercise_gif.dart';
+import '../widgets/popup_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -45,10 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchUserData() async {
     try {
-      final userData = await _authService.decodeToken(); // Adjusted to use decodeToken
+      final userData = await _authService.decodeToken();
       setState(() {
-        username = userData?['username'] ?? 'Guest'; // Default to 'Guest'
-        profileUrl = userData?['profileUrl']; // Default to null if missing
+        username = userData?['username'] ?? 'Guest';
+        profileUrl = userData?['profileUrl'];
       });
     } catch (e) {
       print('Error fetching user data: $e');
@@ -59,22 +60,35 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _handleMenuSelection(MenuOptions option) {
+    switch (option) {
+      case MenuOptions.profile:
+        print('View Profile tapped!');
+        break;
+      case MenuOptions.settings:
+        print('Settings tapped!');
+        break;
+      case MenuOptions.logout:
+        print('Logout tapped!');
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0, top: 8.0),
-            child: ProfileAvatar(
-              username: username ?? 'Loading...', // Show username
-              imageUrl: profileUrl ?? '', // Show profile URL or fallback
-              onTap: () {
-                print('Profile tapped!');
-              },
+            child: PopupMenuWidget(
+              trigger: ProfileAvatar(
+                username: username ?? 'Loading...',
+                imageUrl: profileUrl ?? '',
+              ),
+              onSelected: _handleMenuSelection,
             ),
           ),
         ],
@@ -84,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: CustomCalendar(
-              events: {}, // Replace with your event data
+              events: {},
               onDaySelected: (selectedDay, events) {
                 print('Selected day: $selectedDay');
                 print('Events: $events');
