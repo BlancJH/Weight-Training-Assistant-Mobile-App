@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _handleMenuSelection(MenuOptions option) {
+  void _handleMenuSelection(MenuOptions option) async {
     switch (option) {
       case MenuOptions.profile:
         print('View Profile tapped!');
@@ -69,7 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
         print('Settings tapped!');
         break;
       case MenuOptions.logout:
-        print('Logout tapped!');
+        await _authService.logoutUser(); // Delete the token
+        Navigator.pushReplacementNamed(context, '/login'); // Navigate to login screen
         break;
     }
   }
