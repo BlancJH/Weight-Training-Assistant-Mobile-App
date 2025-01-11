@@ -7,6 +7,7 @@ import '../widgets/submit_button.dart';
 import '../services/auth_service.dart';
 import '../models/exercise_gif.dart';
 import '../widgets/popup_menu.dart';
+import '../screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -63,7 +64,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void _handleMenuSelection(MenuOptions option) async {
     switch (option) {
       case MenuOptions.profile:
-        print('View Profile tapped!');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileScreen(
+              profileImageUrl: profileUrl ?? '',
+              username: username ?? 'Guest',
+            ),
+          ),
+        );
         break;
       case MenuOptions.settings:
         print('Settings tapped!');
