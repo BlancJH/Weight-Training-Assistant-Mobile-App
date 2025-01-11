@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/submit_button.dart';
-import '../widgets/unit_toggle.dart';
 import '../utils/conversion_utils.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -20,7 +19,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Controllers for text fields
   final TextEditingController birthdayController = TextEditingController();
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
@@ -28,9 +26,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController constraintsController = TextEditingController();
   final TextEditingController workoutPurposeController = TextEditingController();
 
-  String _activeHeightUnit = 'cm'; // Default unit for height
+  String _activeHeightUnit = 'cm'; // Default unit is cm
 
-  // Handle height unit changes
+  Future<void> _selectBirthday() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        birthdayController.text = "${pickedDate.year}/${pickedDate.month}/${pickedDate.day}";
+      });
+    }
+  }
+
   void _handleHeightUnitChange(String unit) {
     if (_activeHeightUnit != unit) {
       setState(() {
@@ -43,22 +55,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
 
         _activeHeightUnit = unit;
-      });
-    }
-  }
-
-  // Function to show the date picker
-  Future<void> _selectBirthday() async {
-    DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime(2000),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        birthdayController.text = "${pickedDate.year}/${pickedDate.month}/${pickedDate.day}";
       });
     }
   }
@@ -78,14 +74,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Enlarged Profile Avatar
             ProfileAvatar(
               username: widget.username,
               imageUrl: widget.profileImageUrl,
-              size: 120.0, // Larger size for profile screen
+              size: 120.0,
             ),
             const SizedBox(height: 20),
-            // Username
             Text(
               widget.username,
               style: const TextStyle(
@@ -94,7 +88,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Birthday
             TextFormField(
               controller: birthdayController,
               decoration: const InputDecoration(
@@ -102,48 +95,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 border: OutlineInputBorder(),
               ),
               readOnly: true,
-              onTap: _selectBirthday, // Trigger date picker on tap
+              onTap: _selectBirthday,
             ),
             const SizedBox(height: 10),
-            // Height with UnitToggle
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Height',
-                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
-                ),
                 const SizedBox(height: 5),
                 Row(
                   children: [
                     Expanded(
-                      child: TextFormField(
+                      child: CustomTextField(
+                        labelText: 'Height',
                         controller: heightController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Enter height',
-                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your height';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
-                    UnitToggle(
-                      activeUnit: _activeHeightUnit,
-                      units: const ['cm', 'feet'],
-                      onUnitChanged: _handleHeightUnitChange,
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => _handleHeightUnitChange('cm'),
+                          child: Text(
+                            'cm',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: _activeHeightUnit == 'cm'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _activeHeightUnit == 'cm'
+                                  ? Colors.blue
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                        const Text(' | '),
+                        GestureDetector(
+                          onTap: () => _handleHeightUnitChange('feet'),
+                          child: Text(
+                            'feet',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: _activeHeightUnit == 'feet'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _activeHeightUnit == 'feet'
+                                  ? Colors.blue
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            // Weight without toggle
             CustomTextField(
               labelText: 'Weight',
               controller: weightController,
             ),
             const SizedBox(height: 10),
-            // Other fields
             CustomTextField(
               labelText: 'Gender',
               controller: genderController,
@@ -159,11 +177,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: workoutPurposeController,
             ),
             const SizedBox(height: 20),
-            // Save Button
             SubmitButton(
               text: 'Save',
               onPressed: () {
-                // Logic to save or submit user details
                 print('Birthday: ${birthdayController.text}');
                 print('Height: ${heightController.text} $_activeHeightUnit');
                 print('Weight: ${weightController.text}');
