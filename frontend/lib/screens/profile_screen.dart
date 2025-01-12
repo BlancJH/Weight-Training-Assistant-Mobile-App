@@ -26,8 +26,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController constraintsController = TextEditingController();
   final TextEditingController workoutPurposeController = TextEditingController();
 
-  String _activeHeightUnit = 'cm'; // Default unit is cm
+  String _activeHeightUnit = 'cm'; // Default unit for height
+    String _activeWeightUnit = 'kg'; // Default unit for weight
 
+  // DOB selector config
   Future<void> _selectBirthday() async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -36,6 +38,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       lastDate: DateTime.now(),
     );
 
+
+    // DOB display format
     if (pickedDate != null) {
       setState(() {
         birthdayController.text = "${pickedDate.year}/${pickedDate.month}/${pickedDate.day}";
@@ -43,18 +47,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  // Height unit toggle
   void _handleHeightUnitChange(String unit) {
     if (_activeHeightUnit != unit) {
       setState(() {
         double currentHeight = double.tryParse(heightController.text) ?? 0.0;
 
-        if (unit == 'feet') {
+        if (unit == 'ft') {
           heightController.text = ConversionUtils.cmToFeet(currentHeight).toStringAsFixed(2);
         } else {
           heightController.text = ConversionUtils.feetToCm(currentHeight).toStringAsFixed(2);
         }
 
         _activeHeightUnit = unit;
+      });
+    }
+  }
+
+  // Weight unit toggle
+  void _handleWeightUnitChange(String unit) {
+    if (_activeWeightUnit != unit) {
+      setState(() {
+        double currentWeight = double.tryParse(weightController.text) ?? 0.0;
+
+        if (unit == 'lbs') {
+          weightController.text = ConversionUtils.kgToLbs(currentWeight).toStringAsFixed(2);
+        } else {
+          weightController.text = ConversionUtils.lbsToKg(currentWeight).toStringAsFixed(2);
+        }
+
+        _activeWeightUnit = unit;
       });
     }
   }
@@ -88,6 +110,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
+
+            // DOB
             TextFormField(
               controller: birthdayController,
               decoration: const InputDecoration(
@@ -98,6 +122,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: _selectBirthday,
             ),
             const SizedBox(height: 10),
+
+            // Height
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -136,15 +162,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const Text(' | '),
                         GestureDetector(
-                          onTap: () => _handleHeightUnitChange('feet'),
+                          onTap: () => _handleHeightUnitChange('ft'),
                           child: Text(
-                            'feet',
+                            'ft',
                             style: TextStyle(
                               fontSize: 16.0,
-                              fontWeight: _activeHeightUnit == 'feet'
+                              fontWeight: _activeHeightUnit == 'ft'
                                   ? FontWeight.bold
                                   : FontWeight.normal,
-                              color: _activeHeightUnit == 'feet'
+                              color: _activeHeightUnit == 'ft'
                                   ? Colors.blue
                                   : Colors.black,
                             ),
@@ -157,26 +183,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            CustomTextField(
-              labelText: 'Weight',
-              controller: weightController,
+
+            // Weight
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomTextField(
+                        labelText: 'Weight',
+                        controller: weightController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your weight';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => _handleWeightUnitChange('kg'),
+                          child: Text(
+                            'kg',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: _activeWeightUnit == 'kg'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _activeWeightUnit == 'kg'
+                                  ? Colors.blue
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                        const Text(' | '),
+                        GestureDetector(
+                          onTap: () => _handleWeightUnitChange('lbs'),
+                          child: Text(
+                            'lbs',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: _activeWeightUnit == 'lbs'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _activeWeightUnit == 'lbs'
+                                  ? Colors.blue
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 10),
+
+            // Gender
             CustomTextField(
               labelText: 'Gender',
               controller: genderController,
             ),
             const SizedBox(height: 10),
+
+            // Constraints
             CustomTextField(
               labelText: 'Constraints/Injury',
               controller: constraintsController,
             ),
             const SizedBox(height: 10),
+
+            // Workout purpose
             CustomTextField(
               labelText: 'Workout Purpose',
               controller: workoutPurposeController,
             ),
             const SizedBox(height: 20),
+
+            // Submit button
             SubmitButton(
               text: 'Save',
               onPressed: () {
