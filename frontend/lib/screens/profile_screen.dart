@@ -123,132 +123,164 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Height
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Height and Weight in a Row
+            Row(
               children: [
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomTextField(
-                        labelText: 'Height',
-                        controller: heightController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your height';
-                          }
-                          return null;
-                        },
+                // Height Column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              labelText: 'Height',
+                              controller: heightController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your height';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => _handleHeightUnitChange('cm'),
+                                child: Text(
+                                  'cm',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: _activeHeightUnit == 'cm'
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: _activeHeightUnit == 'cm'
+                                        ? Colors.blue
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const Text(' | '),
+                              GestureDetector(
+                                onTap: () => _handleHeightUnitChange('ft'),
+                                child: Text(
+                                  'ft',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: _activeHeightUnit == 'ft'
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: _activeHeightUnit == 'ft'
+                                        ? Colors.blue
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => _handleHeightUnitChange('cm'),
-                          child: Text(
-                            'cm',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: _activeHeightUnit == 'cm'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: _activeHeightUnit == 'cm'
-                                  ? Colors.blue
-                                  : Colors.black,
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 20), // Space between columns
+                // Weight Column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomTextField(
+                              labelText: 'Weight',
+                              controller: weightController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your weight';
+                                }
+                                return null;
+                              },
                             ),
                           ),
-                        ),
-                        const Text(' | '),
-                        GestureDetector(
-                          onTap: () => _handleHeightUnitChange('ft'),
-                          child: Text(
-                            'ft',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: _activeHeightUnit == 'ft'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: _activeHeightUnit == 'ft'
-                                  ? Colors.blue
-                                  : Colors.black,
-                            ),
+                          const SizedBox(width: 10),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () => _handleWeightUnitChange('kg'),
+                                child: Text(
+                                  'kg',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: _activeWeightUnit == 'kg'
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: _activeWeightUnit == 'kg'
+                                        ? Colors.blue
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const Text(' | '),
+                              GestureDetector(
+                                onTap: () => _handleWeightUnitChange('lbs'),
+                                child: Text(
+                                  'lbs',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: _activeWeightUnit == 'lbs'
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: _activeWeightUnit == 'lbs'
+                                        ? Colors.blue
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 10),
 
-            // Weight
+            // Gender Dropdown
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 5),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomTextField(
-                        labelText: 'Weight',
-                        controller: weightController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your weight';
-                          }
-                          return null;
-                        },
-                      ),
+                DropdownButtonFormField<String>(
+                  value: genderController.text.isNotEmpty ? genderController.text : null,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  hint: const Text('Select Gender'),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'Male (XY)',
+                      child: Text('Male (XY)'),
                     ),
-                    const SizedBox(width: 10),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => _handleWeightUnitChange('kg'),
-                          child: Text(
-                            'kg',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: _activeWeightUnit == 'kg'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: _activeWeightUnit == 'kg'
-                                  ? Colors.blue
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                        const Text(' | '),
-                        GestureDetector(
-                          onTap: () => _handleWeightUnitChange('lbs'),
-                          child: Text(
-                            'lbs',
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: _activeWeightUnit == 'lbs'
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: _activeWeightUnit == 'lbs'
-                                  ? Colors.blue
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ],
+                    DropdownMenuItem(
+                      value: 'Female (XX)',
+                      child: Text('Female (XX)'),
                     ),
                   ],
+                  onChanged: (value) {
+                    setState(() {
+                      genderController.text = value ?? '';
+                    });
+                  },
                 ),
               ],
-            ),
-            const SizedBox(height: 10),
-
-            // Gender
-            CustomTextField(
-              labelText: 'Gender',
-              controller: genderController,
             ),
             const SizedBox(height: 10),
 
