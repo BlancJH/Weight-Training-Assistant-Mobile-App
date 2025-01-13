@@ -116,12 +116,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            ProfileAvatar(
-              username: widget.username,
-              imageUrl: widget.profileImageUrl,
-              size: 120.0,
+
+            // Profile widget
+            Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                ProfileAvatar(
+                  username: widget.username,
+                  imageUrl: widget.profileImageUrl,
+                  size: 120.0,
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Handle edit action
+                      print('Edit button tapped!');
+                    },
+                    child: CircleAvatar(
+                      radius: 20, // Adjust size of the edit button
+                      backgroundColor: Colors.grey,
+                      child: const Icon(
+                        Icons.edit,
+                        size: 16.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
+
             Text(
               widget.username,
               style: const TextStyle(
