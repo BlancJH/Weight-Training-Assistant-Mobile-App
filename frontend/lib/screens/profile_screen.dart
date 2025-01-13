@@ -32,12 +32,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? constraintsError; // Holds the error message for Constraints field
   String? workoutPurposeError; // Holds the error message for Workout Purpose field
   
-  int constraintMaxLength = 20;
+  int constraintMaxLength = 20; // Charactor limit for constraints/injuries field.
+  int workoutPurposeMaxLength = 20; // Charactor limit for workout purpose field.
 
   // Function to validate constraints live
   void _validateConstraints(String value) {
     setState(() {
       constraintsError = Validators.validateCharacterLimit(value, 'Constraints/Injuries', constraintMaxLength);
+    });
+  }
+
+  // Function to validate constraints live
+  void _validateWorkoutPurpose(String value) {
+    setState(() {
+      constraintsError = Validators.validateCharacterLimit(value, 'Workout Purpose', workoutPurposeMaxLength);
     });
   }
 
@@ -295,7 +303,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
 
             // Constraints with Live Error
             CustomTextField(
@@ -323,7 +331,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CustomTextField(
               labelText: 'Workout Purpose',
               controller: workoutPurposeController,
+              validator: (value) => workoutPurposeError,
+              maxLength: workoutPurposeMaxLength,
+              onChanged: _validateWorkoutPurpose, // Live validation
             ),
+            if (workoutPurposeError != null) // Check if there's an error
+              Align(
+                alignment: Alignment.centerLeft, // Align error text to the left
+                child:
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    workoutPurposeError!,
+                    style: TextStyle(color: Colors.red, fontSize: 12.0),
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
 
             // Submit button
