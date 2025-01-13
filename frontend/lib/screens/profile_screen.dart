@@ -31,11 +31,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _activeWeightUnit = 'kg'; // Default unit for weight
   String? constraintsError; // Holds the error message for Constraints field
   String? workoutPurposeError; // Holds the error message for Workout Purpose field
+  
+  int constraintMaxLength = 20;
 
   // Function to validate constraints live
   void _validateConstraints(String value) {
     setState(() {
-      constraintsError = Validators.validateCharacterLimit(value, 'Constraints/Injuries', 20);
+      constraintsError = Validators.validateCharacterLimit(value, 'Constraints/Injuries', constraintMaxLength);
     });
   }
 
@@ -300,6 +302,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               labelText: 'Constraints/Injuries',
               controller: constraintsController,
               validator: (value) => constraintsError,
+              maxLength: constraintMaxLength,
               onChanged: _validateConstraints, // Live validation
             ),
             if (constraintsError != null) // Check if there's an error
