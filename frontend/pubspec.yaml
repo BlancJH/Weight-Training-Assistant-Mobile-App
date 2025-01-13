@@ -47,7 +47,18 @@ dependencies:
 
   # JWT decoder
   jwt_decoder: ^2.0.1
-  
+
+  # Image compressor
+  flutter_image_compress: ^1.1.0
+
+  # Firebase
+  firebase_core: ^2.14.0  # Required for all Firebase integrations
+  firebase_auth: ^4.8.0   # For authentication
+  cloud_firestore: ^4.8.0 # For Firestore database
+  firebase_storage: ^11.6.5 # For file storage
+
+  # Image Picker
+  image_picker: ^0.8.7+3
 
 dev_dependencies:
   flutter_test:
