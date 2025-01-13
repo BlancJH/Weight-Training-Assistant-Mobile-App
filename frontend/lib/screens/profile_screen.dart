@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/utils/validator.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/submit_button.dart';
@@ -27,7 +28,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController workoutPurposeController = TextEditingController();
 
   String _activeHeightUnit = 'cm'; // Default unit for height
-    String _activeWeightUnit = 'kg'; // Default unit for weight
+  String _activeWeightUnit = 'kg'; // Default unit for weight
+  String? constraintsError; // Holds the error message for Constraints field
+  String? workoutPurposeError; // Holds the error message for Workout Purpose field
+
+  // Function to validate constraints live
+  void _validateConstraints(String value) {
+    setState(() {
+      constraintsError = Validators.validateCharacterLimit(value, 'Constraints/Injuries', 20);
+    });
+  }
 
   // DOB selector config
   Future<void> _selectBirthday() async {
@@ -188,6 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(width: 20), // Space between columns
+
                 // Weight Column
                 Expanded(
                   child: Column(
@@ -284,11 +295,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Constraints
+            // Constraints with Live Error
             CustomTextField(
-              labelText: 'Constraints/Injury',
+              labelText: 'Constraints/Injuries',
               controller: constraintsController,
+              validator: (value) => constraintsError,
+              onChanged: _validateConstraints, // Live validation
             ),
+            if (constraintsError != null) // Check if there's an error
+              Align(
+                alignment: Alignment.centerLeft, // Align error text to the left
+                child:
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    constraintsError!,
+                    style: TextStyle(color: Colors.red, fontSize: 12.0),
+                  ),
+                ),
+              ),
             const SizedBox(height: 10),
 
             // Workout purpose
@@ -304,7 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () {
                 print('Birthday: ${birthdayController.text}');
                 print('Height: ${heightController.text} $_activeHeightUnit');
-                print('Weight: ${weightController.text}');
+                print('Weight: ${weightController.text} $_activeWeightUnit');
                 print('Gender: ${genderController.text}');
                 print('Constraints: ${constraintsController.text}');
                 print('Workout Purpose: ${workoutPurposeController.text}');
