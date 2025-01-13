@@ -8,6 +8,7 @@ class Validators {
     int? minLength, // Minimum length
     bool Function(String)? customCondition, // Additional condition
     String? customErrorMessage, // Error message for custom condition
+    
     }) {
     // Check required
     if (required && (value == null || value.trim().isEmpty)) {
@@ -83,4 +84,16 @@ class Validators {
 
     return null;
   }
+
+  static String? validateCharacterLimit(
+    String? value,
+    String fieldName,
+    int limit, // Character limit
+  ) {
+    if (value != null && value.length > limit) {
+      return '$fieldName must be $limit characters or fewer';
+    }
+    return null;
+  }
+
 }
