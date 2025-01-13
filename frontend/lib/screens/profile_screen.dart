@@ -4,6 +4,8 @@ import '../widgets/profile_avatar.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/submit_button.dart';
 import '../utils/conversion_utils.dart';
+import 'package:image_picker/image_picker.dart'; 
+import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   final String profileImageUrl;
@@ -34,6 +36,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   int constraintMaxLength = 20; // Charactor limit for constraints/injuries field.
   int workoutPurposeMaxLength = 20; // Charactor limit for workout purpose field.
+
+  File? _profileImage; // Holds the selected profile image file
+
+  // Function to handle image picking
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery, // Opens the device gallery
+      imageQuality: 80, // Reduce quality to optimize file size
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path); // Update the state with the selected image
+      });
+
+      // You can upload the file to a server or storage service here
+      print('Selected Image Path: ${pickedFile.path}');
+    }
+  }
 
   // Function to validate constraints live
   void _validateConstraints(String value) {
@@ -130,10 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   right: 0,
                   bottom: 0,
                   child: GestureDetector(
-                    onTap: () {
-                      // Handle edit action
-                      print('Edit button tapped!');
-                    },
+                    onTap: _pickImage,
                     child: CircleAvatar(
                       radius: 20, // Adjust size of the edit button
                       backgroundColor: Colors.grey,
