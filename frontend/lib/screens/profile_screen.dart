@@ -6,6 +6,7 @@ import '../widgets/submit_button.dart';
 import '../utils/conversion_utils.dart';
 import 'package:image_picker/image_picker.dart'; 
 import 'dart:io';
+import '../services/user_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String profileImageUrl;
@@ -398,17 +399,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Submit button
             SubmitButton(
               text: 'Save',
-              onPressed: () {
-                print('Birthday: ${birthdayController.text}');
-                print('Height: ${heightController.text} $_activeHeightUnit');
-                print('Weight: ${weightController.text} $_activeWeightUnit');
-                print('Gender: ${genderController.text}');
-                print('Constraints: ${constraintsController.text}');
-                print('Workout Purpose: ${workoutPurposeController.text}');
+              onPressed: () async {
+                try {
+                  // Build a map with your user profile data
+                  final profileData = {
+                    'birthday': birthdayController.text,
+                    'height':
+                        '${heightController.text} $_activeHeightUnit',
+                    'weight':
+                        '${weightController.text} $_activeWeightUnit',
+                    'gender': genderController.text,
+                    'constraints': constraintsController.text,
+                    'workoutPurpose': workoutPurposeController.text,
+                    
+                    // If you want to pass local image path or a real URL:
+                    'profileImageUrl': _profileImage?.path,
+                  };
+
+                  // Create an instance of UserService (adjust import/path)
+                  final userService = UserService();
+
+                  // Send JSON to backend, decoding userId from token
+                  await userService.updateUserProfileUsingToken(profileData);
+
+                  print('Profile updated successfully!');
+                } catch (e) {
+                  print('Error saving profile: $e');
+                }
               },
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              borderRadius: 12.0,
             ),
           ],
         ),
