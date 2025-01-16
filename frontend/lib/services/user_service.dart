@@ -5,62 +5,41 @@ import 'auth_service.dart';
 
 class UserService {
   // Base URL for your backend (not the auth portion, but the user portion)
-  final String _baseUrl = 'http://localhost:8080/api';
+  final String _baseUrl = 'http://localhost:8080/api/v1';
 
   // Create an instance of AuthService to get the token
   final AuthService _authService = AuthService();
 
-  /// Update user profile
-  Future<void> updateUserProfileBackend(String userId, Map<String, dynamic> profileData) async {
+  /// Save or update user details using the backend
+  Future<void> saveOrUpdateUserDetails(Map<String, dynamic> userDetails) async {
     final token = await _authService.getToken();
+
     if (token == null) {
-      print('No JWT found. User might not be logged in.');
-      throw Exception('Authentication token not found');
+      throw Exception('No JWT token found. User might not be logged in.');
     }
 
-    // Construct the endpoint URL: e.g. PUT /api/users/{userId}
-    final url = '$_baseUrl/users/$userId';
+    final url = '$_baseUrl/userDetails';
 
     try {
-      final response = await http.put(
+      final response = await http.post(
         Uri.parse(url),
-        headers: <String, String>{
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token', // Include JWT in the Auth header
+          'Authorization': 'Bearer $token',
         },
-        body: json.encode(profileData),
+        body: json.encode(userDetails),
       );
 
-      if (response.statusCode == 200) {
-        print('Backend: User profile updated successfully!');
-        print('Server response: ${response.body}');
-      } else {
-        print('Failed to update user profile on backend: ${response.statusCode}');
-        print('Response body: ${response.body}');
+      if (response.statusCode != 200) {
+        print('Failed to save user details: ${response.body}');
+        throw Exception('Failed to save user details');
       }
+
+      print('User details updated successfully!');
     } catch (e) {
-      print('Error updating user profile on backend: $e');
-      throw Exception('Failed to update user profile on backend: $e');
+      print('Error saving user details: $e');
+      throw Exception('Error saving user details: $e');
     }
   }
-
-  /// Update user profile by automatically extracting userId from the JWT
-  Future<void> updateUserProfileUsingToken(Map<String, dynamic> profileData) async {
-    final token = await _authService.getToken();
-    if (token == null) {
-      throw Exception('No JWT found. User might not be logged in.');
-    }
-
-    // Decode the JWT
-    final decodedToken = JwtDecoder.decode(token);
-
-    // Adjust this based on how your JWT is structured.
-    final userId = decodedToken['userId'] as String?;
-    if (userId == null) {
-      throw Exception('userId not found in token');
-    }
-
-    // Now send the profile data to your backend
-    await updateUserProfileBackend(userId, profileData);
-  }
+  
 }
