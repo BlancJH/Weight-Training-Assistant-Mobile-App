@@ -5,10 +5,11 @@ import com.blancJH.weight_assistant_mobile_app_backend.repository.UserDetailsRep
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 class UserDetailsServiceTest {
 
@@ -98,5 +99,50 @@ class UserDetailsServiceTest {
         assertEquals(Gender.Male, foundUserDetails.getGender());
         assertEquals("Build Muscle", foundUserDetails.getPurpose());
         verify(userDetailsRepository, times(1)).findByUser(user);
+    }
+
+    @Test
+    void testFetchUserDetailsById() {
+        // Arrange
+        UserDetails userDetails = new UserDetails();
+        userDetails.setId(1L);
+        userDetails.setDob(LocalDate.of(1998, 1, 1));
+        userDetails.setHeightValue(180.0);
+        userDetails.setHeightUnit(HeightUnit.cm);
+        userDetails.setWeightValue(75.0);
+        userDetails.setWeightUnit(WeightUnit.kg);
+        userDetails.setGender(Gender.Male);
+        userDetails.setPurpose("Build Muscle");
+        userDetails.setWorkoutFrequency("3 times a week");
+        userDetails.setWorkoutDuration(60);
+        userDetails.setNumberOfSplit(3);
+        userDetails.setInjuriesOrConstraints("None");
+        userDetails.setAdditionalNotes("Focus on compound lifts");
+
+        when(userDetailsRepository.findById(1L)).thenReturn(Optional.of(userDetails));
+
+        // Act
+        Optional<UserDetails> foundUserDetails = userDetailsService.findById(1L);
+
+        // Assert
+        assertTrue(foundUserDetails.isPresent());
+        assertEquals(1L, foundUserDetails.get().getId());
+        assertEquals(180.0, foundUserDetails.get().getHeightValue());
+        assertEquals(HeightUnit.cm, foundUserDetails.get().getHeightUnit());
+        assertEquals(Gender.Male, foundUserDetails.get().getGender());
+        verify(userDetailsRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testFetchUserDetailsByIdNotFound() {
+        // Arrange
+        when(userDetailsRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act
+        Optional<UserDetails> foundUserDetails = userDetailsService.findById(1L);
+
+        // Assert
+        assertTrue(foundUserDetails.isEmpty());
+        verify(userDetailsRepository, times(1)).findById(1L);
     }
 }
