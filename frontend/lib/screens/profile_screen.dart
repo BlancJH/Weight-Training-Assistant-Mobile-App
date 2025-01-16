@@ -7,11 +7,12 @@ import '../utils/conversion_utils.dart';
 import 'package:image_picker/image_picker.dart'; 
 import 'dart:io';
 import '../services/user_service.dart';
+import '../services/profile_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String profileImageUrl;
   final String username;
-
+  
   const ProfileScreen({
     required this.profileImageUrl,
     required this.username,
@@ -39,6 +40,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int workoutPurposeMaxLength = 20; // Charactor limit for workout purpose field.
 
   File? _profileImage; // Holds the selected profile image file
+
+  final ProfileService profileService = ProfileService(userService: UserService());
 
   // Function to handle image picking
   Future<void> _pickImage() async {
@@ -400,32 +403,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SubmitButton(
               text: 'Save',
               onPressed: () async {
-                try {
-                  // Build a map with your user profile data
-                  final profileData = {
-                    'birthday': birthdayController.text,
-                    'height':
-                        '${heightController.text} $_activeHeightUnit',
-                    'weight':
-                        '${weightController.text} $_activeWeightUnit',
-                    'gender': genderController.text,
-                    'constraints': constraintsController.text,
-                    'workoutPurpose': workoutPurposeController.text,
-                    
-                    // If you want to pass local image path or a real URL:
-                    'profileImageUrl': _profileImage?.path,
-                  };
-
-                  // Create an instance of UserService (adjust import/path)
-                  final userService = UserService();
-
-                  // Send JSON to backend, decoding userId from token
-                  await userService.updateUserProfileUsingToken(profileData);
-
-                  print('Profile updated successfully!');
-                } catch (e) {
-                  print('Error saving profile: $e');
-                }
+                await profileService.saveProfile(
+                  context: context,
+                  birthday: birthdayController.text,
+                  heightValue: heightController.text,
+                  heightUnit: _activeHeightUnit,
+                  weightValue: weightController.text,
+                  weightUnit: _activeWeightUnit,
+                  gender: genderController.text,
+                  constraints: constraintsController.text,
+                  workoutPurpose: workoutPurposeController.text,
+                );
               },
             ),
           ],
