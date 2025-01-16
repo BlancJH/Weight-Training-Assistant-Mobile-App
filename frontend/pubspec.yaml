@@ -47,7 +47,13 @@ dependencies:
 
   # JWT decoder
   jwt_decoder: ^2.0.1
-  
+
+  # Image compressor
+  flutter_image_compress: ^1.1.0
+
+
+  # Image Picker
+  image_picker: ^0.8.7+3
 
 dev_dependencies:
   flutter_test:
