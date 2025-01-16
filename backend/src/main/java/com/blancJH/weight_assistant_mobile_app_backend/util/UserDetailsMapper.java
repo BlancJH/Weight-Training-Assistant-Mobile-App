@@ -19,17 +19,23 @@ public class UserDetailsMapper {
         if (userDetails.getHeightValue() != null && userDetails.getHeightUnit() != null) {
             String combinedHeight = userDetails.getHeightValue() + " " + userDetails.getHeightUnit().name();
             dto.setHeight(combinedHeight);
+        } else {
+            dto.setHeight(null); // Explicitly set to null if either value is missing
         }
 
         // Combine weightValue + weightUnit into one string
         if (userDetails.getWeightValue() != null && userDetails.getWeightUnit() != null) {
             String combinedWeight = userDetails.getWeightValue() + " " + userDetails.getWeightUnit().name();
             dto.setWeight(combinedWeight);
+        } else {
+            dto.setWeight(null); // Explicitly set to null if either value is missing
         }
 
         // Convert Gender enum to String
         if (userDetails.getGender() != null) {
             dto.setGender(userDetails.getGender().name()); // Convert enum to its String representation
+        } else {
+            dto.setGender(null); // Explicitly set to null if Gender is missing
         }
         
         dto.setPurpose(userDetails.getPurpose());
