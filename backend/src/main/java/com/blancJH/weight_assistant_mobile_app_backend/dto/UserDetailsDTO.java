@@ -2,7 +2,8 @@ package com.blancJH.weight_assistant_mobile_app_backend.dto;
 
 public class UserDetailsDTO {
     private Integer age;
-    private Double height;
+    private String height;
+    private String weight;
     private String gender;
     private String purpose;
     private String workoutFrequency;
@@ -20,12 +21,20 @@ public class UserDetailsDTO {
         this.age = age;
     }
 
-    public Double getHeight() {
+    public String getHeight() {
         return height;
     }
 
-    public void setHeight(Double height) {
+    public void setHeight(String height) {
         this.height = height;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
     }
 
     public String getGender() {
