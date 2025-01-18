@@ -41,14 +41,35 @@ public class UserDetailsController {
             return ResponseEntity.badRequest().body("User not found");
         }
 
-        // Set the User in UserDetails
-        userDetails.setUser(user);
+        // Check if UserDetails already exists for the user
+        UserDetails existingDetails = userDetailsService.findByUser(user);
+        if (existingDetails != null) {
+            // Update the existing details
+            existingDetails.setDob(userDetails.getDob());
+            existingDetails.setGender(userDetails.getGender());
+            existingDetails.setHeightValue(userDetails.getHeightValue());
+            existingDetails.setHeightUnit(userDetails.getHeightUnit());
+            existingDetails.setWeightValue(userDetails.getWeightValue());
+            existingDetails.setWeightUnit(userDetails.getWeightUnit());
+            existingDetails.setInjuriesOrConstraints(userDetails.getInjuriesOrConstraints());
+            existingDetails.setPurpose(userDetails.getPurpose());
+            existingDetails.setAdditionalNotes(userDetails.getAdditionalNotes());
+            existingDetails.setWorkoutFrequency(userDetails.getWorkoutFrequency());
+            existingDetails.setWorkoutDuration(userDetails.getWorkoutDuration());
+            existingDetails.setNumberOfSplit(userDetails.getNumberOfSplit());
 
-        // Save or update UserDetails
-        userDetailsService.saveUserDetails(userDetails);
+            userDetailsService.saveUserDetails(existingDetails);
+        } else {
+            // Set the User in UserDetails
+            userDetails.setUser(user);
+
+            // Save new UserDetails
+            userDetailsService.saveUserDetails(userDetails);
+        }
 
         return ResponseEntity.ok("User details saved or updated successfully!");
     }
+
 
     @GetMapping
     public ResponseEntity<UserDetails> getUserDetails(HttpServletRequest request) {
