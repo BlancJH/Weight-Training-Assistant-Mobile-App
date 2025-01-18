@@ -42,6 +42,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _profileImage; // Holds the selected profile image file
 
   final ProfileService profileService = ProfileService(userService: UserService());
+  bool _isLoading = true; // To track if data is being fetched
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile(); // Fetch user profile data on screen load
+  }
+
+  // Function to load profile data
+  Future<void> _loadUserProfile() async {
+    try {
+      final userDetails = await profileService.loadProfile(context);
+
+      // Populate controllers with the fetched data
+      setState(() {
+        birthdayController.text = userDetails['birthday'] ?? '';
+        heightController.text = (userDetails['heightValue'] != null)
+            ? userDetails['heightValue'].toString()
+            : '';
+        _activeHeightUnit = userDetails['heightUnit'] ?? 'cm';
+        weightController.text = (userDetails['weightValue'] != null)
+          ? userDetails['weightValue'].toString()
+          : '';
+        _activeWeightUnit = userDetails['weightUnit'] ?? 'kg';
+        genderController.text = userDetails['gender'] ?? '';
+        constraintsController.text = userDetails['injuriesOrConstraints'] ?? '';
+        workoutPurposeController.text = userDetails['purpose'] ?? '';
+      });
+    } catch (e) {
+      // Show error message if loading fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading profile: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false; // Data loading completed
+      });
+    }
+  }
 
   // Function to handle image picking
   Future<void> _pickImage() async {
@@ -88,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // DOB display format
     if (pickedDate != null) {
       setState(() {
-        birthdayController.text = "${pickedDate.year}/${pickedDate.month}/${pickedDate.day}";
+        birthdayController.text = "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
       });
     }
   }
@@ -337,11 +376,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   hint: const Text('Select Gender'),
                   items: [
                     DropdownMenuItem(
-                      value: 'Male (XY)',
+                      value: 'Male',
                       child: Text('Male (XY)'),
                     ),
                     DropdownMenuItem(
-                      value: 'Female (XX)',
+                      value: 'Female',
                       child: Text('Female (XX)'),
                     ),
                   ],
@@ -403,17 +442,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SubmitButton(
               text: 'Save',
               onPressed: () async {
+                // Parse height and weight from text controllers (nullable)
+                final double? heightValue = heightController.text.isNotEmpty
+                    ? double.tryParse(heightController.text)
+                    : null;
+                final double? weightValue = weightController.text.isNotEmpty
+                    ? double.tryParse(weightController.text)
+                    : null;
+
                 await profileService.saveProfile(
                   context: context,
                   birthday: birthdayController.text,
-                  heightValue: heightController.text,
+                  heightValue: heightValue,
                   heightUnit: _activeHeightUnit,
-                  weightValue: weightController.text,
+                  weightValue: weightValue,
                   weightUnit: _activeWeightUnit,
                   gender: genderController.text,
                   constraints: constraintsController.text,
                   workoutPurpose: workoutPurposeController.text,
                 );
+
+                // Diagnostic prints
+                print("Birthday: ${birthdayController.text}");
+                print("Height Value: $heightValue");
+                print("Height Unit: $_activeHeightUnit");
+                print("Weight Value: $weightValue");
+                print("Weight Unit: $_activeWeightUnit");
+                print("Gender: ${genderController.text}");
+                print("Constraints: ${constraintsController.text}");
+                print("Workout Purpose: ${workoutPurposeController.text}");
               },
             ),
           ],
