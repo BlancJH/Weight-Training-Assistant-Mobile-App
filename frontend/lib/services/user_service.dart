@@ -41,5 +41,37 @@ class UserService {
       throw Exception('Error saving user details: $e');
     }
   }
-  
+
+  /// Fetch user details from the backend
+  Future<Map<String, dynamic>> fetchUserDetails() async {
+    final token = await _authService.getToken();
+
+    if (token == null) {
+      throw Exception('No JWT token found. User might not be logged in.');
+    }
+
+    final url = '$_baseUrl/userDetails';
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Fetched user details successfully: $data');
+        return data;
+      } else {
+        print('Failed to fetch user details: ${response.body}');
+        throw Exception('Failed to fetch user details');
+      }
+    } catch (e) {
+      print('Error fetching user details: $e');
+      throw Exception('Error fetching user details: $e');
+    }
+  }
+
 }
