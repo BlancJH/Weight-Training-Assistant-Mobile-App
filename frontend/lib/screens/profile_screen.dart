@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../services/user_service.dart';
 import '../services/profile_service.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String profileImageUrl;
@@ -57,17 +58,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       // Populate controllers with the fetched data
       setState(() {
-        birthdayController.text = userDetails['birthday'] ?? '';
+
+        // Convert `birthday` to a formatted string if it exists
+        final dob = userDetails['dob'];
+        birthdayController.text = (dob != null && dob.isNotEmpty)
+            ? DateFormat('yyyy-MM-dd').format(DateTime.parse(dob))
+            : ''; // Convert to string or set empty if null
+
+        // Convert height value double to string
         heightController.text = (userDetails['heightValue'] != null)
             ? userDetails['heightValue'].toString()
             : '';
+
+        // Height unit
         _activeHeightUnit = userDetails['heightUnit'] ?? 'cm';
+
+        // Convert weight double to string
         weightController.text = (userDetails['weightValue'] != null)
           ? userDetails['weightValue'].toString()
           : '';
+
+        // Weight unit
         _activeWeightUnit = userDetails['weightUnit'] ?? 'kg';
+
+        // Gender
         genderController.text = userDetails['gender'] ?? '';
+
+        // Constraints
         constraintsController.text = userDetails['injuriesOrConstraints'] ?? '';
+
+        // Workout purpose
         workoutPurposeController.text = userDetails['purpose'] ?? '';
       });
     } catch (e) {
@@ -124,10 +144,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
 
-    // DOB display format
+    // DOB format
     if (pickedDate != null) {
       setState(() {
-        birthdayController.text = "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+        // Format the date to yyyy-MM-dd
+        birthdayController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }
   }
