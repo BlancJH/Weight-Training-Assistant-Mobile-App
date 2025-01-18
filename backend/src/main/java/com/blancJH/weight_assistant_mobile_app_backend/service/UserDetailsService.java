@@ -2,6 +2,8 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
@@ -11,6 +13,8 @@ import com.blancJH.weight_assistant_mobile_app_backend.repository.UserDetailsRep
 @Service
 public class UserDetailsService {
 
+    private final Logger logger = LoggerFactory.getLogger(UserDetailsService.class);
+
     private final UserDetailsRepository userDetailsRepository;
 
     public UserDetailsService(UserDetailsRepository userDetailsRepository) {
@@ -18,6 +22,7 @@ public class UserDetailsService {
     }
 
     public UserDetails saveUserDetails(UserDetails userDetails) {
+        logger.info("Saving UserDetails: {}", userDetails);
         return userDetailsRepository.save(userDetails);
     }
 
