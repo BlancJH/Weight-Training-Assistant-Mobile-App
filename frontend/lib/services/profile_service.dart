@@ -6,12 +6,22 @@ class ProfileService {
 
   ProfileService({required this.userService});
 
+  Future<Map<String, dynamic>> loadProfile(BuildContext context) async {
+    try {
+      final userDetails = await userService.fetchUserDetails();
+      return userDetails;
+    } catch (e) {
+      _showSnackBar(context, 'Error loading profile: $e');
+      throw e;
+    }
+  }
+
   Future<void> saveProfile({
     required BuildContext context,
     String? birthday,
-    String? heightValue,
+    double? heightValue,
     String? heightUnit,
-    String? weightValue,
+    double? weightValue,
     String? weightUnit,
     String? gender,
     String? constraints,
@@ -21,28 +31,28 @@ class ProfileService {
     final profileData = <String, dynamic>{};
 
     if (birthday != null && birthday.isNotEmpty) {
-      profileData['birthday'] = birthday;
+      profileData['dob'] = birthday;
     }
-    if (heightValue != null && heightValue.isNotEmpty) {
-      profileData['height_value'] = heightValue;
+    if (heightValue != null) {
+      profileData['heightValue'] = heightValue;
     }
     if (heightUnit != null && heightUnit.isNotEmpty) {
-      profileData['height_unit'] = heightUnit;
+      profileData['heightUnit'] = heightUnit;
     }
-    if (weightValue != null && weightValue.isNotEmpty) {
-      profileData['weight_value'] = weightValue;
+    if (weightValue != null) {
+      profileData['weightValue'] = weightValue;
     }
     if (weightUnit != null && weightUnit.isNotEmpty) {
-      profileData['weight_unit'] = weightUnit;
+      profileData['weightUnit'] = weightUnit;
     }
     if (gender != null && gender.isNotEmpty) {
       profileData['gender'] = gender;
     }
     if (constraints != null && constraints.isNotEmpty) {
-      profileData['constraints'] = constraints;
+      profileData['injuriesOrConstraints'] = constraints;
     }
     if (workoutPurpose != null && workoutPurpose.isNotEmpty) {
-      profileData['workoutPurpose'] = workoutPurpose;
+      profileData['purpose'] = workoutPurpose;
     }
 
     try {
