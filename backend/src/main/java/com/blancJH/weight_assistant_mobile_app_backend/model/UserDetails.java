@@ -1,10 +1,19 @@
 package com.blancJH.weight_assistant_mobile_app_backend.model;
 
-import jakarta.persistence.*;
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "user_details")
@@ -41,7 +50,7 @@ public class UserDetails {
     @Column(name = "gender", nullable = true)
     private Gender gender;
 
-    @Column(nullable = true)
+    @Column(name = "workout_purpose", nullable = true)
     private String purpose;
 
     @Column(nullable = true)
@@ -53,7 +62,7 @@ public class UserDetails {
     @Column(nullable = true)
     private Integer numberOfSplit;
 
-    @Column(nullable = true)
+    @Column(name = "injuries_constraints", nullable = true)
     private String injuriesOrConstraints;
 
     @Column(nullable = true)
