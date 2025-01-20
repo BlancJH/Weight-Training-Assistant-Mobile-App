@@ -18,31 +18,21 @@ class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
   String? username;
   String? profileUrl;
-
-  final List<ExerciseGifModel> mockData = [
-    ExerciseGifModel(
-      gifUrl: 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
-      text: 'This is the first GIF description.',
-      optionalText: 'Optional note for the first GIF.',
-    ),
-    ExerciseGifModel(
-      gifUrl: 'https://media.giphy.com/media/l0HlOvJ7yaacpuSas/giphy.gif',
-      text: 'Second GIF description.',
-    ),
-    ExerciseGifModel(
-      gifUrl: 'https://media.giphy.com/media/26xBRBfwnZFWFuGiM/giphy.gif',
-      text: 'Third GIF with no optional text.',
-    ),
-    ExerciseGifModel(
-      gifUrl: 'https://media.giphy.com/media/26xBRBfwnZFWFuGiM/giphy.gif',
-      text: 'Fourth GIF with no optional text.',
-    ),
-  ];
+  List<ExerciseGifModel>? exerciseData = [];
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
+    _loadExerciseData();
+  }
+
+  Future<List<ExerciseGifModel>?> _fetchExerciseData() async {
+    // Simulate a delay to mimic a network request
+    await Future.delayed(Duration(seconds: 2));
+    // Return null to simulate no data scenario
+    return null;
+
   }
 
   Future<void> _fetchUserData() async {
@@ -60,6 +50,14 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+
+  Future<void> _loadExerciseData() async {
+    exerciseData = await _fetchExerciseData();
+    setState(() {
+      exerciseData = exerciseData;
+    });
+  }
+
 
   void _handleMenuSelection(MenuOptions option) async {
     switch (option) {
@@ -115,71 +113,77 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Your Exercises',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        print('Re-plan button pressed!');
-                      },
-                      child: Text(
-                        'Re-plan >',
+  
+        // Conditional rendering based on exercise data
+        exerciseData != null && exerciseData!.isNotEmpty
+            ? Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Your Exercises',
                         style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.blue,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 16.0),
-                height: 170,
-                child: CustomListView(
-                  itemCount: mockData.length,
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  itemBuilder: (context, index) {
-                    final gif = mockData[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: GifWidget(
-                        gifUrl: gif.gifUrl,
-                        text: gif.text,
-                        optionalText: gif.optionalText,
-                        width: 200,
-                        height: 150,
+                      TextButton(
+                        onPressed: () {
+                          print('Re-plan button pressed!');
+                        },
+                        child: Text(
+                          'Re-plan >',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.blue,
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                  emptyWidget: Center(
-                    child: Text('No GIFs available'),
+                    ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: SubmitButton(
-                  text: 'Start workout!',
-                  onPressed: () {
-                    print('Workout button pressed!');
-                  },
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16.0),
+                  height: 170,
+                  child: CustomListView(
+                      itemCount: exerciseData!.length,
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      itemBuilder: (context, index) {
+                        final gif = exerciseData![index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: GifWidget(
+                            gifUrl: gif.gifUrl,
+                            text: gif.text,
+                            optionalText: gif.optionalText,
+                            width: 200,
+                            height: 150,
+                            ),
+                          );
+                        },
+                      )
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: SubmitButton(
+                    text: 'Start workout!',
+                    onPressed: () {
+                      print('Workout button pressed!');
+                    },
+                  ),
+                ),
+              ],
+            )
+          : Center(
+              child: Text(
+                'No exercises available. Please check back later.',
+                style: TextStyle(fontSize: 16.0, color: Colors.grey),
               ),
-            ],
-          ),
+            ),
         ],
       ),
     );
