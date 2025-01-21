@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../models/exercise_gif.dart';
 import '../widgets/popup_menu.dart';
 import '../screens/profile_screen.dart';
+import '../screens/workout_plan_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -180,10 +181,24 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : Center(
               child: Text(
-                'No exercises available. Please check back later.',
+                'No exercises available.',
                 style: TextStyle(fontSize: 16.0, color: Colors.grey),
               ),
             ),
+            SizedBox(height: 16.0),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: SubmitButton(
+              text: 'Plan Workout',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WorkoutPlanScreen(username: username ?? 'Guest')),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
