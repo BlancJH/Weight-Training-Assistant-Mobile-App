@@ -113,23 +113,23 @@ class Validators {
 
     // Check for spaces
     if (value.contains(' ')) {
-      return '$fieldName must not contain spaces';
+      return 'No spaces';
     }
 
     // Check for special characters
     final specialCharacterRegex = RegExp(r'[^\d.]'); // Allows only digits and '.'
     if (specialCharacterRegex.hasMatch(value)) {
-      return '$fieldName must not contain special characters (e.g., "-")';
+      return 'Numbers only';
     }
 
     // Prevent multiple dots (e.g., "1..2")
     if (value.split('.').length > 2) {
-      return '$fieldName must be a valid decimal number';
+      return 'Invalid decimal';
     }
 
-    // Additional check for positive values (do not parse to double yet)
+    // Additional check for positive values
     if (value.startsWith('-')) {
-      return '$fieldName must not be negative';
+      return 'No negative';
     }
 
     return null; // Valid input
