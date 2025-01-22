@@ -330,12 +330,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: CustomTextField(
                                 labelText: 'Weight',
                                 controller: weightController,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your weight';
-                                  }
-                                  return null;
-                                },
+                                validator: (value) => Validators.validatePositiveDouble(value, 'Weight'),
                               ),
                             ),
                             const SizedBox(width: 10),
