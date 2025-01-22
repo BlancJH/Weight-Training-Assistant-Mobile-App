@@ -6,6 +6,7 @@ import '../utils/conversion_utils.dart';
 import '../services/user_service.dart';
 import '../services/profile_service.dart';
 import 'package:intl/intl.dart';
+import '../widgets/custom_time_picker_dialog.dart';
 
 class WorkoutPlanScreen extends StatefulWidget {
   final String username;
@@ -27,6 +28,9 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   final TextEditingController genderController = TextEditingController();
   final TextEditingController constraintsController = TextEditingController();
   final TextEditingController workoutPurposeController = TextEditingController();
+  final TextEditingController workoutFrequencyController = TextEditingController();
+  final TextEditingController workoutDurationController = TextEditingController();
+  final TextEditingController workoutSplitController = TextEditingController();
 
   String _activeHeightUnit = 'cm'; // Default unit for height
   String _activeWeightUnit = 'kg'; // Default unit for weight
@@ -35,6 +39,8 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   
   int constraintMaxLength = 20; // Charactor limit for constraints/injuries field.
   int workoutPurposeMaxLength = 20; // Charactor limit for workout purpose field.
+
+  int? workoutDurationInMinutes;
 
   final ProfileService profileService = ProfileService(userService: UserService());
   bool _isLoading = true; // To track if data is being fetched
@@ -83,6 +89,9 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
 
         // Workout purpose
         workoutPurposeController.text = userDetails['purpose'] ?? '';
+
+        // Workout Split
+        workoutSplitController.text = userDetails['numberOfSplit'] ?? '';
       });
     } catch (e) {
       // Show error message if loading fails
@@ -180,7 +189,6 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
           autovalidateMode: AutovalidateMode.onUserInteraction, // Enable live validation
           child: Column(
             children: [
-              const SizedBox(height: 20),
 
               Text(
                 widget.username,
@@ -373,37 +381,127 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                 maxLength: workoutPurposeMaxLength,
                 onChanged: _validateWorkoutPurpose, // Live validation
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
-              // Submit button
-              SubmitButton(
-              text: 'Workout Plan Request!',
-                onPressed: () async {
-                  // Parse height and weight from text controllers (nullable)
-                  final double? heightValue = heightController.text.isNotEmpty
-                      ? double.tryParse(heightController.text)
-                      : null;
-                  final double? weightValue = weightController.text.isNotEmpty
-                      ? double.tryParse(weightController.text)
-                      : null;
-
-                  await profileService.saveProfile(
-                    context: context,
-                    formKey: _formKey,
-                    birthday: birthdayController.text,
-                    heightValue: heightValue,
-                    heightUnit: _activeHeightUnit,
-                    weightValue: weightValue,
-                    weightUnit: _activeWeightUnit,
-                    gender: genderController.text,
-                    constraints: constraintsController.text,
-                    workoutPurpose: workoutPurposeController.text,
-                  );
-                },
+              // Workout Frequency (String)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: workoutFrequencyController.text.isNotEmpty ? workoutFrequencyController.text : null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Select Frequency'),
+                    items: List.generate(
+                      7,
+                      (index) => DropdownMenuItem(
+                        value: '${index + 1}', // The value as a string
+                        child: Text('${index + 1} ${index + 1 == 1 ? "Time" : "Times"} a Week'),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        workoutFrequencyController.text = value ?? '';
+                      });
+                    },
+                  ),
+                ],
               ),
+              const SizedBox(height: 10),
+
+              // Workout Duration (Integer)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  TextFormField(
+                    controller: workoutDurationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Duration (minutes)',
+                      border: OutlineInputBorder(),
+                    ),
+                    readOnly: true,
+                    onTap: () async {
+                      final selectedMinutes = await showDialog<int>(
+                        context: context,
+                        builder: (context) => CustomTimePickerDialog(
+                          initialMinutes: int.tryParse(workoutDurationController.text) ?? 0,
+                        ),
+                      );
+
+                      if (selectedMinutes != null) {
+                        setState(() {
+                          workoutDurationController.text = selectedMinutes.toString();
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Number of Split
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: workoutSplitController.text.isNotEmpty ? workoutSplitController.text : null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Select Splits'),
+                    items: List.generate(
+                      7,
+                      (index) => DropdownMenuItem(
+                        value: '${index + 1}',
+                        child: Text('${index + 1}'),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        workoutSplitController.text = value ?? '';
+                      });
+                    },
+                  ),
+                ],
+              ),
+
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
+        child:
+          // Submit button
+          SubmitButton(
+          text: 'Workout Plan Request!',
+            onPressed: () async {
+              // Parse height and weight from text controllers (nullable)
+              final double? heightValue = heightController.text.isNotEmpty
+                  ? double.tryParse(heightController.text)
+                  : null;
+              final double? weightValue = weightController.text.isNotEmpty
+                  ? double.tryParse(weightController.text)
+                  : null;
+
+              await profileService.saveProfile(
+                context: context,
+                formKey: _formKey,
+                birthday: birthdayController.text,
+                heightValue: heightValue,
+                heightUnit: _activeHeightUnit,
+                weightValue: weightValue,
+                weightUnit: _activeWeightUnit,
+                gender: genderController.text,
+                constraints: constraintsController.text,
+                workoutPurpose: workoutPurposeController.text,
+              );
+            },
+          ),
       ),
     );
   }
