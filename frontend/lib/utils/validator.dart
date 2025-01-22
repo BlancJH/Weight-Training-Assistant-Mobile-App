@@ -135,4 +135,22 @@ class Validators {
     return null; // Valid input
   }
 
+  static String? validatePositiveInteger(String? value, String fieldName) {
+
+      // Allow nullable input (e.g., empty field)
+    if (value == null || value.trim().isEmpty) {
+      return null; // No error if the input is empty
+    }
+
+    // Trim input
+    value = value.trim();
+
+        // Check if the input contains non-digit characters
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return 'Only positive integer';
+    }
+
+    return null;
+  }
+
 }
