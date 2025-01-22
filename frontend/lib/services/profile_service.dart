@@ -18,6 +18,7 @@ class ProfileService {
 
   Future<void> saveProfile({
     required BuildContext context,
+    required GlobalKey<FormState> formKey,
     String? birthday,
     double? heightValue,
     String? heightUnit,
@@ -27,6 +28,11 @@ class ProfileService {
     String? constraints,
     String? workoutPurpose,
   }) async {
+      // Validate form fields
+    if (!formKey.currentState!.validate()) {
+      _showSnackBar(context, 'Please fix errors before submitting!');
+      return;
+    }
     // Construct profile data only with non-null values
     final profileData = <String, dynamic>{};
 
