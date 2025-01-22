@@ -101,4 +101,38 @@ class Validators {
     return RegExp(urlPattern).hasMatch(url);
   }
 
+  // Positive Double (Float) validator
+  static String? validatePositiveDouble(String? value, String fieldName) {
+    // Allow nullable input (e.g., empty field)
+    if (value == null || value.trim().isEmpty) {
+      return null; // No error if the input is empty
+    }
+
+    // Trim input
+    value = value.trim();
+
+    // Check for spaces
+    if (value.contains(' ')) {
+      return '$fieldName must not contain spaces';
+    }
+
+    // Check for special characters
+    final specialCharacterRegex = RegExp(r'[^\d.]'); // Allows only digits and '.'
+    if (specialCharacterRegex.hasMatch(value)) {
+      return '$fieldName must not contain special characters (e.g., "-")';
+    }
+
+    // Prevent multiple dots (e.g., "1..2")
+    if (value.split('.').length > 2) {
+      return '$fieldName must be a valid decimal number';
+    }
+
+    // Additional check for positive values (do not parse to double yet)
+    if (value.startsWith('-')) {
+      return '$fieldName must not be negative';
+    }
+
+    return null; // Valid input
+  }
+
 }
