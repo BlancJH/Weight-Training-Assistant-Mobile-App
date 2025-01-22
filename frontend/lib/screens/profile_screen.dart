@@ -25,6 +25,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController birthdayController = TextEditingController();
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
@@ -130,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Function to validate constraints live
   void _validateWorkoutPurpose(String value) {
     setState(() {
-      constraintsError = Validators.validateCharacterLimit(value, 'Workout Purpose', workoutPurposeMaxLength);
+      workoutPurposeError = Validators.validateCharacterLimit(value, 'Workout Purpose', workoutPurposeMaxLength);
     });
   }
 
@@ -199,302 +200,268 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
+        child: Form(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction, // Enable live validation
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
 
-            // Profile widget
-            Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                ProfileAvatar(
-                  username: widget.username,
-                  imageUrl: widget.profileImageUrl,
-                  size: 120.0,
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 20, // Adjust size of the edit button
-                      backgroundColor: Colors.grey,
-                      child: const Icon(
-                        Icons.edit,
-                        size: 16.0,
-                        color: Colors.white,
+              // Profile widget
+              Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  ProfileAvatar(
+                    username: widget.username,
+                    imageUrl: widget.profileImageUrl,
+                    size: 120.0,
+                  ),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 20, // Adjust size of the edit button
+                        backgroundColor: Colors.grey,
+                        child: const Icon(
+                          Icons.edit,
+                          size: 16.0,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              Text(
+                widget.username,
+                style: const TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            Text(
-              widget.username,
-              style: const TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // DOB
-            TextFormField(
-              controller: birthdayController,
-              decoration: const InputDecoration(
-                labelText: 'Birthday',
-                border: OutlineInputBorder(),
+              // DOB
+              TextFormField(
+                controller: birthdayController,
+                decoration: const InputDecoration(
+                  labelText: 'Birthday',
+                  border: OutlineInputBorder(),
+                ),
+                readOnly: true,
+                onTap: _selectBirthday,
               ),
-              readOnly: true,
-              onTap: _selectBirthday,
-            ),
-            const SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-            // Height and Weight in a Row
-            Row(
-              children: [
-                // Height Column
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomTextField(
-                              labelText: 'Height',
-                              controller: heightController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your height';
-                                }
-                                return null;
-                              },
+              // Height and Weight in a Row
+              Row(
+                children: [
+                  // Height Column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                labelText: 'Height',
+                                controller: heightController,
+                                validator: (value) => Validators.validatePositiveDouble(value, 'Height'),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () => _handleHeightUnitChange('cm'),
-                                child: Text(
-                                  'cm',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: _activeHeightUnit == 'cm'
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    color: _activeHeightUnit == 'cm'
-                                        ? Colors.blue
-                                        : Colors.black,
+                            const SizedBox(width: 10),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => _handleHeightUnitChange('cm'),
+                                  child: Text(
+                                    'cm',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: _activeHeightUnit == 'cm'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: _activeHeightUnit == 'cm'
+                                          ? Colors.blue
+                                          : Colors.black,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const Text(' | '),
-                              GestureDetector(
-                                onTap: () => _handleHeightUnitChange('ft'),
-                                child: Text(
-                                  'ft',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: _activeHeightUnit == 'ft'
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    color: _activeHeightUnit == 'ft'
-                                        ? Colors.blue
-                                        : Colors.black,
+                                const Text(' | '),
+                                GestureDetector(
+                                  onTap: () => _handleHeightUnitChange('ft'),
+                                  child: Text(
+                                    'ft',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: _activeHeightUnit == 'ft'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: _activeHeightUnit == 'ft'
+                                          ? Colors.blue
+                                          : Colors.black,
+                                    ),
                                   ),
                                 ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20), // Space between columns
+
+                  // Weight Column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 5),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                labelText: 'Weight',
+                                controller: weightController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your weight';
+                                  }
+                                  return null;
+                                },
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            const SizedBox(width: 10),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => _handleWeightUnitChange('kg'),
+                                  child: Text(
+                                    'kg',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: _activeWeightUnit == 'kg'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: _activeWeightUnit == 'kg'
+                                          ? Colors.blue
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                const Text(' | '),
+                                GestureDetector(
+                                  onTap: () => _handleWeightUnitChange('lbs'),
+                                  child: Text(
+                                    'lbs',
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: _activeWeightUnit == 'lbs'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: _activeWeightUnit == 'lbs'
+                                          ? Colors.blue
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Gender Dropdown
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: genderController.text.isNotEmpty ? genderController.text : null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Select Gender'),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'Male',
+                        child: Text('Male (XY)'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Female',
+                        child: Text('Female (XX)'),
                       ),
                     ],
+                    onChanged: (value) {
+                      setState(() {
+                        genderController.text = value ?? '';
+                      });
+                    },
                   ),
-                ),
-                const SizedBox(width: 20), // Space between columns
-
-                // Weight Column
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomTextField(
-                              labelText: 'Weight',
-                              controller: weightController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your weight';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () => _handleWeightUnitChange('kg'),
-                                child: Text(
-                                  'kg',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: _activeWeightUnit == 'kg'
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    color: _activeWeightUnit == 'kg'
-                                        ? Colors.blue
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                              const Text(' | '),
-                              GestureDetector(
-                                onTap: () => _handleWeightUnitChange('lbs'),
-                                child: Text(
-                                  'lbs',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    fontWeight: _activeWeightUnit == 'lbs'
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                    color: _activeWeightUnit == 'lbs'
-                                        ? Colors.blue
-                                        : Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            // Gender Dropdown
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 5),
-                DropdownButtonFormField<String>(
-                  value: genderController.text.isNotEmpty ? genderController.text : null,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  hint: const Text('Select Gender'),
-                  items: [
-                    DropdownMenuItem(
-                      value: 'Male',
-                      child: Text('Male (XY)'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Female',
-                      child: Text('Female (XX)'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      genderController.text = value ?? '';
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Constraints with Live Error
-            CustomTextField(
-              labelText: 'Constraints/Injuries',
-              controller: constraintsController,
-              validator: (value) => constraintsError,
-              maxLength: constraintMaxLength,
-              onChanged: _validateConstraints, // Live validation
-            ),
-            if (constraintsError != null) // Check if there's an error
-              Align(
-                alignment: Alignment.centerLeft, // Align error text to the left
-                child:
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Text(
-                    constraintsError!,
-                    style: TextStyle(color: Colors.red, fontSize: 12.0),
-                  ),
-                ),
+                ],
               ),
-            const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
-            // Workout purpose
-            CustomTextField(
-              labelText: 'Workout Purpose',
-              controller: workoutPurposeController,
-              validator: (value) => workoutPurposeError,
-              maxLength: workoutPurposeMaxLength,
-              onChanged: _validateWorkoutPurpose, // Live validation
-            ),
-            if (workoutPurposeError != null) // Check if there's an error
-              Align(
-                alignment: Alignment.centerLeft, // Align error text to the left
-                child:
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Text(
-                    workoutPurposeError!,
-                    style: TextStyle(color: Colors.red, fontSize: 12.0),
-                  ),
-                ),
+              // Constraints with Live Error
+              CustomTextField(
+                labelText: 'Constraints/Injuries',
+                controller: constraintsController,
+                validator: (value) => constraintsError,
+                maxLength: constraintMaxLength,
+                onChanged: _validateConstraints, // Live validation
               ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
-            // Submit button
-            SubmitButton(
-              text: 'Save',
-              onPressed: () async {
-                // Parse height and weight from text controllers (nullable)
-                final double? heightValue = heightController.text.isNotEmpty
-                    ? double.tryParse(heightController.text)
-                    : null;
-                final double? weightValue = weightController.text.isNotEmpty
-                    ? double.tryParse(weightController.text)
-                    : null;
+              // Workout purpose
+              CustomTextField(
+                labelText: 'Workout Purpose',
+                controller: workoutPurposeController,
+                validator: (value) => workoutPurposeError,
+                maxLength: workoutPurposeMaxLength,
+                onChanged: _validateWorkoutPurpose, // Live validation
+              ),
+              const SizedBox(height: 20),
 
-                await profileService.saveProfile(
-                  context: context,
-                  birthday: birthdayController.text,
-                  heightValue: heightValue,
-                  heightUnit: _activeHeightUnit,
-                  weightValue: weightValue,
-                  weightUnit: _activeWeightUnit,
-                  gender: genderController.text,
-                  constraints: constraintsController.text,
-                  workoutPurpose: workoutPurposeController.text,
-                );
+              // Submit button
+              SubmitButton(
+                text: 'Save',
+                onPressed: () async {
+                  // Parse height and weight from text controllers (nullable)
+                  final double? heightValue = heightController.text.isNotEmpty
+                      ? double.tryParse(heightController.text)
+                      : null;
+                  final double? weightValue = weightController.text.isNotEmpty
+                      ? double.tryParse(weightController.text)
+                      : null;
 
-                // Diagnostic prints
-                print("Birthday: ${birthdayController.text}");
-                print("Height Value: $heightValue");
-                print("Height Unit: $_activeHeightUnit");
-                print("Weight Value: $weightValue");
-                print("Weight Unit: $_activeWeightUnit");
-                print("Gender: ${genderController.text}");
-                print("Constraints: ${constraintsController.text}");
-                print("Workout Purpose: ${workoutPurposeController.text}");
-              },
-            ),
-          ],
+                  await profileService.saveProfile(
+                    context: context,
+                    formKey: _formKey,
+                    birthday: birthdayController.text,
+                    heightValue: heightValue,
+                    heightUnit: _activeHeightUnit,
+                    weightValue: weightValue,
+                    weightUnit: _activeWeightUnit,
+                    gender: genderController.text,
+                    constraints: constraintsController.text,
+                    workoutPurpose: workoutPurposeController.text,
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
