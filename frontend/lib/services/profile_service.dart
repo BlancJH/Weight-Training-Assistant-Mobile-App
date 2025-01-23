@@ -27,6 +27,9 @@ class ProfileService {
     String? gender,
     String? constraints,
     String? workoutPurpose,
+    String? workoutFrequency,
+    int? workoutDuration,
+    int? numberOfSplit,
   }) async {
       // Validate form fields
     if (!formKey.currentState!.validate()) {
@@ -59,6 +62,15 @@ class ProfileService {
     }
     if (workoutPurpose != null && workoutPurpose.isNotEmpty) {
       profileData['purpose'] = workoutPurpose;
+    }
+    if (workoutFrequency != null && workoutFrequency.isNotEmpty) {
+      profileData['workoutFrequency'] = workoutFrequency;
+    }
+    if (workoutDuration != null) {
+      profileData['workoutDuration'] = workoutDuration;
+    }
+    if (numberOfSplit != null) {
+      profileData['numberOfSplit'] = numberOfSplit;
     }
 
     try {
