@@ -40,8 +40,6 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   int constraintMaxLength = 20; // Charactor limit for constraints/injuries field.
   int workoutPurposeMaxLength = 20; // Charactor limit for workout purpose field.
 
-  int? workoutDurationInMinutes;
-
   final ProfileService profileService = ProfileService(userService: UserService());
   bool _isLoading = true; // To track if data is being fetched
 
@@ -90,8 +88,18 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         // Workout purpose
         workoutPurposeController.text = userDetails['purpose'] ?? '';
 
+        // Workout Frequency
+        workoutFrequencyController.text = userDetails['workoutFrequency'] ?? '';
+
+        // Workout Duration
+        workoutDurationController.text = (userDetails['workoutDuration'] != null)
+         ? userDetails['workoutDuration'].toString()
+         :'';
+
         // Workout Split
-        workoutSplitController.text = userDetails['numberOfSplit'] ?? '';
+        workoutSplitController.text = (userDetails['numberOfSplit'] != null)
+         ? userDetails['numberOfSplit'].toString()
+         :'';
       });
     } catch (e) {
       // Show error message if loading fails
@@ -487,6 +495,12 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
               final double? weightValue = weightController.text.isNotEmpty
                   ? double.tryParse(weightController.text)
                   : null;
+              final int? workoutDuration = workoutDurationController.text.isNotEmpty
+                  ? int.tryParse(workoutDurationController.text)
+                : null;
+              final int? numberOfSplit = workoutSplitController.text.isNotEmpty
+                  ? int.tryParse(workoutSplitController.text)
+                : null;
 
               await profileService.saveProfile(
                 context: context,
@@ -499,6 +513,9 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                 gender: genderController.text,
                 constraints: constraintsController.text,
                 workoutPurpose: workoutPurposeController.text,
+                workoutFrequency: workoutFrequencyController.text,
+                workoutDuration: workoutDuration,
+                numberOfSplit: numberOfSplit,
               );
             },
           ),
