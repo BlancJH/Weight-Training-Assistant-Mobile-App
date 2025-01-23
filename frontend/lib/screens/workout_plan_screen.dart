@@ -7,6 +7,7 @@ import '../services/user_service.dart';
 import '../services/profile_service.dart';
 import 'package:intl/intl.dart';
 import '../widgets/custom_time_picker_dialog.dart';
+import '../services/exercise_plan_service.dart';
 
 class WorkoutPlanScreen extends StatefulWidget {
   final String username;
@@ -41,6 +42,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   int workoutPurposeMaxLength = 20; // Charactor limit for workout purpose field.
 
   final ProfileService profileService = ProfileService(userService: UserService());
+  final ExercisePlanService exercisePlanService = ExercisePlanService();
   bool _isLoading = true; // To track if data is being fetched
 
   @override
@@ -483,12 +485,21 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
-        child:
-          // Submit button
-          SubmitButton(
+        child: 
+        // Submit Button
+        SubmitButton(
           text: 'Workout Plan Request!',
-            onPressed: () async {
-              // Parse height and weight from text controllers (nullable)
+          onPressed: () async {
+            if (!_formKey.currentState!.validate()) {
+              // Show error if form is invalid
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please fix errors before submitting!')),
+              );
+              return;
+            }
+
+            try {
+              // Parse form data
               final double? heightValue = heightController.text.isNotEmpty
                   ? double.tryParse(heightController.text)
                   : null;
@@ -497,11 +508,28 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                   : null;
               final int? workoutDuration = workoutDurationController.text.isNotEmpty
                   ? int.tryParse(workoutDurationController.text)
-                : null;
+                  : null;
               final int? numberOfSplit = workoutSplitController.text.isNotEmpty
                   ? int.tryParse(workoutSplitController.text)
-                : null;
+                  : null;
 
+              // Prepare the user details
+              final userDetails = {
+                'username': widget.username,
+                'birthday': birthdayController.text,
+                'heightValue': heightValue,
+                'heightUnit': _activeHeightUnit,
+                'weightValue': weightValue,
+                'weightUnit': _activeWeightUnit,
+                'gender': genderController.text,
+                'constraints': constraintsController.text,
+                'purpose': workoutPurposeController.text,
+                'workoutFrequency': workoutFrequencyController.text,
+                'workoutDuration': workoutDuration,
+                'numberOfSplit': numberOfSplit,
+              };
+
+              // Save profile data
               await profileService.saveProfile(
                 context: context,
                 formKey: _formKey,
@@ -517,8 +545,22 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                 workoutDuration: workoutDuration,
                 numberOfSplit: numberOfSplit,
               );
-            },
-          ),
+
+              // Send workout plan request
+              final responseMessage = await exercisePlanService.sendUserDetails(userDetails);
+
+              // Show success message from workout plan service
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(responseMessage)),
+              );
+            } catch (e) {
+              // Handle errors
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: ${e.toString()}')),
+              );
+            }
+          },
+        ),
       ),
     );
   }
