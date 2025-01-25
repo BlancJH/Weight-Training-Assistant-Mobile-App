@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -100,4 +101,22 @@ public class WorkoutPlanController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<?> getWorkoutPlans(HttpServletRequest request) {
+        try {
+            // Extract JWT token from request
+            String token = jwtUtil.extractTokenFromRequest(request);
+
+            // Extract userId from the token
+            Long userId = jwtUtil.extractUserId(token);
+
+            // Fetch user's workout plans
+            List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByUserId(userId);
+
+            return ResponseEntity.ok(workoutPlans);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Error fetching workout plans: " + e.getMessage());
+        }
+    }
 }
