@@ -271,9 +271,9 @@ public class WorkoutPlanServiceTest {
         user = userRepository.save(user);
 
         // Create mock workout plans
-        WorkoutPlan plan1 = new WorkoutPlan(user, LocalDate.now(), "Chest", "{}", true);
-        WorkoutPlan plan2 = new WorkoutPlan(user, LocalDate.now().plusDays(1), "Back", "{}", true);
-        WorkoutPlan plan3 = new WorkoutPlan(user, LocalDate.now().plusDays(2), "Legs", "{}", true);
+        WorkoutPlan plan1 = new WorkoutPlan(null, user, LocalDate.now(), "Chest", "{}", true);
+        WorkoutPlan plan2 = new WorkoutPlan(null, user, LocalDate.now().plusDays(1), "Back", "{}", true);
+        WorkoutPlan plan3 = new WorkoutPlan(null, user, LocalDate.now().plusDays(2), "Legs", "{}", true);
 
         workoutPlanRepository.saveAll(List.of(plan1, plan2, plan3));
 
