@@ -1,19 +1,20 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
-import com.blancJH.weight_assistant_mobile_app_backend.model.User;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
-import org.springframework.stereotype.Service;
-import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutHistory;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutHistoryRepository;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Comparator;
+
+import org.springframework.stereotype.Service;
+
+import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutHistory;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutHistoryRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class WorkoutPlanService {
@@ -161,5 +162,9 @@ public class WorkoutPlanService {
         } catch (Exception e) {
             throw new RuntimeException("Error updating workout plan", e);
         }
+    }
+
+    public List<WorkoutPlan> getWorkoutPlansByUserId(Long userId) {
+        return workoutPlanRepository.findByUserId(userId);
     }
 }
