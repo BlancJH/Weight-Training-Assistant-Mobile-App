@@ -6,7 +6,7 @@ class ExercisePlanService {
 
   Future<String> sendUserDetails(Map<String, dynamic> userDetails) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/v1/chatgpt'),
+      Uri.parse('$baseUrl/api/v1/workokut-plan/generate'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(userDetails),
     );
