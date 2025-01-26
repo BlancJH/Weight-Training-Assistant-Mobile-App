@@ -101,7 +101,7 @@ public class WorkoutPlanController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/get")
     public ResponseEntity<?> getWorkoutPlans(HttpServletRequest request) {
         try {
             // Extract JWT token from request
