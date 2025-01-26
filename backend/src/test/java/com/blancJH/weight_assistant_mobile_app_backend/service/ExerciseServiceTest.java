@@ -1,6 +1,7 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
+import com.blancJH.weight_assistant_mobile_app_backend.model.ExerciseCategory;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class ExerciseServiceTests {
     void testCreateExercise() {
         Exercise exercise = new Exercise();
         exercise.setExerciseName("Push-Up");
-        exercise.setExerciseCategory("Strength");
+        exercise.setExerciseCategory(ExerciseCategory.BODYWEIGHT);
         exercise.setMuscles(List.of("Chest", "Triceps"));
         exercise.setExerciseGifUrl("https://example.com/pushup.gif");
 
@@ -49,12 +50,12 @@ class ExerciseServiceTests {
     void testGetAllExercises() {
         Exercise exercise1 = new Exercise();
         exercise1.setExerciseName("Push-Up");
-        exercise1.setExerciseCategory("Strength");
+        exercise1.setExerciseCategory(ExerciseCategory.BODYWEIGHT);
         exercise1.setMuscles(List.of("Chest", "Triceps"));
 
         Exercise exercise2 = new Exercise();
         exercise2.setExerciseName("Squat");
-        exercise2.setExerciseCategory("Strength");
+        exercise2.setExerciseCategory(ExerciseCategory.BARBELL);
         exercise2.setMuscles(List.of("Legs", "Glutes"));
 
         when(exerciseRepository.findAll()).thenReturn(Arrays.asList(exercise1, exercise2));
@@ -70,7 +71,7 @@ class ExerciseServiceTests {
     void testGetExerciseById() {
         Exercise exercise = new Exercise();
         exercise.setExerciseName("Push-Up");
-        exercise.setExerciseCategory("Strength");
+        exercise.setExerciseCategory(ExerciseCategory.BODYWEIGHT);
         exercise.setMuscles(List.of("Chest", "Triceps"));
 
         when(exerciseRepository.findById(1L)).thenReturn(Optional.of(exercise));
