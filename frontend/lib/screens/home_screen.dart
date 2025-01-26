@@ -9,6 +9,7 @@ import '../models/exercise_gif.dart';
 import '../widgets/popup_menu.dart';
 import '../screens/profile_screen.dart';
 import '../screens/workout_plan_screen.dart';
+import '../services/exercise_plan_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -17,24 +18,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
+  final ExercisePlanService _exercisePlanService = ExercisePlanService();
   String? username;
   String? profileUrl;
-  List<ExerciseGifModel>? exerciseData = [];
+  List<Map<String, dynamic>> exerciseData = [];
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
-    _loadExerciseData();
+    _fetchExerciseData();
   }
 
-  Future<List<ExerciseGifModel>?> _fetchExerciseData() async {
-    // Simulate a delay to mimic a network request
-    await Future.delayed(Duration(seconds: 2));
-    // Return null to simulate no data scenario
-    return null;
-
-  }
 
   Future<void> _fetchUserData() async {
     try {
@@ -52,13 +47,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _loadExerciseData() async {
-    exerciseData = await _fetchExerciseData();
-    setState(() {
-      exerciseData = exerciseData;
-    });
-  }
+  Future<void> _fetchExerciseData() async {
+    try {
+      final token = await _authService.getToken(); // Get JWT token
 
+      // Ensure the token is non-null before using it
+      if (token == null) {
+        throw Exception('Token is null. Unable to fetch workout plans.');
+      }
+
+      final fetchedPlans = await _exercisePlanService.fetchWorkoutPlans(token);
+      setState(() {
+        exerciseData = fetchedPlans;
+      });
+    } catch (e) {
+      print('Error fetching workout plans: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch workout plans: $e')),
+      );
+    }
+  }
 
   void _handleMenuSelection(MenuOptions option) async {
     switch (option) {
