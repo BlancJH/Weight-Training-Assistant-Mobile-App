@@ -1,12 +1,13 @@
 package com.blancJH.weight_assistant_mobile_app_backend.repository;
 
-import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-import java.time.LocalDate;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 
 @Repository
 public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Long> {
@@ -18,7 +19,7 @@ public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Long> 
     List<WorkoutPlan> findByUserIdAndStatus(Long userId, boolean status);
 
     // Find a workout plan by its ID and user ID (to ensure it belongs to the user)
-    Optional<WorkoutPlan> findByIdAndUserId(Long id, Long userId);
+    Optional<WorkoutPlan> findByIdAndUserId(Long workoutPlanId, Long userId);
 
     // Find all workout plans scheduled for a specific date
     List<WorkoutPlan> findByPlannedDate(LocalDate plannedDate);
