@@ -235,4 +235,10 @@ public class WorkoutPlanService {
     public List<WorkoutPlan> getWorkoutPlansByUserId(Long userId) {
         return workoutPlanRepository.findByUserId(userId);
     }
+
+    public List<WorkoutPlanExercise> getExercisesByWorkoutPlanId(Long workoutPlanId) {
+        WorkoutPlan workoutPlan = workoutPlanRepository.findById(workoutPlanId)
+                .orElseThrow(() -> new RuntimeException("Workout Plan not found"));
+        return workoutPlan.getExercises();
+    }
 }

@@ -1,20 +1,25 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
-import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlanExercise;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanExerciseRepository;
 
 @Service
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
+    private final WorkoutPlanExerciseRepository workoutPlanExerciseRepository;
 
     @Autowired
-    public ExerciseService(ExerciseRepository exerciseRepository) {
+    public ExerciseService(ExerciseRepository exerciseRepository, WorkoutPlanExerciseRepository workoutPlanExerciseRepository) {
         this.exerciseRepository = exerciseRepository;
+        this.workoutPlanExerciseRepository = workoutPlanExerciseRepository;
     }
 
     public Exercise createExercise(Exercise exercise) {
@@ -46,4 +51,9 @@ public class ExerciseService {
         exercise.setExerciseGifUrl(updatedExercise.getExerciseGifUrl());
         return exerciseRepository.save(exercise);
     }
+
+    public List<WorkoutPlanExercise> getExercisesByWorkoutPlanId(Long workoutPlanId) {
+        return workoutPlanExerciseRepository.findByWorkoutPlan_Id(workoutPlanId);
+    }
+
 }

@@ -26,4 +26,5 @@ public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Long> 
 
     // Find all workout plans with status false
     List<WorkoutPlan> findByUserIdAndStatusFalse(Long userId);
+    
 }
