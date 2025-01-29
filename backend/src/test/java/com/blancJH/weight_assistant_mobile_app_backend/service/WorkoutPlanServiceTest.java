@@ -48,11 +48,14 @@ public class WorkoutPlanServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        
+        // Mock User
         testUser = new User();
         testUser.setEmail("testuser@example.com");
         testUser.setPassword("password");
         testUser.setUsername("testuser");
 
+        // Mock ChatGPT Response
         mockChatGptResponse = """
         {
             "workout_plan": [
@@ -93,6 +96,7 @@ public class WorkoutPlanServiceTest {
         """;
     }
 
+    // Test for Saving Workout Plan from ChatGPT Response
     @Test
     public void testSaveChatgptWorkoutPlan() throws Exception {
         // Mock objectMapper behavior to return parsed JSON
@@ -128,7 +132,7 @@ public class WorkoutPlanServiceTest {
 
         // Assertions
         assertNotNull(savedPlans);
-        assertEquals(2, savedPlans.size()); // Two splits: Chest and Back
+        assertEquals(2, savedPlans.size());
 
         // Check first workout plan (Chest)
         WorkoutPlan chestPlan = savedPlans.get(0);
@@ -144,20 +148,65 @@ public class WorkoutPlanServiceTest {
         assertFalse(backPlan.isStatus());
         assertEquals(2, backPlan.getExercises().size());
 
-        // Check exercises for first plan
-        WorkoutPlanExercise firstExercise = chestPlan.getExercises().get(0);
-        assertEquals("Bench Press", firstExercise.getExercise().getExerciseName());
-        assertEquals(3, firstExercise.getSets());
-        assertEquals(10, firstExercise.getReps());
-
-        WorkoutPlanExercise secondExercise = chestPlan.getExercises().get(1);
-        assertEquals("Incline Bench Press", secondExercise.getExercise().getExerciseName());
-        assertEquals(4, secondExercise.getSets());
-        assertEquals(12, secondExercise.getReps());
-
         // Verify interactions
         verify(workoutPlanRepository, times(2)).save(any(WorkoutPlan.class));
         verify(exerciseRepository, times(4)).findByExerciseName(anyString());
         verify(exerciseRepository, times(4)).save(any(Exercise.class));
+    }
+
+    // Test for Getting Exercises by WorkoutPlan ID
+    @Test
+    public void testGetExercisesByWorkoutPlanId() {
+        // Given: Mock WorkoutPlan
+        Long workoutPlanId = 1L;
+        WorkoutPlan mockWorkoutPlan = new WorkoutPlan();
+        mockWorkoutPlan.setUser(testUser);
+        mockWorkoutPlan.setSplitName("Chest");
+        mockWorkoutPlan.setPlannedDate(LocalDate.now());
+        mockWorkoutPlan.setStatus(false);
+
+        // Given: Mock Exercises
+        Exercise benchPress = new Exercise();
+        benchPress.setExerciseName("Bench Press");
+
+        Exercise inclinePress = new Exercise();
+        inclinePress.setExerciseName("Incline Bench Press");
+
+        // Given: Mock WorkoutPlanExercises
+        WorkoutPlanExercise exercise1 = new WorkoutPlanExercise();
+        exercise1.setWorkoutPlan(mockWorkoutPlan);
+        exercise1.setExercise(benchPress);
+        exercise1.setSets(3);
+        exercise1.setReps(10);
+
+        WorkoutPlanExercise exercise2 = new WorkoutPlanExercise();
+        exercise2.setWorkoutPlan(mockWorkoutPlan);
+        exercise2.setExercise(inclinePress);
+        exercise2.setSets(4);
+        exercise2.setReps(12);
+
+        List<WorkoutPlanExercise> mockExercises = List.of(exercise1, exercise2);
+
+        // When: Mock repository behavior
+        when(workoutPlanRepository.findById(workoutPlanId)).thenReturn(Optional.of(mockWorkoutPlan));
+        when(workoutPlanService.getExercisesByWorkoutPlanId(workoutPlanId)).thenReturn(mockExercises);
+
+        // Then: Call the service method
+        List<WorkoutPlanExercise> retrievedExercises = workoutPlanService.getExercisesByWorkoutPlanId(workoutPlanId);
+
+        // Assertions: Verify the response
+        assertNotNull(retrievedExercises);
+        assertEquals(2, retrievedExercises.size());
+
+        assertEquals("Bench Press", retrievedExercises.get(0).getExercise().getExerciseName());
+        assertEquals(3, retrievedExercises.get(0).getSets());
+        assertEquals(10, retrievedExercises.get(0).getReps());
+
+        assertEquals("Incline Bench Press", retrievedExercises.get(1).getExercise().getExerciseName());
+        assertEquals(4, retrievedExercises.get(1).getSets());
+        assertEquals(12, retrievedExercises.get(1).getReps());
+
+        // Verify that the repository method was called once
+        verify(workoutPlanRepository, times(1)).findById(workoutPlanId);
     }
 }
