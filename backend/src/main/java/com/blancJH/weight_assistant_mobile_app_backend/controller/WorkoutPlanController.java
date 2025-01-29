@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
@@ -57,7 +56,7 @@ public class WorkoutPlanController {
             String chatGptResponse = chatGptService.sendUserDetailsToChatGpt(userDetails);
 
             // Save workout plan
-            List<WorkoutPlan> workoutPlans = workoutPlanService.saveWorkoutPlanFromChatGptResponse(chatGptResponse, user);
+            List<WorkoutPlan> workoutPlans = workoutPlanService.saveChatgptWorkoutPlan(chatGptResponse, user);
 
             return ResponseEntity.ok(workoutPlans);
         } catch (Exception e) {
@@ -71,20 +70,10 @@ public class WorkoutPlanController {
     public ResponseEntity<?> markWorkoutAsDone(@PathVariable Long planId) {
         try {
             workoutPlanService.markPlanAsDone(planId);
-            return ResponseEntity.ok("Workout marked as done and saved to history");
+            return ResponseEntity.ok("Workout marked as done");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("Error marking workout as done: " + e.getMessage());
-        }
-    }
-
-    @PostMapping("/reset")
-    public ResponseEntity<?> resetWorkoutPlans(@RequestParam Long userId) {
-        try {
-            List<WorkoutPlan> updatedPlans = workoutPlanService.resetAndRescheduleWorkoutPlans(userId);
-            return ResponseEntity.ok(updatedPlans);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
