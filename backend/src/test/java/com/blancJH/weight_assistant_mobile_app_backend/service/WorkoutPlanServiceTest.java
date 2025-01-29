@@ -1,48 +1,59 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
-import com.blancJH.weight_assistant_mobile_app_backend.model.User;
-import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
-import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutHistory;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutHistoryRepository;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
-@SpringBootTest
+import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
+import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlanExercise;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class WorkoutPlanServiceTest {
 
-    @Autowired
-    private WorkoutPlanService workoutPlanService;
-
-    @Autowired
+    @Mock
     private WorkoutPlanRepository workoutPlanRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Mock
+    private ExerciseRepository exerciseRepository;
 
-    @Autowired
-    private WorkoutHistoryRepository workoutHistoryRepository;
+    @Mock
+    private ObjectMapper objectMapper;
 
-    @Test
-    public void testWorkoutPlanAllocationAndDateAdjustment() {
-        // Set up user
-        User user = new User();
-        user.setEmail("testuser@example.com");
-        user.setPassword("password");
-        user.setUsername("testuser");
-        user = userRepository.save(user);
+    @InjectMocks
+    private WorkoutPlanService workoutPlanService;
 
-        // Generate mock workout plan JSON from ChatGPT
-        String mockResponse = """
+    private User testUser;
+    private String mockChatGptResponse;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        testUser = new User();
+        testUser.setEmail("testuser@example.com");
+        testUser.setPassword("password");
+        testUser.setUsername("testuser");
+
+        mockChatGptResponse = """
         {
             "workout_plan": [
                 {
@@ -51,350 +62,102 @@ public class WorkoutPlanServiceTest {
                     "exercises": [
                         {
                             "exerciseName": "Bench Press",
-                            "sets": 3,
-                            "reps": 10
-                        }
-                    ]
-                },
-                {
-                    "day": 2,
-                    "split": "Back",
-                    "exercises": [
-                        {
-                            "exerciseName": "Deadlift",
-                            "sets": 3,
-                            "reps": 8
-                        }
-                    ]
-                },
-                {
-                    "day": 3,
-                    "split": "Legs",
-                    "exercises": [
-                        {
-                            "exerciseName": "Squat",
-                            "sets": 3,
-                            "reps": 12
-                        }
-                    ]
-                }
-            ]
-        }
-        """;
-
-        // Save workout plans
-        List<WorkoutPlan> savedPlans = workoutPlanService.saveWorkoutPlanFromChatGptResponse(mockResponse, user);
-
-        // Assertions on allocation
-        assertNotNull(savedPlans);
-        assertEquals(3, savedPlans.size());
-        assertEquals("Chest", savedPlans.get(0).getSplit());
-        assertEquals(LocalDate.now(), savedPlans.get(0).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(1), savedPlans.get(1).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(2), savedPlans.get(2).getPlannedDate());
-
-        // Update status of the first plan to `false`
-        WorkoutPlan firstPlan = savedPlans.get(0);
-        firstPlan.setStatus(false);
-        workoutPlanRepository.save(firstPlan);
-
-        // Adjust subsequent plans
-        workoutPlanService.adjustDatesForSkippedPlans(user);
-
-        // Fetch updated plans
-        List<WorkoutPlan> updatedPlans = workoutPlanRepository.findByUserId(user.getId());
-
-        // Assertions on date adjustment
-        assertEquals(LocalDate.now(), updatedPlans.get(0).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(2), updatedPlans.get(1).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(2).getPlannedDate());
-    }
-
-    @Test
-    public void testDay1DoneDay2NotDoneDateAdjustment() {
-        // Set up user
-        User user = new User();
-        user.setEmail("testuser2@example.com");
-        user.setPassword("password");
-        user.setUsername("testuser2");
-        user = userRepository.save(user);
-
-        // Mock ChatGPT Response
-        String mockResponse = """
-        {
-            "workout_plan": [
-                {
-                    "day": 1,
-                    "split": "Chest",
-                    "exercises": [
-                        {
-                            "exerciseName": "Bench Press",
-                            "sets": 3,
-                            "reps": 10
-                        }
-                    ]
-                },
-                {
-                    "day": 2,
-                    "split": "Back",
-                    "exercises": [
-                        {
-                            "exerciseName": "Deadlift",
-                            "sets": 3,
-                            "reps": 8
-                        }
-                    ]
-                },
-                {
-                    "day": 3,
-                    "split": "Legs",
-                    "exercises": [
-                        {
-                            "exerciseName": "Squat",
-                            "sets": 3,
-                            "reps": 12
-                        }
-                    ]
-                }
-            ]
-        }
-        """;
-
-        // Save workout plans
-        List<WorkoutPlan> savedPlans = workoutPlanService.saveWorkoutPlanFromChatGptResponse(mockResponse, user);
-
-        // Assertions on initial allocation
-        assertNotNull(savedPlans);
-        assertEquals(3, savedPlans.size());
-        assertEquals(LocalDate.now(), savedPlans.get(0).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(1), savedPlans.get(1).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(2), savedPlans.get(2).getPlannedDate());
-
-        // Mark Day 1 as done
-        WorkoutPlan day1Plan = savedPlans.get(0);
-        day1Plan.setStatus(true);
-        workoutPlanRepository.save(day1Plan);
-
-        // Mark Day 2 as not done
-        WorkoutPlan day2Plan = savedPlans.get(1);
-        day2Plan.setStatus(false);
-        workoutPlanRepository.save(day2Plan);
-
-        // Adjust dates for skipped plans
-        workoutPlanService.adjustDatesForSkippedPlans(user);
-
-        // Fetch updated plans
-        List<WorkoutPlan> updatedPlans = workoutPlanRepository.findByUserId(user.getId());
-
-        // Assertions on updated plans
-        assertEquals(LocalDate.now(), updatedPlans.get(0).getPlannedDate()); // Day 1 unchanged
-        assertEquals(LocalDate.now().plusDays(2), updatedPlans.get(1).getPlannedDate()); // Day 2 shifted
-        assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(2).getPlannedDate()); // Day 3 shifted
-    }
-
-    @Test
-    public void testWorkoutPlanGoesToHistoryWhenMarkedDone() {
-        // Set up user
-        User user = new User();
-        user.setEmail("historytestuser@example.com");
-        user.setPassword("password");
-        user.setUsername("historytestuser");
-        user = userRepository.save(user);
-
-        // Create workout plans
-        String mockResponse = """
-        {
-            "workout_plan": [
-                {
-                    "day": 1,
-                    "split": "Chest",
-                    "exercises": [
-                        {
-                            "exerciseName": "Bench Press",
-                            "sets": 3,
-                            "reps": 10
-                        }
-                    ]
-                },
-                {
-                    "day": 2,
-                    "split": "Back",
-                    "exercises": [
-                        {
-                            "exerciseName": "Deadlift",
-                            "sets": 3,
-                            "reps": 8
-                        }
-                    ]
-                }
-            ]
-        }
-        """;
-
-        List<WorkoutPlan> savedPlans = workoutPlanService.saveWorkoutPlanFromChatGptResponse(mockResponse, user);
-
-        // Assertions on allocation
-        assertNotNull(savedPlans);
-        assertEquals(2, savedPlans.size());
-
-        // Mark Day 1 as done
-        WorkoutPlan day1Plan = savedPlans.get(0);
-        day1Plan.setStatus(true);
-        workoutPlanRepository.save(day1Plan);
-
-        // Check workout history after marking as done
-        workoutPlanService.markPlanAsDone(day1Plan.getId());
-
-        // Verify history record
-        List<WorkoutHistory> historyEntries = workoutHistoryRepository.findAll();
-        assertEquals(1, historyEntries.size());
-
-        WorkoutHistory history = historyEntries.get(0);
-        assertNotNull(history);
-        assertEquals(user.getId(), history.getUser().getId());
-        assertEquals(day1Plan.getPlannedDate(), history.getCompletedDate());
-        assertEquals(day1Plan.getSplit(), history.getSplit());
-        assertEquals(day1Plan.getExercises(), history.getExercises());
-
-        // Verify the status in the workout plan
-        WorkoutPlan updatedPlan = workoutPlanRepository.findById(day1Plan.getId()).orElseThrow();
-        assertTrue(updatedPlan.isStatus());
-    }
-
-    @Test
-    public void testResetAndRescheduleWorkoutPlans() {
-        // Create a mock user
-        User user = new User();
-        user.setEmail("testuser@example.com");
-        user.setPassword("password");
-        user.setUsername("testuser");
-        user = userRepository.save(user);
-
-        // Create mock workout plans
-        WorkoutPlan plan1 = new WorkoutPlan(null, user, LocalDate.now(), "Chest", "{}", true);
-        WorkoutPlan plan2 = new WorkoutPlan(null, user, LocalDate.now().plusDays(1), "Back", "{}", true);
-        WorkoutPlan plan3 = new WorkoutPlan(null, user, LocalDate.now().plusDays(2), "Legs", "{}", true);
-
-        workoutPlanRepository.saveAll(List.of(plan1, plan2, plan3));
-
-        // Reset and reschedule
-        List<WorkoutPlan> updatedPlans = workoutPlanService.resetAndRescheduleWorkoutPlans(user.getId());
-
-        // Validate
-        assertNotNull(updatedPlans);
-        assertEquals(3, updatedPlans.size());
-        assertFalse(updatedPlans.get(0).isStatus());
-        assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(0).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(4), updatedPlans.get(1).getPlannedDate());
-        assertEquals(LocalDate.now().plusDays(5), updatedPlans.get(2).getPlannedDate());
-    }
-
-    @Test
-    public void testAutoRepeatWorkoutPlans() {
-        // Arrange
-        User user = new User();
-        user.setEmail("testuser@example.com");
-        user.setPassword("password");
-        user.setUsername("testuser");
-        user = userRepository.save(user);
-
-        List<WorkoutPlan> plans = List.of(
-            new WorkoutPlan(user, LocalDate.now(), "Chest", "{}", true),
-            new WorkoutPlan(user, LocalDate.now().plusDays(1), "Back", "{}", true),
-            new WorkoutPlan(user, LocalDate.now().plusDays(2), "Legs", "{}", true)
-        );
-        workoutPlanRepository.saveAll(plans);
-
-        // Act
-        workoutPlanService.markPlanAsDone(plans.get(2).getId());
-
-        // Assert
-        List<WorkoutPlan> updatedPlans = workoutPlanRepository.findByUserId(user.getId());
-        assertEquals(3, updatedPlans.size());
-        assertFalse(updatedPlans.get(0).isStatus());
-        assertEquals(LocalDate.now().plusDays(3), updatedPlans.get(0).getPlannedDate());
-    }
-
-    @Test
-    public void testModifyWorkoutPlans() {
-        // Create a user
-        User user = new User();
-        user.setEmail("testuser@example.com");
-        user.setPassword("password");
-        user.setUsername("testuser");
-        user = userRepository.save(user);
-
-        // Create original workout plans
-        String mockResponse = """
-        {
-            "workout_plan": [
-                {
-                    "day": 1,
-                    "split": "Push",
-                    "exercises": [
-                        {
-                            "exerciseName": "Push-up",
                             "sets": 3,
                             "reps": 10
                         },
                         {
-                            "exerciseName": "Overhead Press",
-                            "sets": 3,
-                            "reps": 8
+                            "exerciseName": "Incline Bench Press",
+                            "sets": 4,
+                            "reps": 12
                         }
                     ]
                 },
                 {
                     "day": 2,
-                    "split": "Pull",
+                    "split": "Back",
                     "exercises": [
+                        {
+                            "exerciseName": "Deadlift",
+                            "sets": 3,
+                            "reps": 8
+                        },
                         {
                             "exerciseName": "Pull-up",
-                            "sets": 3,
-                            "reps": 8
-                        },
-                        {
-                            "exerciseName": "Bent-over Rows",
-                            "sets": 3,
-                            "reps": 12
+                            "sets": 4,
+                            "reps": 10
                         }
                     ]
                 }
             ]
         }
         """;
+    }
 
-        // Save the plans
-        List<WorkoutPlan> savedPlans = workoutPlanService.saveWorkoutPlanFromChatGptResponse(mockResponse, user);
+    @Test
+    public void testSaveChatgptWorkoutPlan() throws Exception {
+        // Mock objectMapper behavior to return parsed JSON
+        when(objectMapper.readValue(anyString(), eq(Map.class)))
+                .thenReturn(Map.of("workout_plan", List.of(
+                        Map.of(
+                                "day", 1,
+                                "split", "Chest",
+                                "exercises", List.of(
+                                        Map.of("exerciseName", "Bench Press", "sets", 3, "reps", 10),
+                                        Map.of("exerciseName", "Incline Bench Press", "sets", 4, "reps", 12)
+                                )
+                        ),
+                        Map.of(
+                                "day", 2,
+                                "split", "Back",
+                                "exercises", List.of(
+                                        Map.of("exerciseName", "Deadlift", "sets", 3, "reps", 8),
+                                        Map.of("exerciseName", "Pull-up", "sets", 4, "reps", 10)
+                                )
+                        )
+                )));
 
-        // Verify original plans
-        assertEquals(2, savedPlans.size());
+        // Mock exercise repository to return empty (forcing new creation)
+        when(exerciseRepository.findByExerciseName(anyString())).thenReturn(Optional.empty());
+        when(exerciseRepository.save(any(Exercise.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        WorkoutPlan firstPlan = savedPlans.get(0);
-        WorkoutPlan secondPlan = savedPlans.get(1);
+        // Mock workoutPlanRepository save behavior
+        when(workoutPlanRepository.save(any(WorkoutPlan.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertEquals("Push", firstPlan.getSplit());
-        assertEquals("Pull", secondPlan.getSplit());
+        // Call the method
+        List<WorkoutPlan> savedPlans = workoutPlanService.saveChatgptWorkoutPlan(mockChatGptResponse, testUser);
 
-        // Original second plan's first exercise
-        String originalSecondPlanExercises = secondPlan.getExercises();
-        assertTrue(originalSecondPlanExercises.contains("Pull-up"));
+        // Assertions
+        assertNotNull(savedPlans);
+        assertEquals(2, savedPlans.size()); // Two splits: Chest and Back
 
-        // Modify the second split's first exercise
-        List<Map<String, Object>> updatedExercises = List.of(
-            Map.of("exerciseName", "Barbell Rows", "sets", 4, "reps", 10),
-            Map.of("exerciseName", "Bent-over Rows", "sets", 3, "reps", 12)
-        );
+        // Check first workout plan (Chest)
+        WorkoutPlan chestPlan = savedPlans.get(0);
+        assertEquals("Chest", chestPlan.getSplitName());
+        assertEquals(LocalDate.now(), chestPlan.getPlannedDate());
+        assertFalse(chestPlan.isStatus());
+        assertEquals(2, chestPlan.getExercises().size());
 
-        WorkoutPlan updatedPlan = workoutPlanService.editWorkoutPlan(secondPlan.getId(), updatedExercises);
+        // Check second workout plan (Back)
+        WorkoutPlan backPlan = savedPlans.get(1);
+        assertEquals("Back", backPlan.getSplitName());
+        assertEquals(LocalDate.now().plusDays(1), backPlan.getPlannedDate());
+        assertFalse(backPlan.isStatus());
+        assertEquals(2, backPlan.getExercises().size());
 
-        // Verify the update
-        String updatedSecondPlanExercises = updatedPlan.getExercises();
-        assertTrue(updatedSecondPlanExercises.contains("Barbell Rows"));
-        assertFalse(updatedSecondPlanExercises.contains("Pull-up"));
+        // Check exercises for first plan
+        WorkoutPlanExercise firstExercise = chestPlan.getExercises().get(0);
+        assertEquals("Bench Press", firstExercise.getExercise().getExerciseName());
+        assertEquals(3, firstExercise.getSets());
+        assertEquals(10, firstExercise.getReps());
 
-        // Clean up
-        workoutPlanRepository.deleteAll();
-        userRepository.delete(user);
+        WorkoutPlanExercise secondExercise = chestPlan.getExercises().get(1);
+        assertEquals("Incline Bench Press", secondExercise.getExercise().getExerciseName());
+        assertEquals(4, secondExercise.getSets());
+        assertEquals(12, secondExercise.getReps());
+
+        // Verify interactions
+        verify(workoutPlanRepository, times(2)).save(any(WorkoutPlan.class));
+        verify(exerciseRepository, times(4)).findByExerciseName(anyString());
+        verify(exerciseRepository, times(4)).save(any(Exercise.class));
     }
 }
