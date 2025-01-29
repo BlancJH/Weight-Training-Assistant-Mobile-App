@@ -37,6 +37,6 @@ public class Exercise { // try public Enum
     @Column(name = "muscle")
     private List<String> muscles; // Targeted muscles (e.g., ["Chest", "Triceps"])
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String exerciseGifUrl; // URL for the exercise's GIF
 }
