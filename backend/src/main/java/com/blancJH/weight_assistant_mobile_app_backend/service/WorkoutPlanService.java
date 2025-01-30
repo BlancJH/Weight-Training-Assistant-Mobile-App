@@ -78,7 +78,8 @@ public class WorkoutPlanService {
                                 Exercise newExercise = new Exercise();
                                 newExercise.setExerciseName(normalizedExerciseName);
                                 newExercise.setExerciseCategory(null); // Set category to null
-                                newExercise.setMuscles(null); // Set muscles to null
+                                newExercise.setPrimaryMuscle(null); // Set muscles to null
+                                newExercise.setSecondaryMuscle(null); // Set muscles to null
                                 newExercise.setExerciseGifUrl(null); // Set GIF URL to null
                                 return exerciseRepository.save(newExercise);
                             });
@@ -210,7 +211,8 @@ public class WorkoutPlanService {
                         Exercise newExercise = new Exercise();
                         newExercise.setExerciseName(normalizedExerciseName);
                         newExercise.setExerciseCategory(null); // Set default or null
-                        newExercise.setMuscles(null); // Optional: set muscles to null
+                        newExercise.setPrimaryMuscle(null); // Set muscles to null
+                        newExercise.setSecondaryMuscle(null); // Set muscles to null
                         newExercise.setExerciseGifUrl(null); // Optional: set GIF URL to null
                         return exerciseRepository.save(newExercise);
                     });

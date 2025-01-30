@@ -47,7 +47,8 @@ public class ExerciseService {
         Exercise exercise = getExerciseById(id);
         exercise.setExerciseName(updatedExercise.getExerciseName());
         exercise.setExerciseCategory(updatedExercise.getExerciseCategory());
-        exercise.setMuscles(updatedExercise.getMuscles());
+        exercise.setPrimaryMuscle(updatedExercise.getPrimaryMuscle());
+        exercise.setSecondaryMuscle(updatedExercise.getSecondaryMuscle());
         exercise.setExerciseGifUrl(updatedExercise.getExerciseGifUrl());
         return exerciseRepository.save(exercise);
     }

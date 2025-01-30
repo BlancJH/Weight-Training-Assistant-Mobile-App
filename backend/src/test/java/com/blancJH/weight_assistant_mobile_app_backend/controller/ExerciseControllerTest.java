@@ -39,31 +39,35 @@ class ExerciseControllerTest {
     void testCreateExercise() {
         Exercise exercise = new Exercise();
         exercise.setExerciseName("Push-Up");
-        exercise.setExerciseCategory(ExerciseCategory.valueOf("BARBELL"));
-        exercise.setMuscles(List.of("Chest", "Triceps"));
+        exercise.setExerciseCategory(ExerciseCategory.BARBELL);
+        exercise.setPrimaryMuscle("Chest");
+        exercise.setSecondaryMuscle("Triceps");
         exercise.setExerciseGifUrl("https://example.com/pushup.gif");
 
-        when(exerciseService.createExercise(exercise)).thenReturn(exercise);
+        when(exerciseService.createExercise(any(Exercise.class))).thenReturn(exercise);
 
         ResponseEntity<Exercise> response = exerciseController.createExercise(exercise);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("Push-Up", response.getBody().getExerciseName());
-        verify(exerciseService, times(1)).createExercise(exercise);
+        assertEquals("Chest", response.getBody().getPrimaryMuscle());
+        verify(exerciseService, times(1)).createExercise(any(Exercise.class));
     }
 
     @Test
     void testGetAllExercises() {
         Exercise exercise1 = new Exercise();
         exercise1.setExerciseName("Push-Up");
-        exercise1.setExerciseCategory(ExerciseCategory.valueOf("BARBELL"));
-        exercise1.setMuscles(List.of("Chest", "Triceps"));
+        exercise1.setExerciseCategory(ExerciseCategory.BARBELL);
+        exercise1.setPrimaryMuscle("Chest");
+        exercise1.setSecondaryMuscle("Triceps");
 
         Exercise exercise2 = new Exercise();
         exercise2.setExerciseName("Squat");
-        exercise2.setExerciseCategory(ExerciseCategory.valueOf("BARBELL"));
-        exercise2.setMuscles(List.of("Legs", "Glutes"));
+        exercise2.setExerciseCategory(ExerciseCategory.BARBELL);
+        exercise2.setPrimaryMuscle("Legs");
+        exercise2.setSecondaryMuscle("Glutes");
 
         when(exerciseService.getAllExercises()).thenReturn(Arrays.asList(exercise1, exercise2));
 
@@ -79,8 +83,9 @@ class ExerciseControllerTest {
     void testGetExerciseById() {
         Exercise exercise = new Exercise();
         exercise.setExerciseName("Push-Up");
-        exercise.setExerciseCategory(ExerciseCategory.valueOf("BARBELL"));
-        exercise.setMuscles(List.of("Chest", "Triceps"));
+        exercise.setExerciseCategory(ExerciseCategory.BARBELL);
+        exercise.setPrimaryMuscle("Chest");
+        exercise.setSecondaryMuscle("Triceps");
 
         when(exerciseService.getExerciseById(1L)).thenReturn(exercise);
 
@@ -89,6 +94,7 @@ class ExerciseControllerTest {
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("Push-Up", response.getBody().getExerciseName());
+        assertEquals("Chest", response.getBody().getPrimaryMuscle());
         verify(exerciseService, times(1)).getExerciseById(1L);
     }
 
@@ -96,8 +102,9 @@ class ExerciseControllerTest {
     void testUpdateExercise() {
         Exercise updatedExercise = new Exercise();
         updatedExercise.setExerciseName("Pull-Up");
-        updatedExercise.setExerciseCategory(ExerciseCategory.valueOf("BARBELL"));
-        updatedExercise.setMuscles(List.of("Back", "Biceps"));
+        updatedExercise.setExerciseCategory(ExerciseCategory.BARBELL);
+        updatedExercise.setPrimaryMuscle("Back");
+        updatedExercise.setSecondaryMuscle("Biceps");
 
         when(exerciseService.updateExercise(eq(1L), any(Exercise.class))).thenReturn(updatedExercise);
 
@@ -106,6 +113,7 @@ class ExerciseControllerTest {
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("Pull-Up", response.getBody().getExerciseName());
+        assertEquals("Back", response.getBody().getPrimaryMuscle());
         verify(exerciseService, times(1)).updateExercise(eq(1L), any(Exercise.class));
     }
 
@@ -124,23 +132,25 @@ class ExerciseControllerTest {
     void testCreateExercisesInBulk() {
         Exercise exercise1 = new Exercise();
         exercise1.setExerciseName("Push-Up");
-        exercise1.setExerciseCategory(ExerciseCategory.valueOf("BARBELL"));
-        exercise1.setMuscles(List.of("Chest", "Triceps"));
+        exercise1.setExerciseCategory(ExerciseCategory.BARBELL);
+        exercise1.setPrimaryMuscle("Chest");
+        exercise1.setSecondaryMuscle("Triceps");
 
         Exercise exercise2 = new Exercise();
         exercise2.setExerciseName("Squat");
-        exercise2.setExerciseCategory(ExerciseCategory.valueOf("BARBELL"));
-        exercise2.setMuscles(List.of("Legs", "Glutes"));
+        exercise2.setExerciseCategory(ExerciseCategory.BARBELL);
+        exercise2.setPrimaryMuscle("Legs");
+        exercise2.setSecondaryMuscle("Glutes");
 
         List<Exercise> exercises = List.of(exercise1, exercise2);
 
-        when(exerciseService.createExercises(exercises)).thenReturn(exercises);
+        when(exerciseService.createExercises(any(List.class))).thenReturn(exercises);
 
         ResponseEntity<List<Exercise>> response = exerciseController.createExercises(exercises);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(2, response.getBody().size());
-        verify(exerciseService, times(1)).createExercises(exercises);
+        verify(exerciseService, times(1)).createExercises(any(List.class));
     }
 }
