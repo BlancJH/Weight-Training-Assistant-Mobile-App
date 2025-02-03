@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  backend:
+    image: blancjh/gymtinued-backend:latest
+    container_name: gymtinued-backend
+    restart: "no"
+    ports:
+      - "5000:5000"
+ 
