@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ExercisePlanService {
-  final String baseUrl = 'http://localhost:8080';
+  final String? _baseUrl = dotenv.env['BACKEND_BASE_URL']?? "http://default-url.com";
 
   Future<String> sendUserDetails(Map<String, dynamic> userDetails) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/v1/workokut-plan/generate'),
+      Uri.parse('$_baseUrl/v1/workokut-plan/generate'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(userDetails),
     );
@@ -20,7 +21,7 @@ class ExercisePlanService {
 
   Future<List<Map<String, dynamic>>> fetchWorkoutPlans(String token) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/api/v1/workout-plan/get'),
+      Uri.parse('$_baseUrl/v1/workout-plan/get'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
