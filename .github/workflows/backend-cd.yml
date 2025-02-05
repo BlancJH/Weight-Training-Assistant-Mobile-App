@@ -1,4 +1,4 @@
-name: Deploy ECS Fargate Task
+name: Deploy ECS Fargate Service
 
 on:
   push:
@@ -37,6 +37,7 @@ jobs:
           SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
           JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
         run: |
+          # Substitute environment variables in the task definition file.
           envsubst < backend/ecs-task-definition.json > backend/ecs-task-definition-filled.json
 
       - name: Validate Filled Task Definition File
@@ -55,5 +56,6 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster "${{ secrets.ECS_CLUSTER_NAME }}" \
+            --service "${{ secrets.ECS_SERVICE_NAME }}" \
             --task-definition "${{ steps.register_task.outputs.taskDefArn }}" \
             --force-new-deployment
