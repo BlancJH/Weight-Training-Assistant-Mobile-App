@@ -19,31 +19,31 @@
         "environment": [
           {
             "name": "JWT_SECRET",
-            "value": "${{ secrets.JWT_SECRET }}"
+            "value": "$JWT_SECRET"
           },
           {
             "name": "SPRING_DATASOURCE_URL",
-            "value": "${{ secrets.SPRING_DATASOURCE_URL }}"
+            "value": "$SPRING_DATASOURCE_URL"
           },
           {
             "name": "SPRING_DATASOURCE_PASSWORD",
-            "value": "${{ secrets.SPRING_DATASOURCE_PASSWORD }}"
+            "value": "$SPRING_DATASOURCE_PASSWORD"
           },
           {
             "name": "CHATGPT_API_URL",
-            "value": "${{ secrets.CHATGPT_API_URL }}"
+            "value": "$CHATGPT_API_URL"
           },
           {
             "name": "CHATGPT_API_key",
-            "value": "${{ secrets.CHATGPT_API_key }}"
+            "value": "$CHATGPT_API_key"
           },
           {
             "name": "SPRING_DATASOURCE_USERNAME",
-            "value": "${{ secrets.SPRING_DATASOURCE_USERNAME }}"
+            "value": "$SPRING_DATASOURCE_USERNAME"
           },
           {
             "name": "JWT_EXPIRATION",
-            "value": "${{ secrets.JWT_EXPIRATION }}"
+            "value": "$JWT_EXPIRATION"
           }
         ],
         "environmentFiles": [],
