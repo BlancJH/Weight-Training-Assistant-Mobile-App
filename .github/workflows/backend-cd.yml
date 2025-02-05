@@ -22,13 +22,13 @@ jobs:
 
       - name: Validate Task Definition File
         run: |
-          cat task-definition.json
-          jq . task-definition.json
+          cat ecs-task-definition.json
+          jq . ecs-task-definition.json
 
       - name: Register Task Definition and Run Task
         run: |
           # Register the new task definition and capture its ARN.
-          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://task-definition.json | jq -r '.taskDefinition.taskDefinitionArn')
+          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://ecs-task-definition.json | jq -r '.taskDefinition.taskDefinitionArn')
           echo "Registered new task definition: $NEW_TASK_DEF"
 
           # Run a new task using the registered task definition.
