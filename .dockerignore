@@ -4,7 +4,7 @@
 *.tmp
 
 # Flutter
-build/
+forntend/build/
 .dart_tool/
 .pub-cache/
 .packages
