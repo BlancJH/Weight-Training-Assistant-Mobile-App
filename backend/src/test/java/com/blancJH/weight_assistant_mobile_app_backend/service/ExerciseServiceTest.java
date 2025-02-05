@@ -1,21 +1,26 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
-import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
-class ExerciseServiceTests {
+import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
+import com.blancJH.weight_assistant_mobile_app_backend.model.ExerciseCategory;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
+
+class ExerciseServiceTest {
 
     @Mock
     private ExerciseRepository exerciseRepository;
@@ -32,8 +37,9 @@ class ExerciseServiceTests {
     void testCreateExercise() {
         Exercise exercise = new Exercise();
         exercise.setExerciseName("Push-Up");
-        exercise.setExerciseCategory("Strength");
-        exercise.setMuscles(List.of("Chest", "Triceps"));
+        exercise.setExerciseCategory(ExerciseCategory.BODYWEIGHT);
+        exercise.setPrimaryMuscle("Chest");
+        exercise.setSecondaryMuscle("Triceps");
         exercise.setExerciseGifUrl("https://example.com/pushup.gif");
 
         when(exerciseRepository.save(exercise)).thenReturn(exercise);
@@ -49,13 +55,15 @@ class ExerciseServiceTests {
     void testGetAllExercises() {
         Exercise exercise1 = new Exercise();
         exercise1.setExerciseName("Push-Up");
-        exercise1.setExerciseCategory("Strength");
-        exercise1.setMuscles(List.of("Chest", "Triceps"));
+        exercise1.setExerciseCategory(ExerciseCategory.BODYWEIGHT);
+        exercise1.setPrimaryMuscle("Chest");
+        exercise1.setSecondaryMuscle("Triceps");
 
         Exercise exercise2 = new Exercise();
         exercise2.setExerciseName("Squat");
-        exercise2.setExerciseCategory("Strength");
-        exercise2.setMuscles(List.of("Legs", "Glutes"));
+        exercise2.setExerciseCategory(ExerciseCategory.BARBELL);
+        exercise2.setPrimaryMuscle("Legs");
+        exercise2.setSecondaryMuscle("Glutes");
 
         when(exerciseRepository.findAll()).thenReturn(Arrays.asList(exercise1, exercise2));
 
@@ -70,8 +78,9 @@ class ExerciseServiceTests {
     void testGetExerciseById() {
         Exercise exercise = new Exercise();
         exercise.setExerciseName("Push-Up");
-        exercise.setExerciseCategory("Strength");
-        exercise.setMuscles(List.of("Chest", "Triceps"));
+        exercise.setExerciseCategory(ExerciseCategory.BODYWEIGHT);
+        exercise.setPrimaryMuscle("Chest");
+        exercise.setSecondaryMuscle("Triceps");
 
         when(exerciseRepository.findById(1L)).thenReturn(Optional.of(exercise));
 

@@ -55,6 +55,9 @@ dependencies {
     //XML
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
+    //PostgreSQL
+    implementation 'org.postgresql:postgresql:42.7.1'
+
 }
 
 tasks.withType(JavaCompile) {

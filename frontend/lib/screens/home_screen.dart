@@ -9,6 +9,7 @@ import '../models/exercise_gif.dart';
 import '../widgets/popup_menu.dart';
 import '../screens/profile_screen.dart';
 import '../screens/workout_plan_screen.dart';
+import '../services/exercise_plan_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -17,23 +18,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
+  final ExercisePlanService _exercisePlanService = ExercisePlanService();
   String? username;
   String? profileUrl;
-  List<ExerciseGifModel>? exerciseData = [];
+  List<Map<String, dynamic>> exerciseData = []; // Non-nullable
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
-    _loadExerciseData();
-  }
-
-  Future<List<ExerciseGifModel>?> _fetchExerciseData() async {
-    // Simulate a delay to mimic a network request
-    await Future.delayed(Duration(seconds: 2));
-    // Return null to simulate no data scenario
-    return null;
-
+    _fetchExerciseData();
   }
 
   Future<void> _fetchUserData() async {
@@ -52,13 +46,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _loadExerciseData() async {
-    exerciseData = await _fetchExerciseData();
-    setState(() {
-      exerciseData = exerciseData;
-    });
-  }
+  Future<void> _fetchExerciseData() async {
+    try {
+      final token = await _authService.getToken(); // Get JWT token
 
+      if (token == null) {
+        throw Exception('Token is null. Unable to fetch workout plans.');
+      }
+
+      final fetchedPlans = await _exercisePlanService.fetchWorkoutPlans(token);
+      setState(() {
+        exerciseData = fetchedPlans;
+      });
+    } catch (e) {
+      print('Error fetching workout plans: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch workout plans: $e')),
+      );
+    }
+  }
 
   void _handleMenuSelection(MenuOptions option) async {
     switch (option) {
@@ -77,8 +83,8 @@ class _HomeScreenState extends State<HomeScreen> {
         print('Settings tapped!');
         break;
       case MenuOptions.logout:
-        await _authService.logoutUser(); // Delete the token
-        Navigator.pushReplacementNamed(context, '/login'); // Navigate to login screen
+        await _authService.logoutUser();
+        Navigator.pushReplacementNamed(context, '/login');
         break;
     }
   }
@@ -114,87 +120,95 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-  
-        // Conditional rendering based on exercise data
-        exerciseData != null && exerciseData!.isNotEmpty
-            ? Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Your Exercises',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          print('Re-plan button pressed!');
-                        },
-                        child: Text(
-                          'Re-plan >',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.blue,
+
+          // Conditional rendering based on exercise data
+          exerciseData.isNotEmpty
+              ? Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Your Exercises',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                          TextButton(
+                            onPressed: () {
+                              print('Re-plan button pressed!');
+                            },
+                            child: Text(
+                              'Re-plan >',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 16.0),
-                  height: 170,
-                  child: CustomListView(
-                      itemCount: exerciseData!.length,
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      itemBuilder: (context, index) {
-                        final gif = exerciseData![index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: GifWidget(
-                            gifUrl: gif.gifUrl,
-                            text: gif.text,
-                            optionalText: gif.optionalText,
-                            width: 200,
-                            height: 150,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16.0),
+                      height: 170,
+                      child: CustomListView(
+                        itemCount: exerciseData.length,
+                        scrollDirection: Axis.horizontal,
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
+                        itemBuilder: (context, index) {
+                          final gif = exerciseData[index];
+
+                          // Ensure correct keys exist in gif object
+                          return Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: GifWidget(
+                              gifUrl: gif['gifUrl'] ?? '', // Ensure key matches backend response
+                              text: gif['text'] ?? 'Exercise', 
+                              optionalText: gif['optionalText'] ?? '',
+                              width: 200,
+                              height: 150,
                             ),
                           );
                         },
-                      )
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: SubmitButton(
-                    text: 'Start workout!',
-                    onPressed: () {
-                      print('Workout button pressed!');
-                    },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: SubmitButton(
+                        text: 'Start workout!',
+                        onPressed: () {
+                          print('Workout button pressed!');
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              : Center(
+                  child: Text(
+                    'No exercises available.',
+                    style: TextStyle(fontSize: 16.0, color: Colors.grey),
                   ),
                 ),
-              ],
-            )
-          : Center(
-              child: Text(
-                'No exercises available.',
-                style: TextStyle(fontSize: 16.0, color: Colors.grey),
-              ),
-            ),
-            SizedBox(height: 16.0),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: SubmitButton(
+          SizedBox(height: 16.0),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SubmitButton(
               text: 'Plan Workout',
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => WorkoutPlanScreen(username: username ?? 'Guest')),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          WorkoutPlanScreen(username: username ?? 'Guest')),
                 );
               },
             ),

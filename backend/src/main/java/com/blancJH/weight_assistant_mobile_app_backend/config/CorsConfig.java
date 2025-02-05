@@ -12,11 +12,14 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**")
-                    .allowedOriginPatterns("http://*.example.com", "http://localhost:*") // Use patterns
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(true);
+                registry.addMapping("/**")
+                        .allowedOriginPatterns(
+                            "https://*.gymtinued.com",  // Allow all subdomains of gymtinued.com
+                            "http://localhost:3000" // Local Frontend (for testing)
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }

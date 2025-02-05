@@ -24,10 +24,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configure(http))
             .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/v1/chatgpt").permitAll() // Allow access to ChatGPT endpoint
-            .anyRequest().authenticated())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .requestMatchers("/api/v1/chatgpt").permitAll() // Allow access to ChatGPT endpoint
+                .anyRequest().authenticated())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Add the filter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -36,24 +36,24 @@ public class UserDetails {
     private Double heightValue;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "height_unit", nullable = true)
+    @Column(name = "height_unit", nullable = true, length = 2)
     private HeightUnit heightUnit;
 
     @Column(name = "weight_value", nullable = true)
     private Double weightValue;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "weight_unit", nullable = true)
+    @Column(name = "weight_unit", nullable = true, length = 3)
     private WeightUnit weightUnit;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = true)
+    @Column(name = "gender", nullable = true, length = 6)
     private Gender gender;
 
-    @Column(name = "workout_purpose", nullable = true)
+    @Column(name = "workout_purpose", nullable = true, length = 20)
     private String purpose;
 
-    @Column(nullable = true)
+    @Column(nullable = true, length = 20)
     private String workoutFrequency;
 
     @Column(nullable = true)
@@ -62,7 +62,7 @@ public class UserDetails {
     @Column(nullable = true)
     private Integer numberOfSplit;
 
-    @Column(name = "injuries_constraints", nullable = true)
+    @Column(name = "injuries_constraints", nullable = true, length = 20)
     private String injuriesOrConstraints;
 
     @Column(nullable = true)

@@ -1,0 +1,39 @@
+name: Deploy ECS Fargate Task
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Validate Task Definition File
+        run: |
+          cat task-definition.json
+          jq . task-definition.json
+
+      - name: Register Task Definition and Run Task
+        run: |
+          # Register the new task definition and capture its ARN.
+          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://task-definition.json | jq -r '.taskDefinition.taskDefinitionArn')
+          echo "Registered new task definition: $NEW_TASK_DEF"
+
+          # Run a new task using the registered task definition.
+          aws ecs run-task \
+            --cluster "${{ secrets.ECS_CLUSTER_NAME }}" \
+            --launch-type FARGATE \
+            --task-definition "$NEW_TASK_DEF" \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.ECS_SUBNET_ID }}],securityGroups=[${{ secrets.ECS_SECURITY_GROUP }}],assignPublicIp=ENABLED}"

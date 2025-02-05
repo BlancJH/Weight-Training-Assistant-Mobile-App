@@ -2,10 +2,11 @@ import 'dart:convert'; // For JSON encoding/decoding
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
   // Base URL for your backend
-  final String _baseUrl = 'http://localhost:8080/api/auth';
+  final String? _baseUrl = dotenv.env['BACKEND_BASE_URL']?? "http://default-url.com";
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   // Register User
@@ -14,7 +15,7 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final url = '$_baseUrl/register';
+    final url = '$_baseUrl/auth/register';
 
     try {
       final body = json.encode({
@@ -41,7 +42,7 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final url = '$_baseUrl/login';
+    final url = '$_baseUrl/auth/login';
 
     try {
       final body = json.encode({

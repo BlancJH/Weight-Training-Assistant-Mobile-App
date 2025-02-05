@@ -1,10 +1,15 @@
 package com.blancJH.weight_assistant_mobile_app_backend.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Entity
 @Table(name = "exercises")
@@ -18,14 +23,16 @@ public class Exercise { // try public Enum
     @Column(nullable = false)
     private String exerciseName; // Name of the exercise
 
-    @Column(nullable = false)
-    private String exerciseCategory; // Category (e.g., "Machine", "Cardio", "Bodyweight", "Barbell", "Dumbbell", "Assisted Bodyweight") //Need to edit as Enum
-
-    @ElementCollection // Allows storing a list of strings
-    @CollectionTable(name = "exercise_muscles", joinColumns = @JoinColumn(name = "exercise_id"))
-    @Column(name = "muscle")
-    private List<String> muscles; // Targeted muscles (e.g., ["Chest", "Triceps"])
+    @Enumerated(EnumType.STRING)
+    @Column(name = "exercise_category", nullable = true)
+    private ExerciseCategory exerciseCategory;
 
     @Column(nullable = false)
+    private String primaryMuscle;// Targeted muscles
+
+    @Column(nullable = false)
+    private String secondaryMuscle;// Second Targeted muscles
+
+    @Column(nullable = true)
     private String exerciseGifUrl; // URL for the exercise's GIF
 }

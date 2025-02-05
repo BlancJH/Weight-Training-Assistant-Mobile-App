@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'auth_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class UserService {
   // Base URL for your backend (not the auth portion, but the user portion)
-  final String _baseUrl = 'http://localhost:8080/api/v1';
+  final String? _baseUrl = dotenv.env['BACKEND_BASE_URL']?? "http://default-url.com";
 
   // Create an instance of AuthService to get the token
   final AuthService _authService = AuthService();
@@ -18,7 +19,7 @@ class UserService {
       throw Exception('No JWT token found. User might not be logged in.');
     }
 
-    final url = '$_baseUrl/userDetails';
+    final url = '$_baseUrl/v1/userDetails';
 
     try {
       final response = await http.post(
