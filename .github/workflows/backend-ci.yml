@@ -30,7 +30,7 @@ jobs:
         run: chmod +x backend/gradlew
 
       - name: Build & Test with Gradle
-        run: cd backend && ./gradlew build test
+        run: cd backend && ./gradlew clean build test
 
   docker-build:
     needs: build-and-test

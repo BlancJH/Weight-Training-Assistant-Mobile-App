@@ -8,9 +8,9 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /app
 
 # Copy the application JAR file
-COPY backend/build/libs/weight-assistant-mobile-app-backend-*.jar app.jar
+COPY build/libs/weight-assistant-mobile-app-backend-*.jar app.jar
 
-# COPY src/main/resources/application.properties /app/config/application.properties
+#COPY src/main/resources/application.properties /app/config/application.properties
 
 # Expose the application's port
 EXPOSE 5000
