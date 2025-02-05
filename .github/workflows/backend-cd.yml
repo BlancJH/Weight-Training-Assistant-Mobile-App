@@ -28,30 +28,31 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Prepare Task Definition
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          CHATGPT_API_URL: ${{ secrets.CHATGPT_API_URL }}
+          CHATGPT_API_key: ${{ secrets.CHATGPT_API_key }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
         run: |
-          envsubst < ecs-task-definition.json > ecs-task-definition-filled.json
+          envsubst < backend/ecs-task-definition.json > backend/ecs-task-definition-filled.json
 
-      - name: Validate Task Definition File
+      - name: Validate Filled Task Definition File
         run: |
-          cat ecs-task-definition.json
-          jq . ecs-task-definition.json
+          cat backend/ecs-task-definition-filled.json
+          jq . backend/ecs-task-definition-filled.json
 
-      - name: Register Task Definition and Run Task
+      - name: Register Task Definition
+        id: register_task
         run: |
-          # Register the new task definition and capture its ARN.
-          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://ecs-task-definition-filled.json | jq -r '.taskDefinition.taskDefinitionArn')
+          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://backend/ecs-task-definition-filled.json | jq -r '.taskDefinition.taskDefinitionArn')
           echo "Registered new task definition: $NEW_TASK_DEF"
-
-          # Run a new task using the registered task definition.
-          aws ecs run-task \
-            --cluster "${{ secrets.ECS_CLUSTER_NAME }}" \
-            --launch-type FARGATE \
-            --task-definition "$NEW_TASK_DEF" \
-            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.ECS_SUBNET_ID }}],securityGroups=[${{ secrets.ECS_SECURITY_GROUP }}],assignPublicIp=ENABLED}"
+          echo "taskDefArn=$NEW_TASK_DEF" >> $GITHUB_OUTPUT
 
       - name: Update ECS Service to Deploy New Task Definition
         run: |
-          # Update the ECS service to force a new deployment.
           aws ecs update-service \
             --cluster "${{ secrets.ECS_CLUSTER_NAME }}" \
             --service "${{ secrets.ECS_SERVICE_NAME }}" \
