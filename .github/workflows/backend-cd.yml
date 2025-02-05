@@ -27,6 +27,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Prepare Task Definition
+        run: |
+          envsubst < backend/ecs-task-definition.json > backend/ecs-task-definition-filled.json
+
       - name: Validate Task Definition File
         run: |
           cat backend/ecs-task-definition.json
@@ -35,7 +39,7 @@ jobs:
       - name: Register Task Definition and Run Task
         run: |
           # Register the new task definition and capture its ARN.
-          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://backend/ecs-task-definition.json | jq -r '.taskDefinition.taskDefinitionArn')
+          NEW_TASK_DEF=$(aws ecs register-task-definition --cli-input-json file://backend/ecs-task-definition-filled.json | jq -r '.taskDefinition.taskDefinitionArn')
           echo "Registered new task definition: $NEW_TASK_DEF"
 
           # Run a new task using the registered task definition.
