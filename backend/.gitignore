@@ -48,11 +48,6 @@ gradle/wrapper/gradle-wrapper.jar
 *.swp
 *.swo
 
-# Application.properties
-**/application.properties
-src/main/resources/application.properties
-
-
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
