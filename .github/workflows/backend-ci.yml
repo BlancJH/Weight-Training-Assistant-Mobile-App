@@ -32,6 +32,10 @@ jobs:
       - name: Build & Test with Gradle
         run: cd backend && ./gradlew clean build test
 
+      - name: List build/libs directory
+        working-directory: ./backend
+        run: ls -l build/libs/
+
   docker-build:
     needs: build-and-test
     runs-on: ubuntu-latest
