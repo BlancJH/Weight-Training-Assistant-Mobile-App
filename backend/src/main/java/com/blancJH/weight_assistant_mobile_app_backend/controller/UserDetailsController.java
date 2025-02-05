@@ -29,7 +29,7 @@ public class UserDetailsController {
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping
+    @PostMapping("/save")
     public ResponseEntity<String> saveOrUpdateUserDetails(@RequestBody UserDetails userDetails, HttpServletRequest request) {
         // Extract user ID from JWT
         String token = jwtUtil.extractTokenFromRequest(request);
@@ -71,7 +71,7 @@ public class UserDetailsController {
     }
 
 
-    @GetMapping
+    @GetMapping("/get")
     public ResponseEntity<UserDetails> getUserDetails(HttpServletRequest request) {
         // Extract user ID from JWT
         String token = jwtUtil.extractTokenFromRequest(request);
