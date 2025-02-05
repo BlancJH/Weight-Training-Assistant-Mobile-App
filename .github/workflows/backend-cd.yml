@@ -48,3 +48,12 @@ jobs:
             --launch-type FARGATE \
             --task-definition "$NEW_TASK_DEF" \
             --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.ECS_SUBNET_ID }}],securityGroups=[${{ secrets.ECS_SECURITY_GROUP }}],assignPublicIp=ENABLED}"
+
+      - name: Update ECS Service to Deploy New Task Definition
+        run: |
+          # Update the ECS service to force a new deployment.
+          aws ecs update-service \
+            --cluster "${{ secrets.ECS_CLUSTER_NAME }}" \
+            --service "${{ secrets.ECS_SERVICE_NAME }}" \
+            --task-definition "${{ steps.register_task.outputs.taskDefArn }}" \
+            --force-new-deployment
