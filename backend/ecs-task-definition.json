@@ -1,94 +1,72 @@
 {
-    "taskDefinition": {
-        "taskDefinitionArn": "arn:aws:ecs:ap-southeast-2:985539781323:task-definition/gymtinued-backend-task:1",
-        "containerDefinitions": [
-            {
-                "name": "gymtinued-backend",
-                "image": "docker.io/blancjh/gymtinued-backend:latest",
-                "cpu": 0,
-                "memory": 1024,
-                "portMappings": [
-                    {
-                        "containerPort": 5000,
-                        "hostPort": 5000,
-                        "protocol": "tcp",
-                        "name": "gymtinued-backend-port-protocol",
-                        "appProtocol": "http"
-                    }
-                ],
-                "essential": true,
-                "environment": [
-                    {
-                        "name": "JWT_SECRET",
-                        "value": "${{ secrets.JWT_SECRET }}"
-                    },
-                    {
-                        "name": "SPRING_DATASOURCE_URL",
-                        "value": "${{ secrets.SPRING_DATASOURCE_URL }}"
-                    },
-                    {
-                        "name": "SPRING_DATASOURCE_PASSWORD",
-                        "value": "${{ secrets.SPRING_DATASOURCE_PASSWORD }}"
-                    },
-                    {
-                        "name": "CHATGPT_API_URL",
-                        "value": "${{ secrets.CHATGPT_API_URL }}"
-                    },
-                    {
-                        "name": "CHATGPT_API_key",
-                        "value": "${{ secrets.CHATGPT_API_key }}"
-                    },
-                    {
-                        "name": "SPRING_DATASOURCE_USERNAME",
-                        "value": "${{ secrets.SPRING_DATASOURCE_USERNAME }}"
-                    },
-                    {
-                        "name": "JWT_EXPIRATION",
-                        "value": "${{ secrets.JWT_EXPIRATION }}"
-                    }
-                ],
-                "environmentFiles": [],
-                "mountPoints": [],
-                "volumesFrom": [],
-                "ulimits": [],
-                "systemControls": []
-            }
+    "family": "gymtinued-backend-task",
+    "containerDefinitions": [
+      {
+        "name": "gymtinued-backend",
+        "image": "docker.io/blancjh/gymtinued-backend:latest",
+        "cpu": 0,
+        "memory": 1024,
+        "portMappings": [
+          {
+            "containerPort": 5000,
+            "hostPort": 5000,
+            "protocol": "tcp",
+            "name": "gymtinued-backend-port-protocol",
+            "appProtocol": "http"
+          }
         ],
-        "family": "gymtinued-backend-task",
-        "taskRoleArn": "arn:aws:iam::985539781323:role/ECS_RDS_FULL",
-        "executionRoleArn": "arn:aws:iam::985539781323:role/ECS_RDS_FULL",
-        "networkMode": "awsvpc",
-        "revision": 1,
-        "volumes": [],
-        "status": "ACTIVE",
-        "requiresAttributes": [
-            {
-                "name": "com.amazonaws.ecs.capability.task-iam-role"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-            },
-            {
-                "name": "ecs.capability.task-eni"
-            }
+        "essential": true,
+        "environment": [
+          {
+            "name": "JWT_SECRET",
+            "value": "${{ secrets.JWT_SECRET }}"
+          },
+          {
+            "name": "SPRING_DATASOURCE_URL",
+            "value": "${{ secrets.SPRING_DATASOURCE_URL }}"
+          },
+          {
+            "name": "SPRING_DATASOURCE_PASSWORD",
+            "value": "${{ secrets.SPRING_DATASOURCE_PASSWORD }}"
+          },
+          {
+            "name": "CHATGPT_API_URL",
+            "value": "${{ secrets.CHATGPT_API_URL }}"
+          },
+          {
+            "name": "CHATGPT_API_key",
+            "value": "${{ secrets.CHATGPT_API_key }}"
+          },
+          {
+            "name": "SPRING_DATASOURCE_USERNAME",
+            "value": "${{ secrets.SPRING_DATASOURCE_USERNAME }}"
+          },
+          {
+            "name": "JWT_EXPIRATION",
+            "value": "${{ secrets.JWT_EXPIRATION }}"
+          }
         ],
-        "placementConstraints": [],
-        "compatibilities": [
-            "EC2",
-            "FARGATE"
-        ],
-        "runtimePlatform": {
-            "cpuArchitecture": "X86_64",
-            "operatingSystemFamily": "LINUX"
-        },
-        "requiresCompatibilities": [
-            "FARGATE"
-        ],
-        "cpu": "1024",
-        "memory": "3072",
-        "registeredAt": "2025-02-03T13:33:25.777000+08:00",
-        "registeredBy": "arn:aws:iam::985539781323:root",
-        "enableFaultInjection": false
+        "environmentFiles": [],
+        "mountPoints": [],
+        "volumesFrom": [],
+        "ulimits": [],
+        "systemControls": []
+      }
+    ],
+    "taskRoleArn": "arn:aws:iam::985539781323:role/ECS_RDS_FULL",
+    "executionRoleArn": "arn:aws:iam::985539781323:role/ECS_RDS_FULL",
+    "networkMode": "awsvpc",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "LINUX"
     },
-    "tags": []
-}
+    "enableFaultInjection": false
+  }
+  
