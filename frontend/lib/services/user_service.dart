@@ -19,7 +19,7 @@ class UserService {
       throw Exception('No JWT token found. User might not be logged in.');
     }
 
-    final url = '$_baseUrl/v1/userDetails';
+    final url = '$_baseUrl/v1/userDetails/save';
 
     try {
       final response = await http.post(
@@ -51,7 +51,7 @@ class UserService {
       throw Exception('No JWT token found. User might not be logged in.');
     }
 
-    final url = '$_baseUrl/userDetails';
+    final url = '$_baseUrl/v1/userDetails/get';
 
     try {
       final response = await http.get(
