@@ -14,7 +14,6 @@ import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlanExercise;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutHistoryRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.util.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,20 +22,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class WorkoutPlanService {
 
     private final WorkoutPlanRepository workoutPlanRepository;
-    private final WorkoutHistoryRepository workoutHistoryRepository;
     private final UserRepository userRepository;
     private final ExerciseRepository exerciseRepository;
     private final ObjectMapper objectMapper;
 
     public WorkoutPlanService(
         WorkoutPlanRepository workoutPlanRepository,
-        WorkoutHistoryRepository workoutHistoryRepository,
         UserRepository userRepository,
         ExerciseRepository exerciseRepository,
         ObjectMapper objectMapper
     ) {
         this.workoutPlanRepository = workoutPlanRepository;
-        this.workoutHistoryRepository = workoutHistoryRepository;
         this.userRepository = userRepository;
         this.exerciseRepository = exerciseRepository;
         this.objectMapper = objectMapper;
@@ -243,4 +239,12 @@ public class WorkoutPlanService {
                 .orElseThrow(() -> new RuntimeException("Workout Plan not found"));
         return workoutPlan.getExercises();
     }
+
+    public void deleteIncompleteWorkoutPlans(User user) {
+        // Retrieve incomplete workout plans for the user
+        List<WorkoutPlan> incompletePlans = workoutPlanRepository.findByUserIdAndStatusFalse(user.getId());
+        // Delete all found workout plans
+        workoutPlanRepository.deleteAll(incompletePlans);
+    }
+
 }

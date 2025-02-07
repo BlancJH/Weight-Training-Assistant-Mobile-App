@@ -52,6 +52,9 @@ public class WorkoutPlanController {
             // Fetch user
             User user = userService.findById(userId);
 
+            // Check and delete any incomplete workout plans for the user
+            workoutPlanService.deleteIncompleteWorkoutPlans(user);
+
             // Call ChatGPT API to generate workout plan
             String chatGptResponse = chatGptService.sendUserDetailsToChatGpt(userDetails);
 
