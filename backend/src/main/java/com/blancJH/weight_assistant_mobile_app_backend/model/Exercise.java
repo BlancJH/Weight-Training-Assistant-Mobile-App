@@ -30,7 +30,7 @@ public class Exercise { // try public Enum
     @Column(nullable = false)
     private String primaryMuscle;// Targeted muscles
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String secondaryMuscle;// Second Targeted muscles
 
     @Column(nullable = true)
