@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanDTO;
@@ -98,26 +97,47 @@ public class WorkoutPlanController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<List<WorkoutPlanDTO>> getWorkoutPlansForUser(@RequestParam Long userId) {
-        List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByUserId(userId);
+    public ResponseEntity<List<WorkoutPlanDTO>> getWorkoutPlansForUser(HttpServletRequest request) {
+        try {
+            // Extract JWT token from the request header
+            String token = jwtUtil.extractTokenFromRequest(request);
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
 
-        List<WorkoutPlanDTO> response = workoutPlans.stream().map(wp -> new WorkoutPlanDTO(
-                wp.getId(),
-                wp.getPlannedDate(),
-                wp.isStatus(),
-                wp.getSplitName(),
-                wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
-                        ex.getExercise().getExerciseId(),
-                        ex.getExercise().getExerciseName(),
-                        ex.getExercise().getExerciseCategory() != null ? ex.getExercise().getExerciseCategory().toString() : null,
-                        ex.getExercise().getPrimaryMuscle(),
-                        ex.getExercise().getSecondaryMuscle(),
-                        ex.getExercise().getExerciseGifUrl(),
-                        ex.getSets(),
-                        ex.getReps()
-                )).collect(Collectors.toList())
-        )).collect(Collectors.toList());
+            // Extract userId from the token
+            Long userId = jwtUtil.extractUserId(token);
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
 
-        return ResponseEntity.ok(response);
+            // Fetch workout plans using the extracted userId
+            List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByUserId(userId);
+
+            // Map your WorkoutPlan entities to WorkoutPlanDTOs
+            List<WorkoutPlanDTO> response = workoutPlans.stream().map(wp -> new WorkoutPlanDTO(
+                    wp.getId(),
+                    wp.getPlannedDate(),
+                    wp.isStatus(),
+                    wp.getSplitName(),
+                    wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
+                            ex.getExercise().getExerciseId(),
+                            ex.getExercise().getExerciseName(),
+                            ex.getExercise().getExerciseCategory() != null 
+                                ? ex.getExercise().getExerciseCategory().toString() 
+                                : null,
+                            ex.getExercise().getPrimaryMuscle(),
+                            ex.getExercise().getSecondaryMuscle(),
+                            ex.getExercise().getExerciseGifUrl(),
+                            ex.getSets(),
+                            ex.getReps()
+                    )).collect(Collectors.toList())
+            )).collect(Collectors.toList());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(null);
+        }
     }
 }
