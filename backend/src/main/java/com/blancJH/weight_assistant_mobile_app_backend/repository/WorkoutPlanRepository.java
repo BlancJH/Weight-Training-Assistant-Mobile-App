@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
@@ -13,6 +14,7 @@ import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Long> {
 
     // Find all workout plans for a specific user
+    @Query("SELECT wp FROM WorkoutPlan wp JOIN FETCH wp.exercises WHERE wp.user.id = :userId")
     List<WorkoutPlan> findByUserId(Long userId);
 
     // Find all workout plans for a specific user and status

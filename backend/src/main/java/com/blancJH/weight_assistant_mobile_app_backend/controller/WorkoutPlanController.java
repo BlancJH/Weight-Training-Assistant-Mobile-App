@@ -2,6 +2,7 @@ package com.blancJH.weight_assistant_mobile_app_backend.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanDTO;
+import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanExerciseDTO;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 import com.blancJH.weight_assistant_mobile_app_backend.service.ChatGptService;
@@ -94,21 +98,26 @@ public class WorkoutPlanController {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<?> getWorkoutPlans(HttpServletRequest request) {
-        try {
-            // Extract JWT token from request
-            String token = jwtUtil.extractTokenFromRequest(request);
+    public ResponseEntity<List<WorkoutPlanDTO>> getWorkoutPlansForUser(@RequestParam Long userId) {
+        List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByUserId(userId);
 
-            // Extract userId from the token
-            Long userId = jwtUtil.extractUserId(token);
+        List<WorkoutPlanDTO> response = workoutPlans.stream().map(wp -> new WorkoutPlanDTO(
+                wp.getId(),
+                wp.getPlannedDate(),
+                wp.isStatus(),
+                wp.getSplitName(),
+                wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
+                        ex.getExercise().getExerciseId(),
+                        ex.getExercise().getExerciseName(),
+                        ex.getExercise().getExerciseCategory() != null ? ex.getExercise().getExerciseCategory().toString() : null,
+                        ex.getExercise().getPrimaryMuscle(),
+                        ex.getExercise().getSecondaryMuscle(),
+                        ex.getExercise().getExerciseGifUrl(),
+                        ex.getSets(),
+                        ex.getReps()
+                )).collect(Collectors.toList())
+        )).collect(Collectors.toList());
 
-            // Fetch user's workout plans
-            List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByUserId(userId);
-
-            return ResponseEntity.ok(workoutPlans);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Error fetching workout plans: " + e.getMessage());
-        }
+        return ResponseEntity.ok(response);
     }
 }
