@@ -15,7 +15,7 @@ public class CorsConfig {
                 registry.addMapping("/**")
                         .allowedOriginPatterns(
                             "https://*.gymtinued.com",  // Allow all subdomains of gymtinued.com
-                            "http://localhost:3000" // Local Frontend (for testing)
+                            "http://127.0.0.1:3000" // Xcode Simulator Frontend (for testing)
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

@@ -54,10 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
         throw Exception('Token is null. Unable to fetch workout plans.');
       }
 
-      final fetchedPlans = await _exercisePlanService.fetchWorkoutPlans(token);
+      final fetchedPlans = await _exercisePlanService.fetchWorkoutPlans();
       setState(() {
         exerciseData = fetchedPlans;
       });
+      print("Fetched workout plans: $exerciseData");
     } catch (e) {
       print('Error fetching workout plans: $e');
       ScaffoldMessenger.of(context).showSnackBar(

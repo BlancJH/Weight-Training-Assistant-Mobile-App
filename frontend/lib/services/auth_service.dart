@@ -76,7 +76,9 @@ class AuthService {
 
   // Retrieve Token
   Future<String?> getToken() async {
-    return await _storage.read(key: 'jwt'); // Get the token from secure storage
+    final token = await _storage.read(key: 'jwt');
+    print("Retrieved JWT: $token");// Get the token from secure storage
+    return token;
   }
 
   // Logout User

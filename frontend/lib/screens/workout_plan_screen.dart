@@ -8,6 +8,7 @@ import '../services/profile_service.dart';
 import 'package:intl/intl.dart';
 import '../widgets/custom_time_picker_dialog.dart';
 import '../services/exercise_plan_service.dart';
+import '../services/auth_service.dart';
 
 class WorkoutPlanScreen extends StatefulWidget {
   final String username;
@@ -546,8 +547,18 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                 numberOfSplit: numberOfSplit,
               );
 
+              // Fetch JWT token
+              final jwtToken = await AuthService().getToken();
+
+              if (jwtToken == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Error: No JWT token found. Please log in.')),
+                );
+                return;
+              }
+
               // Send workout plan request
-              final responseMessage = await exercisePlanService.sendUserDetails(userDetails);
+              final responseMessage = await exercisePlanService.sendUserDetails(userDetails, jwtToken);
 
               // Show success message from workout plan service
               ScaffoldMessenger.of(context).showSnackBar(
