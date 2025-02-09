@@ -48,17 +48,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchExerciseData() async {
     try {
-      final token = await _authService.getToken(); // Get JWT token
-
+      final token = await _authService.getToken();
       if (token == null) {
         throw Exception('Token is null. Unable to fetch workout plans.');
       }
 
-      final fetchedPlans = await _exercisePlanService.fetchWorkoutPlans();
+      final List<Map<String, dynamic>> fetchedPlans = await _exercisePlanService.fetchWorkoutPlans();
+
       setState(() {
-        exerciseData = fetchedPlans;
+        exerciseData = fetchedPlans
+            .map((plan) => plan['exercises'] as List<dynamic>)
+            .expand((exerciseList) => exerciseList.map((e) => e as Map<String, dynamic>))
+            .toList();
       });
-      print("Fetched workout plans: $exerciseData");
+
+      print("Fetched Exercises: $exerciseData");
     } catch (e) {
       print('Error fetching workout plans: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -170,9 +174,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 8.0),
                             child: GifWidget(
-                              gifUrl: gif['gifUrl'] ?? '', // Ensure key matches backend response
-                              text: gif['text'] ?? 'Exercise', 
-                              optionalText: gif['optionalText'] ?? '',
+                              gifUrl: gif['gifUrl'] ?? 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif', // Ensure key matches backend response
+                              text: gif['exerciseName'] ?? 'Exercise', 
+                              optionalText: gif['optionalText'] ?? "${gif['sets']} sets ${gif['reps']} reps",
                               width: 200,
                               height: 150,
                             ),

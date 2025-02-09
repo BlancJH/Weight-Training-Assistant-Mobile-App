@@ -558,7 +558,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
               }
 
               // Send workout plan request
-              final responseMessage = await exercisePlanService.sendUserDetails(userDetails, jwtToken);
+              final responseMessage = await exercisePlanService.sendUserDetails(userDetails);
 
               // Show success message from workout plan service
               ScaffoldMessenger.of(context).showSnackBar(

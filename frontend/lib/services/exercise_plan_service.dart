@@ -7,7 +7,7 @@ class ExercisePlanService {
   final String? _baseUrl = dotenv.env['BACKEND_BASE_URL']?? "http://default-url.com";
   final AuthService _authService = AuthService();
 
-  Future<String> sendUserDetails(Map<String, dynamic> userDetails, String jwtToken) async {
+  Future<String> sendUserDetails(Map<String, dynamic> userDetails) async {
     final jwtToken = await _authService.getToken();
 
       if (jwtToken == null) {
@@ -51,7 +51,9 @@ class ExercisePlanService {
     print("Fetching Workout Plans: ${response.statusCode} - ${response.body}");
 
     if (response.statusCode == 200) {
-      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      final List<dynamic> jsonResponse = jsonDecode(response.body);
+
+      return jsonResponse.map((plan) => plan as Map<String, dynamic>).toList();
     } else {
       throw Exception('Failed to fetch workout plans: ${response.reasonPhrase}');
     }
