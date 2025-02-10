@@ -1,12 +1,13 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ChatGptService {
@@ -120,7 +121,7 @@ public class ChatGptService {
             "# Notes\n\n" +
             "- Consider adding modifications for users with specific physical limitations.\n" +
             "- Ensure a progressive increase in intensity to foster continuous improvement.\n" +
-            "- Exercises do not need to be various, but ensure they are effective and based on researches.\n" +
+            "- Ensure exercises are effective based on researches.\n" +
             "- Ensure days do not exceed the number of split. e.g., numberOfSplit: 3 == maximum days for plan is 3.";
 
 

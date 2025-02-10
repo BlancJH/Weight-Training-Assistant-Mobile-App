@@ -2,6 +2,7 @@ package com.blancJH.weight_assistant_mobile_app_backend.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -17,8 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanDTO;
 import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanExerciseDTO;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import com.blancJH.weight_assistant_mobile_app_backend.model.UserDetails;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 import com.blancJH.weight_assistant_mobile_app_backend.service.ChatGptService;
+import com.blancJH.weight_assistant_mobile_app_backend.service.UserDetailsJsonService;
+import com.blancJH.weight_assistant_mobile_app_backend.service.UserDetailsService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.WorkoutPlanService;
 import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
@@ -34,40 +38,70 @@ public class WorkoutPlanController {
     private final ChatGptService chatGptService;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final UserDetailsService userDetailsService; // Service to fetch UserDetails from DB
+    private final UserDetailsJsonService userDetailsJsonService; // Converts UserDetails to JSON
 
-    public WorkoutPlanController(WorkoutPlanService workoutPlanService, ChatGptService chatGptService, JwtUtil jwtUtil, UserService userService) {
+    public WorkoutPlanController(WorkoutPlanService workoutPlanService,
+                                 ChatGptService chatGptService,
+                                 JwtUtil jwtUtil,
+                                 UserService userService,
+                                 UserDetailsService userDetailsService,
+                                 UserDetailsJsonService userDetailsJsonService) {
         this.workoutPlanService = workoutPlanService;
         this.chatGptService = chatGptService;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.userDetailsService = userDetailsService;
+        this.userDetailsJsonService = userDetailsJsonService;
     }
 
     @PostMapping("/generate")
-    public ResponseEntity<?> generateAndSaveWorkoutPlan(@RequestBody Map<String, Object> userDetails, 
-                                                        HttpServletRequest request) {
+    public ResponseEntity<?> generateAndSaveWorkoutPlan(HttpServletRequest request) {
         try {
-            // Extract JWT token from request
+            // Extract JWT token from request header
             String token = jwtUtil.extractTokenFromRequest(request);
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                     .body("JWT token is missing or invalid.");
+            }
 
             // Extract userId from the token
             Long userId = jwtUtil.extractUserId(token);
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                                     .body("Unable to extract user ID from token.");
+            }
 
-            // Fetch user
+            // Fetch user from the database
             User user = userService.findById(userId);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body("User not found.");
+            }
 
-            // Check and delete any incomplete workout plans for the user
+            // Fetch user details from the database
+            Optional<UserDetails> userDetailsOpt = userDetailsService.findByUserId(userId);
+            if (userDetailsOpt == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body("User details not found.");
+            }
+
+            // Convert user details into JSON using your JSON service
+            String userDetailsJson = userDetailsJsonService.convertUserDetailsToJson(userDetailsOpt.get());
+
+            // Delete any incomplete workout plans for the user
             workoutPlanService.deleteIncompleteWorkoutPlans(user);
 
-            // Call ChatGPT API to generate workout plan
-            String chatGptResponse = chatGptService.sendUserDetailsToChatGpt(userDetails);
+            // Call ChatGPT API to generate a workout plan using the user details from DB
+            String chatGptResponse = chatGptService.sendUserDetailsToChatGpt(userDetailsJson);
 
-            // Save workout plan
+            // Save the generated workout plan for the user
             List<WorkoutPlan> workoutPlans = workoutPlanService.saveChatgptWorkoutPlan(chatGptResponse, user);
 
             return ResponseEntity.ok(workoutPlans);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Error generating or saving workout plan: " + e.getMessage());
+                                 .body("Error generating or saving workout plan: " + e.getMessage());
         }
     }
 

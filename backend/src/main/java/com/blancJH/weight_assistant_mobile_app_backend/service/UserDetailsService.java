@@ -33,4 +33,8 @@ public class UserDetailsService {
     public UserDetails findByUser(User user) {
         return userDetailsRepository.findByUser(user);
     }
+
+    public Optional<UserDetails> findByUserId(Long userId) {
+        return userDetailsRepository.findByUserId(userId);
+    }
 }
