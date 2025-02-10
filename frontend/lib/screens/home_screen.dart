@@ -10,6 +10,7 @@ import '../widgets/popup_menu.dart';
 import '../screens/profile_screen.dart';
 import '../screens/workout_plan_screen.dart';
 import '../services/exercise_plan_service.dart';
+import '../utils/string_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -175,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const EdgeInsets.symmetric(horizontal: 8.0),
                             child: GifWidget(
                               gifUrl: gif['gifUrl'] ?? 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif', // Ensure key matches backend response
-                              text: gif['exerciseName'] ?? 'Exercise', 
+                              text: capitalise(gif['exerciseName'] ?? 'Exercise'),
                               optionalText: gif['optionalText'] ?? "${gif['sets']} sets ${gif['reps']} reps",
                               width: 200,
                               height: 150,
@@ -196,28 +197,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 )
               : Center(
-                  child: Text(
-                    'No exercises available.',
-                    style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min, // Ensures the Column only takes as much space as needed
+                    children: [
+                      Text(
+                        'No exercises available.',
+                        style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                      ),
+                      SizedBox(height: 16.0),
+                      SubmitButton(
+                        text: 'Plan Workout',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  WorkoutPlanScreen(username: username ?? 'Guest'),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
-
-          SizedBox(height: 16.0),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SubmitButton(
-              text: 'Plan Workout',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          WorkoutPlanScreen(username: username ?? 'Guest')),
-                );
-              },
-            ),
-          ),
         ],
       ),
     );
