@@ -33,7 +33,8 @@ public class ChatGptService {
 
             // System message with specific workout plan instructions
             String prompt = """
-                You are to create a personalized workout plan in JSON format based on the user demographic details and training requirements provided. Your output must be strictly in JSON with no additional text, commentary, or markdown formatting.\n
+                You are to create a personalized workout plan in JSON format based on the user demographic details and training requirements provided. Your output must be strictly in JSON with no additional text, commentary, or markdown formatting.
+
                 ### Instructions:
                 1. **Gather Input Details:**  
                 - User Demographic: Age, gender, height, weight, current fitness level.
@@ -45,24 +46,23 @@ public class ChatGptService {
                 - Understand the user's goals and demographics.
                 - Allocate time and frequency based on user input.
                 - Select appropriate exercises considering the user’s fitness level and training purpose.
-                - Create a workout plan distributed over the number of days equal to `"numberOfSplit"`.
+                - Create a workout plan distributed over the number of days equal to "numberOfSplit".
                 - Adjust exercises if there are any injuries or constraints.
 
                 3. **Output Requirements:**
-                - The JSON must have a key `"workout_plan"` which is an array of objects.
-                - Each object in the `"workout_plan"` array should include:
-                    - `"day"`: The day number (starting from 1).
-                    - `"split"`: The targeted body part or workout split.
-                    - `"exercises"`: An array of exercise objects, each containing:
-                    - `"exerciseName"`: Name of the exercise.
-                    - `"exercise_muscles"`: Array of targeted muscles.
-                    - `"exerciseCategory"`: Type of exercise (e.g., "Barbell", "Bodyweight").
-                    - `"sets"`: Number of sets.
-                    - `"reps"`: Number of repetitions.
-                    - `"weight"`: Weight used (if applicable).
+                - The JSON must have a key "workout_plan" which is an array of objects.
+                - Each object in the "workout_plan" array should include:
+                    - "day": The day number (starting from 1).
+                    - "split": The targeted body part or workout split.
+                    - "exercises": An array of exercise objects, each containing only:
+                    - "exerciseName": Name of the exercise.
+                    - "sets": Number of sets.
+                    - "reps": Number of repetitions.
+                    - Optionally, "duration": Duration of the exercise if it is time-based.
+                - Do not include any additional fields such as weight, exerciseCategory, or exercise_muscles.
 
                 4. **Important:**
-                - Ensure that the number of workout days is exactly equal to the `"numberOfSplit"` provided in the input.
+                - Ensure that the number of workout days is exactly equal to the "numberOfSplit" provided in the input.
                 - Do not include any text or explanation outside of the JSON output.
 
                 ### Example Input:
@@ -75,10 +75,9 @@ public class ChatGptService {
                     "purposeOfWorkout": "Bulk up",
                     "workoutFrequency": "5 times a week",
                     "workoutDuration": "90 min",
-                    "numberOfSplit": 3
+                    "numberOfSplit": 3,
+                    "injuriesOrConstraints": "mild lower-back strain"
                 },
-                "injuriesOrConstraints": "mild lower-back strain",
-                "additionalNotes": "Focus on proper form, avoid heavy loads on deadlift"
                 }
 
                 ### Expected JSON Output Format:
@@ -90,16 +89,11 @@ public class ChatGptService {
                     "exercises": [
                         {
                         "exerciseName": "Bench Press",
-                        "exercise_muscles": ["Chest", "Triceps"],
-                        "exerciseCategory": "Barbell",
                         "sets": 3,
-                        "reps": 8,
-                        "weight": 60
+                        "reps": 8
                         },
                         {
                         "exerciseName": "Push-up",
-                        "exercise_muscles": ["Chest", "Triceps"],
-                        "exerciseCategory": "Bodyweight",
                         "sets": 3,
                         "reps": 12
                         }
@@ -111,11 +105,8 @@ public class ChatGptService {
                     "exercises": [
                         {
                         "exerciseName": "Deadlift",
-                        "exercise_muscles": ["Back", "Glutes", "Hamstrings"],
-                        "exerciseCategory": "Barbell",
                         "sets": 3,
-                        "reps": 8,
-                        "weight": 80
+                        "reps": 8
                         }
                     ]
                     },
@@ -125,8 +116,6 @@ public class ChatGptService {
                     "exercises": [
                         {
                         "exerciseName": "Squat",
-                        "exercise_muscles": ["Quadriceps", "Glutes"],
-                        "exerciseCategory": "Bodyweight",
                         "sets": 3,
                         "reps": 10
                         }
@@ -135,7 +124,7 @@ public class ChatGptService {
                 ]
                 }
 
-                Now, using the guidelines above, generate the workout plan in JSON format strictly following the example provided.";
+                Return only the JSON output exactly as specified above.
                 """;
 
             // Prepare ChatGPT request payload
