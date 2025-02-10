@@ -32,98 +32,111 @@ public class ChatGptService {
             String userDetailsJson = objectMapper.writeValueAsString(userDetails);
 
             // System message with specific workout plan instructions
-            String prompt = "Create a personalized workout plan based on user demographic details and training requirements. Response is only in JSON no additional text.\n\n" +
-            "Gather the following information:\n" +
-            "- **User Demographic**: Age, gender, height, weight and current fitness level.\n" +
-            "- **Training Purpose**: Specific goals e.g., weight loss, muscle gain, endurance improvement, specific sports such as boxing, Hyrox, Taekwondo, etc.\n" +
-            "- **Frequency and Duration**: How many days a week the user wants to train and how much time they can dedicate per session.\n" +
-            "- **numberOfSplit**: The number of split for the workout plan targeting specific body parts, e.g., Pull, Push, Legs, Chest, Back, Arms, Shoulders.\n\n" +
-            "# Steps\n\n" +
-            "1. **Understand User Goals**: Identify user demographic and training goals to tailor the workout plan effectively.\n" +
-            "2. **Allocate Time and Frequency**: Consider the user's available time and desired frequency to design a balanced workout routine.\n" +
-            "3. **Exercise Selection**: Choose exercises appropriate for the user's goals and fitness level, ensuring variety and progression.\n" +
-            "4. **Create Workout Plan**: Schedule exercises up to the numberOfSplit.\n" +
-            "5. **Review and Adjust**: Adjust exercises and intensities to align with user restrictions or preferences if necessary.\n\n" +
-            "# Output Format\n\n" +
-            "The output should be a detailed workout plan based on split, structured in JSON format. Each day should list:\n" +
-            "- Day as many as the split.\n" +
-            "- Specific exercise names with repetitions, sets, exercise category and targeting muscles (if the exercise dumbbell or barbell, indicate the weight.).\n\n" +
-            "# Examples\n\n" +
-            "**Input:**\n" +
-            "{\n" +
-            "  \"User details\": {\n" +
-            "    \"userAge\": 30,\n" +
-            "    \"userHeight\": 175cm,\n" +
-            "    \"userWeight\": 70kg,\n" +
-            "    \"userGender\": \"Male\", \n" +
-            "    \"purposeOfWorkout\": \"Bulk up\",\n" +
-            "    \"workoutFrequency\": \"5 times a week\",\n" +
-            "    \"workoutDuration\": \"90 min\",\n" +
-            "    \"numberOfSplit\": 3\n" +
-            "  },\n" +
-            "  \"injuriesOrConstraints\": \"mild lower-back strain\"\n" +
-            "  },\n" +
-            "  \"additionalNotes\": \"Focus on proper form, avoid heavy loads on deadlift\"\n" +
-            "}\n\n" +
-            "**Output:**\n" +
-            "{\n" +
-            "  \"workout_plan\": [\n" +
-            "    {\n" +
-            "      \"day\": 1,\n" +
-            "      \"split\": \"Chest\",\n" +
-            "      \"exercises\": [\n" +
-            "        {\n" +
-            "          \"exerciseName\": \"Bench Press\",\n" +
-            "          \"exercise_muscles\": [\"Chest\", \"Triceps\"],\n" +
-            "          \"exerciseCategory\": \"Barbell\",\n" +
-            "          \"sets\": 3,\n" +
-            "          \"reps\": 8,\n" +
-            "          \"weight\": 60\n" +
-            "        },\n" +
-            "        {\n" +
-            "          \"exerciseName\": \"Push-up\",\n" +
-            "          \"exercise_muscles\": [\"Chest\", \"Triceps\"],\n" +
-            "          \"exerciseCategory\": \"Bodyweight\",\n" +
-            "          \"sets\": 3,\n" +
-            "          \"reps\": 12\n" +
-            "        }\n" +
-            "      ]\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"day\": 2,\n" +
-            "      \"split\": \"Back\",\n" +
-            "      \"exercises\": [\n" +
-            "        {\n" +
-            "          \"exerciseName\": \"Deadlift\",\n" +
-            "          \"exercise_muscles\": [\"Back\", \"Glutes\", \"Hamstrings\"],\n" +
-            "          \"exerciseCategory\": \"Barbell\",\n" +
-            "          \"sets\": 3,\n" +
-            "          \"reps\": 8,\n" +
-            "          \"weight\": 80\n" +
-            "        }\n" +
-            "      ]\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"day\": 3,\n" +
-            "      \"split\": \"Legs\",\n" +
-            "      \"exercises\": [\n" +
-            "        {\n" +
-            "          \"exerciseName\": \"Squat\",\n" +
-            "          \"exercise_muscles\": [\"Quadriceps\", \"Glutes\"],\n" +
-            "          \"exerciseCategory\": \"Bodyweight\",\n" +
-            "          \"sets\": 3,\n" +
-            "          \"reps\": 10\n" +
-            "        }\n" +
-            "      ]\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}\n\n" +
-            "# Notes\n\n" +
-            "- Consider adding modifications for users with specific physical limitations.\n" +
-            "- Ensure a progressive increase in intensity to foster continuous improvement.\n" +
-            "- Ensure exercises are effective based on researches.\n" +
-            "- Ensure days do not exceed the number of split. e.g., numberOfSplit: 3 == maximum days for plan is 3.";
+            String prompt = """
+                You are to create a personalized workout plan in JSON format based on the user demographic details and training requirements provided. Your output must be strictly in JSON with no additional text, commentary, or markdown formatting.\n
+                ### Instructions:
+                1. **Gather Input Details:**  
+                - User Demographic: Age, gender, height, weight, current fitness level.
+                - Training Purpose: e.g., weight loss, muscle gain, endurance improvement, or specific sports (boxing, Hyrox, Taekwondo, etc.).
+                - Frequency and Duration: How many days a week the user wants to train and how much time per session.
+                - numberOfSplit: The number of splits for the workout plan (e.g., targeting specific body parts like Pull, Push, Legs, Chest, Back, Arms, Shoulders).
 
+                2. **Steps to Follow:**
+                - Understand the user's goals and demographics.
+                - Allocate time and frequency based on user input.
+                - Select appropriate exercises considering the user’s fitness level and training purpose.
+                - Create a workout plan distributed over the number of days equal to `"numberOfSplit"`.
+                - Adjust exercises if there are any injuries or constraints.
+
+                3. **Output Requirements:**
+                - The JSON must have a key `"workout_plan"` which is an array of objects.
+                - Each object in the `"workout_plan"` array should include:
+                    - `"day"`: The day number (starting from 1).
+                    - `"split"`: The targeted body part or workout split.
+                    - `"exercises"`: An array of exercise objects, each containing:
+                    - `"exerciseName"`: Name of the exercise.
+                    - `"exercise_muscles"`: Array of targeted muscles.
+                    - `"exerciseCategory"`: Type of exercise (e.g., "Barbell", "Bodyweight").
+                    - `"sets"`: Number of sets.
+                    - `"reps"`: Number of repetitions.
+                    - `"weight"`: Weight used (if applicable).
+
+                4. **Important:**
+                - Ensure that the number of workout days is exactly equal to the `"numberOfSplit"` provided in the input.
+                - Do not include any text or explanation outside of the JSON output.
+
+                ### Example Input:
+                {
+                "User details": {
+                    "userAge": 30,
+                    "userHeight": "175cm",
+                    "userWeight": "70kg",
+                    "userGender": "Male",
+                    "purposeOfWorkout": "Bulk up",
+                    "workoutFrequency": "5 times a week",
+                    "workoutDuration": "90 min",
+                    "numberOfSplit": 3
+                },
+                "injuriesOrConstraints": "mild lower-back strain",
+                "additionalNotes": "Focus on proper form, avoid heavy loads on deadlift"
+                }
+
+                ### Expected JSON Output Format:
+                {
+                "workout_plan": [
+                    {
+                    "day": 1,
+                    "split": "Chest",
+                    "exercises": [
+                        {
+                        "exerciseName": "Bench Press",
+                        "exercise_muscles": ["Chest", "Triceps"],
+                        "exerciseCategory": "Barbell",
+                        "sets": 3,
+                        "reps": 8,
+                        "weight": 60
+                        },
+                        {
+                        "exerciseName": "Push-up",
+                        "exercise_muscles": ["Chest", "Triceps"],
+                        "exerciseCategory": "Bodyweight",
+                        "sets": 3,
+                        "reps": 12
+                        }
+                    ]
+                    },
+                    {
+                    "day": 2,
+                    "split": "Back",
+                    "exercises": [
+                        {
+                        "exerciseName": "Deadlift",
+                        "exercise_muscles": ["Back", "Glutes", "Hamstrings"],
+                        "exerciseCategory": "Barbell",
+                        "sets": 3,
+                        "reps": 8,
+                        "weight": 80
+                        }
+                    ]
+                    },
+                    {
+                    "day": 3,
+                    "split": "Legs",
+                    "exercises": [
+                        {
+                        "exerciseName": "Squat",
+                        "exercise_muscles": ["Quadriceps", "Glutes"],
+                        "exerciseCategory": "Bodyweight",
+                        "sets": 3,
+                        "reps": 10
+                        }
+                    ]
+                    }
+                ]
+                }
+
+                Now, using the guidelines above, generate the workout plan in JSON format strictly following the example provided.";
+                """;
 
             // Prepare ChatGPT request payload
             Map<String, Object> requestPayload = Map.of(
