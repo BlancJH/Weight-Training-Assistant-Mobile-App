@@ -130,7 +130,7 @@ public class WorkoutPlanService {
                                 workoutPlanExercise.setReps(null);
                             }
 
-                            // Map "duration" if provided (assuming duration is a String)
+                            // Map "duration" if provided
                             if (exerciseMap.containsKey("duration") && exerciseMap.get("duration") != null) {
                                 workoutPlanExercise.setDuration((String) exerciseMap.get("duration"));
                             } else {
