@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
@@ -18,6 +20,7 @@ import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRep
 import com.blancJH.weight_assistant_mobile_app_backend.util.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 @Service
 public class WorkoutPlanService {
 
@@ -25,6 +28,7 @@ public class WorkoutPlanService {
     private final UserRepository userRepository;
     private final ExerciseRepository exerciseRepository;
     private final ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(WorkoutPlanService.class);
 
     public WorkoutPlanService(
         WorkoutPlanRepository workoutPlanRepository,
@@ -39,67 +43,102 @@ public class WorkoutPlanService {
     }
 
     public List<WorkoutPlan> saveChatgptWorkoutPlan(String chatgptResponse, User user) {
+        logger.debug("Initiating saveChatgptWorkoutPlan for user: {}", user.getUsername());
         try {
             // Parse the ChatGPT response into a Map
             Map<String, Object> responseMap = objectMapper.readValue(chatgptResponse, Map.class);
+            logger.debug("Parsed ChatGPT response successfully: {}", responseMap);
+            
             List<Map<String, Object>> workoutDays = (List<Map<String, Object>>) responseMap.get("workout_plan");
-
             if (workoutDays == null || workoutDays.isEmpty()) {
-                throw new RuntimeException("Invalid workout plan format in ChatGPT response.");
+                String errorMsg = "Invalid workout plan format in ChatGPT response: 'workout_plan' is missing or empty.";
+                logger.error(errorMsg);
+                throw new RuntimeException(errorMsg);
             }
-
+            
             LocalDate currentDate = LocalDate.now();
             List<WorkoutPlan> workoutPlans = new ArrayList<>();
-
+            
             for (Map<String, Object> dayPlan : workoutDays) {
-                // Create a new WorkoutPlan
+                logger.debug("Processing day plan: {}", dayPlan);
+                
                 WorkoutPlan workoutPlan = new WorkoutPlan();
                 workoutPlan.setUser(user);
-                workoutPlan.setPlannedDate(currentDate.plusDays((int) dayPlan.get("day") - 1));
+                
+                // Safely parse and set the planned date
+                try {
+                    int dayNumber = (int) dayPlan.get("day");
+                    workoutPlan.setPlannedDate(currentDate.plusDays(dayNumber - 1));
+                } catch (Exception e) {
+                    String errorMsg = "Error parsing 'day' field in day plan: " + dayPlan;
+                    logger.error(errorMsg, e);
+                    throw new RuntimeException(errorMsg, e);
+                }
+                
                 workoutPlan.setSplitName((String) dayPlan.get("split"));
                 workoutPlan.setStatus(false); // Default: not done
-
-                // Handle exercises for this workout plan
+                
+                // Process exercises for this day
                 List<Map<String, Object>> exercises = (List<Map<String, Object>>) dayPlan.get("exercises");
+                if (exercises == null || exercises.isEmpty()) {
+                    String warnMsg = "No exercises found for day plan: " + dayPlan;
+                    logger.warn(warnMsg);
+                }
+                
                 List<WorkoutPlanExercise> workoutPlanExercisesList = new ArrayList<>();
-
+                
                 for (Map<String, Object> exerciseMap : exercises) {
-                    // Normalize the exercise name
+                    logger.debug("Processing exercise map: {}", exerciseMap);
+                    
+                    // Normalise the exercise name
                     String rawExerciseName = (String) exerciseMap.get("exerciseName");
                     String normalizedExerciseName = StringUtil.normaliseExerciseName(rawExerciseName);
-
+                    logger.debug("Normalized exercise name: '{}' -> '{}'", rawExerciseName, normalizedExerciseName);
+                    
                     // Find existing exercise or create a new one
                     Exercise exercise = exerciseRepository.findByExerciseName(normalizedExerciseName)
-                            .orElseGet(() -> {
-                                Exercise newExercise = new Exercise();
-                                newExercise.setExerciseName(normalizedExerciseName);
-                                newExercise.setExerciseCategory(null); // Set category to null
-                                newExercise.setPrimaryMuscle(null); // Set muscles to null
-                                newExercise.setSecondaryMuscle(null); // Set muscles to null
-                                newExercise.setExerciseGifUrl(null); // Set GIF URL to null
-                                return exerciseRepository.save(newExercise);
-                            });
-
-                    // Create a new WorkoutPlanExercises
+                        .orElseGet(() -> {
+                            logger.debug("Exercise '{}' not found in repository; creating new exercise.", normalizedExerciseName);
+                            Exercise newExercise = new Exercise();
+                            newExercise.setExerciseName(normalizedExerciseName);
+                            newExercise.setExerciseCategory(null); // Set category to null
+                            newExercise.setPrimaryMuscle(null); // Set primary muscle to null
+                            newExercise.setSecondaryMuscle(null); // Set secondary muscle to null
+                            newExercise.setExerciseGifUrl(null); // Set GIF URL to null
+                            Exercise savedExercise = exerciseRepository.save(newExercise);
+                            logger.debug("Saved new exercise: {}", savedExercise);
+                            return savedExercise;
+                        });
+                    
+                    // Create a new WorkoutPlanExercise and set details
                     WorkoutPlanExercise workoutPlanExercise = new WorkoutPlanExercise();
                     workoutPlanExercise.setExercise(exercise);
-                    workoutPlanExercise.setSets((Integer) exerciseMap.get("sets"));
-                    workoutPlanExercise.setReps((Integer) exerciseMap.get("reps"));
+                    try {
+                        workoutPlanExercise.setSets((Integer) exerciseMap.get("sets"));
+                        workoutPlanExercise.setReps((Integer) exerciseMap.get("reps"));
+                    } catch (Exception e) {
+                        String errorMsg = "Error parsing 'sets' or 'reps' for exercise: " + exerciseMap;
+                        logger.error(errorMsg, e);
+                        throw new RuntimeException(errorMsg, e);
+                    }
                     workoutPlanExercise.setWorkoutPlan(workoutPlan); // Associate with the workout plan
-
+                    
                     workoutPlanExercisesList.add(workoutPlanExercise);
                 }
-
+                
                 workoutPlan.setExercises(workoutPlanExercisesList);
-
+                
                 // Save the workout plan
                 workoutPlanRepository.save(workoutPlan);
+                logger.debug("Saved workout plan for date: {}", workoutPlan.getPlannedDate());
                 workoutPlans.add(workoutPlan);
             }
-
+            
+            logger.debug("Successfully processed all workout plans. Total plans saved: {}", workoutPlans.size());
             return workoutPlans;
-
+            
         } catch (Exception e) {
+            logger.error("Error processing ChatGPT workout plan response", e);
             throw new RuntimeException("Error processing ChatGPT workout plan response", e);
         }
     }
