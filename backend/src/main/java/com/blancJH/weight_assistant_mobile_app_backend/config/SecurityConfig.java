@@ -10,7 +10,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.blancJH.weight_assistant_mobile_app_backend.filter.JwtAuthenticationFilter;
-import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 
 @Configuration
 public class SecurityConfig {
@@ -26,7 +25,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configure(http))
             .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/v1/chatgpt").permitAll() // Allow access to ChatGPT endpoint
+                .requestMatchers("/api/v1/workout-plans/**").authenticated() 
+                .requestMatchers("/api/v1/chatgpt").authenticated() // Allow access to ChatGPT endpoint
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

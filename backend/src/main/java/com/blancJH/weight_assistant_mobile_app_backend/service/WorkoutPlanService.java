@@ -52,8 +52,8 @@ public class WorkoutPlanService {
             List<Map<String, Object>> workoutDays = (List<Map<String, Object>>) responseMap.get("workout_plan");
             if (workoutDays == null || workoutDays.isEmpty()) {
                 String errorMsg = "Invalid workout plan format in ChatGPT response: 'workout_plan' is missing or empty.";
-                logger.error(errorMsg);
-                throw new RuntimeException(errorMsg);
+                logger.error(errorMsg + " Raw response: {}", chatgptResponse);
+                throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse);
             }
             
             LocalDate currentDate = LocalDate.now();
@@ -71,8 +71,8 @@ public class WorkoutPlanService {
                     workoutPlan.setPlannedDate(currentDate.plusDays(dayNumber - 1));
                 } catch (Exception e) {
                     String errorMsg = "Error parsing 'day' field in day plan: " + dayPlan;
-                    logger.error(errorMsg, e);
-                    throw new RuntimeException(errorMsg, e);
+                    logger.error(errorMsg + " Raw response: {}", chatgptResponse, e);
+                    throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse, e);
                 }
                 
                 workoutPlan.setSplitName((String) dayPlan.get("split"));
@@ -90,7 +90,7 @@ public class WorkoutPlanService {
                 for (Map<String, Object> exerciseMap : exercises) {
                     logger.debug("Processing exercise map: {}", exerciseMap);
                     
-                    // Normalise the exercise name
+                    // Normalize the exercise name
                     String rawExerciseName = (String) exerciseMap.get("exerciseName");
                     String normalizedExerciseName = StringUtil.normaliseExerciseName(rawExerciseName);
                     logger.debug("Normalized exercise name: '{}' -> '{}'", rawExerciseName, normalizedExerciseName);
@@ -118,8 +118,8 @@ public class WorkoutPlanService {
                         workoutPlanExercise.setReps((Integer) exerciseMap.get("reps"));
                     } catch (Exception e) {
                         String errorMsg = "Error parsing 'sets' or 'reps' for exercise: " + exerciseMap;
-                        logger.error(errorMsg, e);
-                        throw new RuntimeException(errorMsg, e);
+                        logger.error(errorMsg + " Raw response: {}", chatgptResponse, e);
+                        throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse, e);
                     }
                     workoutPlanExercise.setWorkoutPlan(workoutPlan); // Associate with the workout plan
                     
@@ -138,8 +138,8 @@ public class WorkoutPlanService {
             return workoutPlans;
             
         } catch (Exception e) {
-            logger.error("Error processing ChatGPT workout plan response", e);
-            throw new RuntimeException("Error processing ChatGPT workout plan response", e);
+            logger.error("Error processing ChatGPT workout plan response. Raw response: {}", chatgptResponse, e);
+            throw new RuntimeException("Error processing ChatGPT workout plan response. Raw response: " + chatgptResponse, e);
         }
     }
 
