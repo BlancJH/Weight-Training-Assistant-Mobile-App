@@ -110,18 +110,38 @@ public class WorkoutPlanService {
                             return savedExercise;
                         });
                     
-                    // Create a new WorkoutPlanExercise and set details
-                    WorkoutPlanExercise workoutPlanExercise = new WorkoutPlanExercise();
-                    workoutPlanExercise.setExercise(exercise);
-                    try {
-                        workoutPlanExercise.setSets((Integer) exerciseMap.get("sets"));
-                        workoutPlanExercise.setReps((Integer) exerciseMap.get("reps"));
-                    } catch (Exception e) {
-                        String errorMsg = "Error parsing 'sets' or 'reps' for exercise: " + exerciseMap;
-                        logger.error(errorMsg + " Raw response: {}", chatgptResponse, e);
-                        throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse, e);
-                    }
-                    workoutPlanExercise.setWorkoutPlan(workoutPlan); // Associate with the workout plan
+                        // Create a new WorkoutPlanExercise and set details
+                        WorkoutPlanExercise workoutPlanExercise = new WorkoutPlanExercise();
+                        workoutPlanExercise.setExercise(exercise);
+                        try {
+                            // Map "sets" if provided
+                            if (exerciseMap.containsKey("sets") && exerciseMap.get("sets") != null) {
+                                Number sets = (Number) exerciseMap.get("sets");
+                                workoutPlanExercise.setSets(sets.intValue());
+                            } else {
+                                workoutPlanExercise.setSets(null);
+                            }
+
+                            // Map "reps" if provided
+                            if (exerciseMap.containsKey("reps") && exerciseMap.get("reps") != null) {
+                                Number reps = (Number) exerciseMap.get("reps");
+                                workoutPlanExercise.setReps(reps.intValue());
+                            } else {
+                                workoutPlanExercise.setReps(null);
+                            }
+
+                            // Map "duration" if provided (assuming duration is a String)
+                            if (exerciseMap.containsKey("duration") && exerciseMap.get("duration") != null) {
+                                workoutPlanExercise.setDuration((String) exerciseMap.get("duration"));
+                            } else {
+                                workoutPlanExercise.setDuration(null);
+                            }
+                        } catch (Exception e) {
+                            String errorMsg = "Error parsing 'sets', 'reps', or 'duration' for exercise: " + exerciseMap;
+                            logger.error(errorMsg + " Raw response: {}", chatgptResponse, e);
+                            throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse, e);
+                        }
+                        workoutPlanExercise.setWorkoutPlan(workoutPlan);
                     
                     workoutPlanExercisesList.add(workoutPlanExercise);
                 }
@@ -280,8 +300,16 @@ public class WorkoutPlanService {
     }
 
     public void deleteIncompleteWorkoutPlans(User user) {
+
         // Retrieve incomplete workout plans for the user
         List<WorkoutPlan> incompletePlans = workoutPlanRepository.findByUserIdAndStatusFalse(user.getId());
+
+        // Check if there are any incomplete plans to delete
+        if (incompletePlans == null || incompletePlans.isEmpty()) {
+            // No incomplete workout plans found; skip deletion
+            return;
+        }
+        
         // Delete all found workout plans
         workoutPlanRepository.deleteAll(incompletePlans);
     }

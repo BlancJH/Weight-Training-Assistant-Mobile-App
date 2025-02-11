@@ -78,6 +78,9 @@ public class WorkoutPlanController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                      .body("User not found.");
             }
+            
+            // Delete any incomplete workout plans for the user
+            workoutPlanService.deleteIncompleteWorkoutPlans(user);
 
             // Fetch user details from the database
             Optional<UserDetails> userDetailsOpt = userDetailsService.findByUserId(userId);
@@ -89,8 +92,6 @@ public class WorkoutPlanController {
             // Convert user details into JSON using your JSON service
             String userDetailsJson = userDetailsJsonService.convertUserDetailsToJson(userDetailsOpt.get());
 
-            // Delete any incomplete workout plans for the user
-            workoutPlanService.deleteIncompleteWorkoutPlans(user);
 
             // Call ChatGPT API to generate a workout plan using the user details from DB
             String chatGptResponse = chatGptService.sendUserDetailsToChatGpt(userDetailsJson);

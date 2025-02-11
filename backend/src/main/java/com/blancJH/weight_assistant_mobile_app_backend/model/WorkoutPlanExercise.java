@@ -21,11 +21,14 @@ public class WorkoutPlanExercise {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer sets;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer reps;
+
+    @Column(nullable = true)
+    private String duration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exercise_id", nullable = false)
