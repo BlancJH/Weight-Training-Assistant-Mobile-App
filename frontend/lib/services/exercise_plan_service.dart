@@ -7,10 +7,10 @@ class ExercisePlanService {
   final String? _baseUrl = dotenv.env['BACKEND_BASE_URL']?? "http://default-url.com";
   final AuthService _authService = AuthService();
 
-  Future<String> sendUserDetails(Map<String, dynamic> userDetails) async {
+  Future<String> createWorkoutPlans() async {
     final jwtToken = await _authService.getToken();
 
-      if (jwtToken == null) {
+    if (jwtToken == null) {
       throw Exception("JWT token not found. User must log in.");
     }
 
@@ -20,7 +20,8 @@ class ExercisePlanService {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken',
       },
-      body: jsonEncode(userDetails),
+      // Pass an empty JSON object if the endpoint requires a body.
+      body: jsonEncode({}),
     );
 
     print("JWT Sent: $jwtToken");

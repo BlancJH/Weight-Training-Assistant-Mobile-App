@@ -44,12 +44,47 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
 
   final ProfileService profileService = ProfileService(userService: UserService());
   final ExercisePlanService exercisePlanService = ExercisePlanService();
+  final ExercisePlanService _exercisePlanService = ExercisePlanService();
+
   bool _isLoading = true; // To track if data is being fetched
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile(); // Fetch user profile data on screen load
+  }
+
+  // Function to update user details
+  Future<void> _updateUserDetails() async {
+    // Parse form data
+    final double? heightValue = heightController.text.isNotEmpty
+        ? double.tryParse(heightController.text)
+        : null;
+    final double? weightValue = weightController.text.isNotEmpty
+        ? double.tryParse(weightController.text)
+        : null;
+    final int? workoutDuration = workoutDurationController.text.isNotEmpty
+        ? int.tryParse(workoutDurationController.text)
+        : null;
+    final int? numberOfSplit = workoutSplitController.text.isNotEmpty
+        ? int.tryParse(workoutSplitController.text)
+        : null;
+
+    await profileService.saveProfile(
+      context: context,
+      formKey: _formKey,
+      birthday: birthdayController.text,
+      heightValue: heightValue,
+      heightUnit: _activeHeightUnit,
+      weightValue: weightValue,
+      weightUnit: _activeWeightUnit,
+      gender: genderController.text,
+      constraints: constraintsController.text,
+      workoutPurpose: workoutPurposeController.text,
+      workoutFrequency: workoutFrequencyController.text,
+      workoutDuration: workoutDuration,
+      numberOfSplit: numberOfSplit,
+    );
   }
 
   // Function to load profile data
@@ -500,65 +535,11 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
             }
 
             try {
-              // Parse form data
-              final double? heightValue = heightController.text.isNotEmpty
-                  ? double.tryParse(heightController.text)
-                  : null;
-              final double? weightValue = weightController.text.isNotEmpty
-                  ? double.tryParse(weightController.text)
-                  : null;
-              final int? workoutDuration = workoutDurationController.text.isNotEmpty
-                  ? int.tryParse(workoutDurationController.text)
-                  : null;
-              final int? numberOfSplit = workoutSplitController.text.isNotEmpty
-                  ? int.tryParse(workoutSplitController.text)
-                  : null;
+              // Update the user details
+              await _updateUserDetails();
 
-              // Prepare the user details
-              final userDetails = {
-                'username': widget.username,
-                'birthday': birthdayController.text,
-                'heightValue': heightValue,
-                'heightUnit': _activeHeightUnit,
-                'weightValue': weightValue,
-                'weightUnit': _activeWeightUnit,
-                'gender': genderController.text,
-                'constraints': constraintsController.text,
-                'purpose': workoutPurposeController.text,
-                'workoutFrequency': workoutFrequencyController.text,
-                'workoutDuration': workoutDuration,
-                'numberOfSplit': numberOfSplit,
-              };
-
-              // Save profile data
-              await profileService.saveProfile(
-                context: context,
-                formKey: _formKey,
-                birthday: birthdayController.text,
-                heightValue: heightValue,
-                heightUnit: _activeHeightUnit,
-                weightValue: weightValue,
-                weightUnit: _activeWeightUnit,
-                gender: genderController.text,
-                constraints: constraintsController.text,
-                workoutPurpose: workoutPurposeController.text,
-                workoutFrequency: workoutFrequencyController.text,
-                workoutDuration: workoutDuration,
-                numberOfSplit: numberOfSplit,
-              );
-
-              // Fetch JWT token
-              final jwtToken = await AuthService().getToken();
-
-              if (jwtToken == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Error: No JWT token found. Please log in.')),
-                );
-                return;
-              }
-
-              // Send workout plan request
-              final responseMessage = await exercisePlanService.sendUserDetails(userDetails);
+              // Generate the workout plan
+              final responseMessage = await exercisePlanService.createWorkoutPlans();
 
               // Show success message from workout plan service
               ScaffoldMessenger.of(context).showSnackBar(

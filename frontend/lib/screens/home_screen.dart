@@ -11,6 +11,8 @@ import '../screens/profile_screen.dart';
 import '../screens/workout_plan_screen.dart';
 import '../services/exercise_plan_service.dart';
 import '../utils/string_utils.dart';
+import '../widgets/alert_widget.dart';
+import '../services/exercise_plan_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -146,10 +148,30 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              print('Re-plan button pressed!');
+                              AlertWidget.show(
+                                context: context,
+                                title: "Re-plan Workout",
+                                content: "Unfinished plans will be discarded.",
+                                onConfirm: () async {
+                                  try {
+                                    print("Re-plan confirmed!");
+                                    // Send workout plan request asynchronously
+                                    final responseMessage = await _exercisePlanService.createWorkoutPlans();
+                                    
+                                    // Show success message from workout plan service
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(responseMessage)),
+                                    );
+                                  } catch (e) {
+                                    // Handle errors by showing an error message
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error: ${e.toString()}')),
+                                    );
+                                  }
+                                },
+                              );
                             },
-                            child: Text(
-                              'Re-plan >',
+                            child: Text('Re-plan >',
                               style: TextStyle(
                                 fontSize: 16.0,
                                 color: Colors.blue,
