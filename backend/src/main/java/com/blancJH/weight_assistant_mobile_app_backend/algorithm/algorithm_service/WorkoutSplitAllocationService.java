@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blancJH.weight_assistant_mobile_app_backend.algorithm.workout_split_algorithms.CardicEnduranceSplitAllocationAlgorithm;
 import com.blancJH.weight_assistant_mobile_app_backend.algorithm.workout_split_algorithms.GainMuscleSplitAllocationAlgorithm;
 import com.blancJH.weight_assistant_mobile_app_backend.algorithm.workout_split_algorithms.LossWeightSplitAllocationAlgorithm;
 import com.blancJH.weight_assistant_mobile_app_backend.algorithm.workout_split_algorithms.WorkoutSplitAllocationAlgorithm;
@@ -20,7 +21,10 @@ public class WorkoutSplitAllocationService {
     @Autowired
     private LossWeightSplitAllocationAlgorithm lossWeightStrategy;
 
-    // You can add other strategy implementations here.
+    @Autowired
+    private CardicEnduranceSplitAllocationAlgorithm cardicEnduranceStrategy;
+
+    // Add other strategy implementations here.
 
     /**
      * Allocates splits based on the workout purpose and the number of splits.
@@ -37,6 +41,9 @@ public class WorkoutSplitAllocationService {
                 break;
             case LOSS_WEIGHT:
                 strategy = lossWeightStrategy;
+                break;
+            case IMPROVE_CARDIC_ENDURANCE:
+                strategy = cardicEnduranceStrategy;
                 break;
             // Add additional cases for other purposes.
             default:
