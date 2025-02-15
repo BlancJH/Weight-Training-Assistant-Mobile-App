@@ -6,6 +6,8 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -37,8 +39,9 @@ public class WorkoutPlan {
     @Column(name = "status", nullable = false)
     private boolean status; // true = done, false = not done
 
-    @Column(nullable = false)
-    private String splitName;
+    @Enumerated(EnumType.STRING) // SplitName
+    @Column(name = "workout_split_category", nullable = true)
+    private WorkoutSplitCategory workoutSplitCategory;
 
     @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<WorkoutPlanExercise> exercises;

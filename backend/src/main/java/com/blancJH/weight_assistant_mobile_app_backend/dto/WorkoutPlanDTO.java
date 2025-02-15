@@ -14,6 +14,6 @@ public class WorkoutPlanDTO {
     private Long id;
     private LocalDate plannedDate;
     private boolean status;
-    private String splitName;
+    private String WorkoutSplitCategory;
     private List<WorkoutPlanExerciseDTO> exercises;
 }

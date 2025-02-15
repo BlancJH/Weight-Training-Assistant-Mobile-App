@@ -38,7 +38,7 @@ public class UserDetailsMapper {
             dto.setGender(null); // Explicitly set to null if Gender is missing
         }
         
-        dto.setPurpose(userDetails.getPurpose());
+        dto.setWorkoutPurpose(userDetails.getWorkoutPurpose());
         dto.setWorkoutFrequency(userDetails.getWorkoutFrequency());
         dto.setWorkoutDuration(userDetails.getWorkoutDuration());
         dto.setNumberOfSplit(userDetails.getNumberOfSplit());

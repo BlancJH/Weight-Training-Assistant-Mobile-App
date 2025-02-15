@@ -52,7 +52,7 @@ public class UserDetailsController {
             existingDetails.setWeightValue(userDetails.getWeightValue());
             existingDetails.setWeightUnit(userDetails.getWeightUnit());
             existingDetails.setInjuriesOrConstraints(userDetails.getInjuriesOrConstraints());
-            existingDetails.setPurpose(userDetails.getPurpose());
+            existingDetails.setWorkoutPurpose(userDetails.getWorkoutPurpose());
             existingDetails.setAdditionalNotes(userDetails.getAdditionalNotes());
             existingDetails.setWorkoutFrequency(userDetails.getWorkoutFrequency());
             existingDetails.setWorkoutDuration(userDetails.getWorkoutDuration());

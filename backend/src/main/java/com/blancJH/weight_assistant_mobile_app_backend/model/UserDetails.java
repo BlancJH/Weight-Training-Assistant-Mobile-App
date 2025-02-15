@@ -50,11 +50,13 @@ public class UserDetails {
     @Column(name = "gender", nullable = true, length = 6)
     private Gender gender;
 
-    @Column(name = "workout_purpose", nullable = true, length = 20)
-    private String purpose;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "workout_purpose", nullable = true)
+    private WorkoutPurpose workoutPurpose;
 
-    @Column(nullable = true, length = 20)
-    private String workoutFrequency;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private WorkoutFrequency workoutFrequency;
 
     @Column(nullable = true)
     private Integer workoutDuration;

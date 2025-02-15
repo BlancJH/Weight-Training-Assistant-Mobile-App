@@ -43,124 +43,8 @@ public class WorkoutPlanService {
     }
 
     public List<WorkoutPlan> saveChatgptWorkoutPlan(String chatgptResponse, User user) {
-        logger.debug("Initiating saveChatgptWorkoutPlan for user: {}", user.getUsername());
-        try {
-            // Parse the ChatGPT response into a Map
-            Map<String, Object> responseMap = objectMapper.readValue(chatgptResponse, Map.class);
-            logger.debug("Parsed ChatGPT response successfully: {}", responseMap);
-            
-            List<Map<String, Object>> workoutDays = (List<Map<String, Object>>) responseMap.get("workout_plan");
-            if (workoutDays == null || workoutDays.isEmpty()) {
-                String errorMsg = "Invalid workout plan format in ChatGPT response: 'workout_plan' is missing or empty.";
-                logger.error(errorMsg + " Raw response: {}", chatgptResponse);
-                throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse);
-            }
-            
-            LocalDate currentDate = LocalDate.now();
-            List<WorkoutPlan> workoutPlans = new ArrayList<>();
-            
-            for (Map<String, Object> dayPlan : workoutDays) {
-                logger.debug("Processing day plan: {}", dayPlan);
-                
-                WorkoutPlan workoutPlan = new WorkoutPlan();
-                workoutPlan.setUser(user);
-                
-                // Safely parse and set the planned date
-                try {
-                    int dayNumber = (int) dayPlan.get("day");
-                    workoutPlan.setPlannedDate(currentDate.plusDays(dayNumber - 1));
-                } catch (Exception e) {
-                    String errorMsg = "Error parsing 'day' field in day plan: " + dayPlan;
-                    logger.error(errorMsg + " Raw response: {}", chatgptResponse, e);
-                    throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse, e);
-                }
-                
-                workoutPlan.setSplitName((String) dayPlan.get("split"));
-                workoutPlan.setStatus(false); // Default: not done
-                
-                // Process exercises for this day
-                List<Map<String, Object>> exercises = (List<Map<String, Object>>) dayPlan.get("exercises");
-                if (exercises == null || exercises.isEmpty()) {
-                    String warnMsg = "No exercises found for day plan: " + dayPlan;
-                    logger.warn(warnMsg);
-                }
-                
-                List<WorkoutPlanExercise> workoutPlanExercisesList = new ArrayList<>();
-                
-                for (Map<String, Object> exerciseMap : exercises) {
-                    logger.debug("Processing exercise map: {}", exerciseMap);
-                    
-                    // Normalize the exercise name
-                    String rawExerciseName = (String) exerciseMap.get("exerciseName");
-                    String normalizedExerciseName = StringUtil.normaliseExerciseName(rawExerciseName);
-                    logger.debug("Normalized exercise name: '{}' -> '{}'", rawExerciseName, normalizedExerciseName);
-                    
-                    // Find existing exercise or create a new one
-                    Exercise exercise = exerciseRepository.findByExerciseName(normalizedExerciseName)
-                        .orElseGet(() -> {
-                            logger.debug("Exercise '{}' not found in repository; creating new exercise.", normalizedExerciseName);
-                            Exercise newExercise = new Exercise();
-                            newExercise.setExerciseName(normalizedExerciseName);
-                            newExercise.setExerciseCategory(null); // Set category to null
-                            newExercise.setPrimaryMuscle(null); // Set primary muscle to null
-                            newExercise.setSecondaryMuscle(null); // Set secondary muscle to null
-                            newExercise.setExerciseGifUrl(null); // Set GIF URL to null
-                            Exercise savedExercise = exerciseRepository.save(newExercise);
-                            logger.debug("Saved new exercise: {}", savedExercise);
-                            return savedExercise;
-                        });
-                    
-                        // Create a new WorkoutPlanExercise and set details
-                        WorkoutPlanExercise workoutPlanExercise = new WorkoutPlanExercise();
-                        workoutPlanExercise.setExercise(exercise);
-                        try {
-                            // Map "sets" if provided
-                            if (exerciseMap.containsKey("sets") && exerciseMap.get("sets") != null) {
-                                Number sets = (Number) exerciseMap.get("sets");
-                                workoutPlanExercise.setSets(sets.intValue());
-                            } else {
-                                workoutPlanExercise.setSets(null);
-                            }
-
-                            // Map "reps" if provided
-                            if (exerciseMap.containsKey("reps") && exerciseMap.get("reps") != null) {
-                                Number reps = (Number) exerciseMap.get("reps");
-                                workoutPlanExercise.setReps(reps.intValue());
-                            } else {
-                                workoutPlanExercise.setReps(null);
-                            }
-
-                            // Map "duration" if provided
-                            if (exerciseMap.containsKey("duration") && exerciseMap.get("duration") != null) {
-                                workoutPlanExercise.setDuration((String) exerciseMap.get("duration"));
-                            } else {
-                                workoutPlanExercise.setDuration(null);
-                            }
-                        } catch (Exception e) {
-                            String errorMsg = "Error parsing 'sets', 'reps', or 'duration' for exercise: " + exerciseMap;
-                            logger.error(errorMsg + " Raw response: {}", chatgptResponse, e);
-                            throw new RuntimeException(errorMsg + " Raw response: " + chatgptResponse, e);
-                        }
-                        workoutPlanExercise.setWorkoutPlan(workoutPlan);
-                    
-                    workoutPlanExercisesList.add(workoutPlanExercise);
-                }
-                
-                workoutPlan.setExercises(workoutPlanExercisesList);
-                
-                // Save the workout plan
-                workoutPlanRepository.save(workoutPlan);
-                logger.debug("Saved workout plan for date: {}", workoutPlan.getPlannedDate());
-                workoutPlans.add(workoutPlan);
-            }
-            
-            logger.debug("Successfully processed all workout plans. Total plans saved: {}", workoutPlans.size());
-            return workoutPlans;
-            
-        } catch (Exception e) {
-            logger.error("Error processing ChatGPT workout plan response. Raw response: {}", chatgptResponse, e);
-            throw new RuntimeException("Error processing ChatGPT workout plan response. Raw response: " + chatgptResponse, e);
-        }
+        // This will be replaced to use own logic
+        return new ArrayList<>();
     }
 
     public void adjustDatesForSkippedPlans(User user) {
@@ -223,7 +107,7 @@ public class WorkoutPlanService {
             newPlan.setUser(user);
             newPlan.setPlannedDate(startDate.plusDays(i)); // Set new dates sequentially
             newPlan.setStatus(false); // Reset status to not done
-            newPlan.setSplitName(originalPlan.getSplitName()); // Copy split name
+            newPlan.setWorkoutSplitCategory(originalPlan.getWorkoutSplitCategory()); // Copy split name
 
             // Duplicate exercises
             List<WorkoutPlanExercise> newPlanExercises = new ArrayList<>();

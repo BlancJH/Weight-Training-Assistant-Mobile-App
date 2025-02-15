@@ -27,7 +27,7 @@ public class Exercise { // try public Enum
     @Column(name = "exercise_category", nullable = true)
     private ExerciseCategory exerciseCategory;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String primaryMuscle;// Targeted muscles
 
     @Column(nullable = true)
@@ -35,4 +35,11 @@ public class Exercise { // try public Enum
 
     @Column(nullable = true)
     private String exerciseGifUrl; // URL for the exercise's GIF
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "workout_split_category", nullable = true)
+    private WorkoutSplitCategory workoutSplitCategory;
+
+    @Column(nullable = false)
+    private boolean advantage;
 }

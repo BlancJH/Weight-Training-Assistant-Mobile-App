@@ -154,25 +154,26 @@ public class WorkoutPlanController {
                     wp.getId(),
                     wp.getPlannedDate(),
                     wp.isStatus(),
-                    wp.getSplitName(),
+                    wp.getWorkoutSplitCategory() != null ? wp.getWorkoutSplitCategory().toString() : null,
                     wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
                             ex.getExercise().getExerciseId(),
                             ex.getExercise().getExerciseName(),
-                            ex.getExercise().getExerciseCategory() != null 
-                                ? ex.getExercise().getExerciseCategory().toString() 
-                                : null,
+                            ex.getExercise().getExerciseCategory() != null
+                                    ? ex.getExercise().getExerciseCategory().toString()
+                                    : null,
                             ex.getExercise().getPrimaryMuscle(),
                             ex.getExercise().getSecondaryMuscle(),
                             ex.getExercise().getExerciseGifUrl(),
                             ex.getSets(),
-                            ex.getReps()
+                            ex.getReps(),
+                            ex.getDuration()
                     )).collect(Collectors.toList())
             )).collect(Collectors.toList());
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }
