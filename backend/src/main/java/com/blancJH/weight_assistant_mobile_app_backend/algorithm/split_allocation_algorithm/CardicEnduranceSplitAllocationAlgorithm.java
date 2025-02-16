@@ -1,4 +1,4 @@
-package com.blancJH.weight_assistant_mobile_app_backend.algorithm.workout_split_algorithms;
+package com.blancJH.weight_assistant_mobile_app_backend.algorithm.split_allocation_algorithm;
 
 import java.util.ArrayList;
 import java.util.List;

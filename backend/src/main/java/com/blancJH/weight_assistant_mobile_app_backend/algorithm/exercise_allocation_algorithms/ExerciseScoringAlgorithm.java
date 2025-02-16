@@ -1,4 +1,4 @@
-package com.blancJH.weight_assistant_mobile_app_backend.algorithm.split_exercise_algorithms;
+package com.blancJH.weight_assistant_mobile_app_backend.algorithm.exercise_allocation_algorithms;
 
 import org.springframework.stereotype.Service;
 

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.blancJH.weight_assistant_mobile_app_backend.algorithm.split_exercise_algorithms.ExerciseScoringAlgorithm;
+import com.blancJH.weight_assistant_mobile_app_backend.algorithm.exercise_allocation_algorithms.ExerciseScoringAlgorithm;
 import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutSplitCategory;
 
