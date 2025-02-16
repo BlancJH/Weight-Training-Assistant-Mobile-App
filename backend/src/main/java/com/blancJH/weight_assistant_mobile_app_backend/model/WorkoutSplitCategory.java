@@ -41,6 +41,7 @@ public enum WorkoutSplitCategory {
     HAMSTRINGS("Hamstrings", Set.of(LOWER_BODY)),
     GLUTES("Glutes", Set.of(LOWER_BODY)),
     CALVES("Calves", Set.of(LOWER_BODY)),
+    ADDUCTORS("Adductors", Set.of(LOWER_BODY)),
 
     // Further subcategories for Push
     CHEST("Chest", Set.of(PUSH)),

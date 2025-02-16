@@ -7,7 +7,8 @@ public enum ExerciseCategory {
     BODYWEIGHT,
     BARBELL,
     DUMBBELL,
-    ASSISTED_BODYWEIGHT
+    ASSISTED_BODYWEIGHT,
+    KETTLEBELL
 }
 
 
