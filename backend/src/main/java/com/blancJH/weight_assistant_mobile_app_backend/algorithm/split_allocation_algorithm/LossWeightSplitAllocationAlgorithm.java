@@ -22,21 +22,21 @@ public class LossWeightSplitAllocationAlgorithm implements WorkoutSplitAllocatio
             }
             case 3 -> {
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.MULTI_JOINT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
             }
             case 4 -> {
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.UPPER_BODY_CIRCUIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.LOWER_BODY_CIRCUIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.RECOVERY.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
             }
             case 5 -> {
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.UPPER_BODY_CIRCUIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.LOWER_BODY_CIRCUIT.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.CORE.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
             }
             case 6 -> {
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));

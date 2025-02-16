@@ -41,7 +41,7 @@ public class CardicEnduranceSplitAllocationAlgorithm implements WorkoutSplitAllo
             case 6 -> {
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.LOWER_BODY_CIRCUIT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.LOW_IMPACT.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
@@ -49,7 +49,7 @@ public class CardicEnduranceSplitAllocationAlgorithm implements WorkoutSplitAllo
             case 7 -> {
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.LOWER_BODY_CIRCUIT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.LOW_IMPACT.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
