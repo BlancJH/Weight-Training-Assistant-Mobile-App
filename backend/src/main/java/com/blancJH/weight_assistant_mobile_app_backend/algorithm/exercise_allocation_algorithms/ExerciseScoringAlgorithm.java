@@ -24,60 +24,6 @@ public class ExerciseScoringAlgorithm {
     }
 
     /**
-     * Recursively computes the hierarchical distance between an exercise's category and a target category.
-     *
-     * @param exerciseCategory The category of the exercise.
-     * @param targetCategory   The target category to compare against.
-     * @return The distance (0 for exact match, 1 for direct child, 2 for grandchild, etc.) or -1 if not related.
-     */
-    public int hierarchicalDistance(WorkoutSplitCategory exerciseCategory, WorkoutSplitCategory targetCategory) {
-        if (exerciseCategory.equals(targetCategory)) {
-            return 0;
-        }
-        for (WorkoutSplitCategory parent : exerciseCategory.getParents()) {
-            if (parent.equals(targetCategory)) {
-                return 1;
-            }
-            int distance = hierarchicalDistance(parent, targetCategory);
-            if (distance != -1) {
-                return distance + 1;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Calculates a score for an individual exercise based on the hierarchical relationship 
-     * between its split tag and the target split category.
-     *
-     * @param exercise       The exercise to score.
-     * @param targetCategory The target split category.
-     * @return The score for the exercise.
-     */
-    public int scoreExerciseBySplit(Exercise exercise, WorkoutSplitCategory targetCategory) {
-        // Assume the Exercise entity has a method getSplitTag() that returns a string.
-        WorkoutSplitCategory exerciseCategory = exercise.getWorkoutSplitCategory();
-        if (exerciseCategory == null) {
-            return 0;
-        }
-        int distance = hierarchicalDistance(exerciseCategory, targetCategory);
-        if (distance < 0) {
-            return 0;
-        }
-
-        switch (distance) {
-            case 0:
-                return 10;
-            case 1:
-                return 8;
-            case 2:
-                return 6;
-            default:
-                return 0;
-        }
-    }
-
-    /**
      * Adds bonus points if the exercise has high efficiency (advantage is true).
      * Advantage is recorded on the exercise table.
      *
@@ -96,7 +42,7 @@ public class ExerciseScoringAlgorithm {
      * @return The composite score.
      */
     public int compositeScore(Exercise exercise, WorkoutSplitCategory targetCategory) {
-        int baseScore = scoreExerciseBySplit(exercise, targetCategory);
+        int baseScore = 0;
         int bonus = additionalAdvantageScore(exercise);
         return baseScore + bonus;
     }

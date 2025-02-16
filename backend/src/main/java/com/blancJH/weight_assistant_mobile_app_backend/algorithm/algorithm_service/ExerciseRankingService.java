@@ -1,7 +1,9 @@
 package com.blancJH.weight_assistant_mobile_app_backend.algorithm.algorithm_service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class ExerciseRankingService {
 
     @Autowired
     private ExerciseScoringAlgorithm exerciseScorer;
+
+    @Autowired
+    private ExerciseDistributionService distributionService;
 
     /**
      * Selects the top n exercises from the list based on their composite score for the given target split tag,
@@ -40,5 +45,31 @@ public class ExerciseRankingService {
                 // Map each Exercise to its exercise name.
                 .map(Exercise::getExerciseName)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Picks top exercises for a target split based on a ratio distribution.
+     * First, the distribution is calculated for the target split and total number of exercises.
+     * Then, for each sub-category in the distribution, the top exercises are picked based on the composite score.
+     *
+     * @param exercises   The list of candidate exercises.
+     * @param targetSplit The target split category (e.g. ARMS, UPPER_BODY).
+     * @param totalCount  The total number of exercises to pick for the target split.
+     * @return A list of exercise names distributed according to the ratio configuration.
+     */
+    public List<String> pickTopExercisesByDistribution(List<Exercise> exercises, WorkoutSplitCategory targetSplit, int totalCount) {
+        // Get the distribution map for the target split.
+        Map<String, Integer> distribution = distributionService.getExerciseDistribution(targetSplit, totalCount);
+        List<String> result = new ArrayList<>();
+        
+        // For each sub-category, pick the top exercises based on the allocated count.
+        for (Map.Entry<String, Integer> entry : distribution.entrySet()) {
+            String subCategory = entry.getKey();
+            int count = entry.getValue();
+            // Use the ranking function for each sub-category.
+            List<String> subCategoryExercises = pickTopNExerciseNames(exercises, subCategory, count);
+            result.addAll(subCategoryExercises);
+        }
+        return result;
     }
 }
