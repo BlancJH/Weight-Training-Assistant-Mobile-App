@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,4 +43,20 @@ public class Exercise { // try public Enum
 
     @Column(nullable = false)
     private boolean advantage;
+
+    // These fields are not stored in the database but can be set programmatically.
+    @Transient
+    private int latestFavoriteCount;
+
+    @Transient
+    private int latestDislikeCount;
+    
+    // Optionally, you could add helper methods:
+    public int getLatestFavoriteCount() {
+        return latestFavoriteCount;
+    }
+    
+    public int getLatestDislikeCount() {
+        return latestDislikeCount;
+    }
 }
