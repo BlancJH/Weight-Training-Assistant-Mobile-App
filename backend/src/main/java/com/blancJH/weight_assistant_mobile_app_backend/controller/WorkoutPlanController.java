@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,11 +37,10 @@ import jakarta.servlet.http.HttpServletRequest;
 public class WorkoutPlanController {
 
     private final WorkoutPlanService workoutPlanService;
-    private final ChatGptService chatGptService;
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final UserDetailsService userDetailsService; // Service to fetch UserDetails from DB
-    private final UserDetailsJsonService userDetailsJsonService; // Converts UserDetails to JSON
+    private static final Logger logger = LoggerFactory.getLogger(WorkoutPlanService.class);
 
     public WorkoutPlanController(WorkoutPlanService workoutPlanService,
                                  ChatGptService chatGptService,
@@ -48,11 +49,9 @@ public class WorkoutPlanController {
                                  UserDetailsService userDetailsService,
                                  UserDetailsJsonService userDetailsJsonService) {
         this.workoutPlanService = workoutPlanService;
-        this.chatGptService = chatGptService;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.userDetailsService = userDetailsService;
-        this.userDetailsJsonService = userDetailsJsonService;
     }
 
     @PostMapping("/generate")
@@ -84,25 +83,20 @@ public class WorkoutPlanController {
 
             // Fetch user details from the database
             Optional<UserDetails> userDetailsOpt = userDetailsService.findByUserId(userId);
-            if (userDetailsOpt == null) {
+            if (!userDetailsOpt.isPresent()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                     .body("User details not found.");
+                                    .body("User details not found.");
             }
 
-            // Convert user details into JSON using your JSON service
-            String userDetailsJson = userDetailsJsonService.convertUserDetailsToJson(userDetailsOpt.get());
+            // Create the workout plan using the retrieved user details.
+            Map<String, List<String>> workoutPlan = workoutPlanService.createWorkoutPlan(userDetailsOpt.get());
 
 
-            // Call ChatGPT API to generate a workout plan using the user details from DB
-            String chatGptResponse = chatGptService.sendUserDetailsToChatGpt(userDetailsJson);
-
-            // Save the generated workout plan for the user
-            List<WorkoutPlan> workoutPlans = workoutPlanService.saveChatgptWorkoutPlan(chatGptResponse, user);
-
-            return ResponseEntity.ok(workoutPlans);
+            return ResponseEntity.ok(workoutPlan);
         } catch (Exception e) {
+            logger.error("Error generating or saving workout plan", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Error generating or saving workout plan: " + e.getMessage());
+                                .body("Error generating or saving workout plan: " + e.getMessage());
         }
     }
 

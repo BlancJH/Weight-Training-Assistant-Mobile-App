@@ -5,15 +5,23 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.blancJH.weight_assistant_mobile_app_backend.algorithm.algorithm_service.ExerciseRankingService;
+import com.blancJH.weight_assistant_mobile_app_backend.algorithm.algorithm_service.UserStatisticsService;
+import com.blancJH.weight_assistant_mobile_app_backend.algorithm.algorithm_service.WorkoutSplitAllocationService;
 import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import com.blancJH.weight_assistant_mobile_app_backend.model.UserDetails;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlanExercise;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutSplit;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutSplitCategory;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
@@ -42,10 +50,61 @@ public class WorkoutPlanService {
         this.objectMapper = objectMapper;
     }
 
-    public List<WorkoutPlan> saveChatgptWorkoutPlan(String chatgptResponse, User user) {
-        // This will be replaced to use own logic
-        return new ArrayList<>();
+    @Autowired
+    private WorkoutSplitAllocationService splitAllocationService;
+
+    @Autowired
+    private ExerciseRankingService rankingService;
+    
+    @Autowired
+    private UserStatisticsService userStatisticsService;
+
+    /**
+     * Creates a workout plan for a user by integrating:
+     * <ol>
+     *   <li>Allocation of splits based on the user's workout purpose and number of splits.</li>
+     *   <li>Calculation of the number of exercises to pick per split from the workout duration.</li>
+     *   <li>For each allocated split, retrieving candidate exercises from the repository
+     *       (filtered by target split category) and picking top exercises using the ratio distribution.</li>
+     *   <li>Incorporating popularity (and optionally user preference) via composite scoring.</li>
+     * </ol>
+     *
+     * @param userDetails The user's workout details.
+     * @return A map where each key is a split (e.g., "Upper Body") and the value is a list of selected exercise names.
+     */
+    public Map<String, List<String>> createWorkoutPlan(UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new IllegalArgumentException("User details must not be null");
+        }
+        
+        // 1. Allocate splits based on user's workout purpose and number of splits.
+        List<WorkoutSplit> splits = splitAllocationService.allocateSplitsForUser(userDetails);
+        
+        // 2. Calculate the number of exercises to pick per split from the workout duration.
+        int exerciseCountPerSplit = splitAllocationService.calculateExerciseCount(userDetails.getWorkoutDuration());
+        
+        // 3. Retrieve total user count for popularity calculations.
+        int totalUserCount = userStatisticsService.getTotalUserCount();
+        
+        // 4. For each allocated split, use the repository to filter candidate exercises,
+        //    then pick top exercises using the ratio distribution.
+        Map<String, List<String>> workoutPlan = splits.stream().collect(Collectors.toMap(
+            WorkoutSplit::getCategoryPath,
+            split -> {
+                // Convert the split's display name to its corresponding enum.
+                WorkoutSplitCategory targetCategory = WorkoutSplitCategory.fromDisplayName(split.getCategoryPath());
+                if (targetCategory == null) {
+                    return List.of();
+                }
+                
+                // Use the ranking service method that applies the ratio distribution.
+                return rankingService.pickTopExercisesByDistribution(targetCategory, exerciseCountPerSplit, totalUserCount);
+            }
+        ));
+        
+        return workoutPlan;
     }
+
 
     public void adjustDatesForSkippedPlans(User user) {
         List<WorkoutPlan> plans = workoutPlanRepository.findByUserIdAndStatusFalse(user.getId());

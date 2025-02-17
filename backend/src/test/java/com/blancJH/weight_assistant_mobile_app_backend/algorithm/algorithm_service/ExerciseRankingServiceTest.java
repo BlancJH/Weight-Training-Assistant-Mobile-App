@@ -61,7 +61,7 @@ public class ExerciseRankingServiceTest {
         int totalUserCount = 100;
 
         // Pick top 3 exercises for the target split "Arms".
-        List<String> topNames = rankingService.pickTopNExerciseNames(exercises, "Arms", 3, totalUserCount);
+        List<String> topNames = rankingService.pickTopNExerciseNames("Arms", 3, totalUserCount);
 
         // Verify that we have 3 exercise names.
         assertEquals(3, topNames.size(), "Expected 3 top exercises for the Arms split.");
@@ -128,7 +128,7 @@ public class ExerciseRankingServiceTest {
         int totalUserCount = 100; // for popularity calculations
 
         // Call the distribution-based selection method.
-        List<String> result = rankingService.pickTopExercisesByDistribution(exercises, WorkoutSplitCategory.UPPER_BODY, totalUpperBodyExercises, totalUserCount);
+        List<String> result = rankingService.pickTopExercisesByDistribution(WorkoutSplitCategory.UPPER_BODY, totalUpperBodyExercises, totalUserCount);
 
         // Verify that the result list has 6 exercise names.
         assertEquals(6, result.size(), "Should pick 6 exercises for UPPER_BODY split.");
