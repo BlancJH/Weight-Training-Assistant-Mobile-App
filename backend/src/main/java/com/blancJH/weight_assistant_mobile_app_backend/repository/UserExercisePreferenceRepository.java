@@ -7,7 +7,11 @@ import org.springframework.data.repository.query.Param;
 import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserExercisePreference;
 
+import java.util.Optional;
+
 public interface UserExercisePreferenceRepository extends JpaRepository<UserExercisePreference, Long> {
+
+    Optional<UserExercisePreference> findByUserIdAndExerciseId(Long userId, Long exerciseId);
 
     /**
      * Counts only the latest preference for each user for the given exercise where the user marked it as favorite.

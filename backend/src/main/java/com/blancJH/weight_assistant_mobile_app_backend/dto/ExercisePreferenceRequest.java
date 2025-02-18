@@ -8,4 +8,5 @@ public class ExercisePreferenceRequest {
     private Long exerciseId;
     private boolean favorite;
     private boolean dislike;
+    private enum dislike_reason;
 }
