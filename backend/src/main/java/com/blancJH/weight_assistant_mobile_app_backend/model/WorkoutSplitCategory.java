@@ -16,7 +16,6 @@ public enum WorkoutSplitCategory {
     CARDIO("Cardio", Set.of(FULL_BODY)),
     STRENGTH("Strength", Set.of(FULL_BODY)),
     FUNCTIONAL("Functional", Set.of(FULL_BODY)),
-    RECOVERY("Recovery", Set.of(FULL_BODY, CARDIO)),
 
     // Subcategories for Cardio
     HIIT("HIIT", Set.of(CARDIO)),
@@ -56,7 +55,9 @@ public enum WorkoutSplitCategory {
     CORE("Core & Balance", Set.of(FUNCTIONAL)),
     PLYOMETRICS("Plyometrics", Set.of(FUNCTIONAL)),
     AGILITY("Agility & Coordination", Set.of(FUNCTIONAL)),
-    CIRCUIT("Circuit Training", Set.of(FUNCTIONAL));
+    CIRCUIT("Circuit Training", Set.of(FUNCTIONAL)),
+
+    RECOVERY("Recovery", Set.of(MOBILITY));
 
     private final String displayName;
     private final Set<WorkoutSplitCategory> parents;
