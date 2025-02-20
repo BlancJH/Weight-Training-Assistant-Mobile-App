@@ -59,14 +59,13 @@ public class UserExercisePreference {
     private LocalDateTime createdAt;
 
     @PrePersist
+    @PreUpdate
     private void prePersist() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
     }
 
-    @PrePersist
-    @PreUpdate
     private void validatePreference() {
         if (favorite && dislike) {
             throw new IllegalArgumentException("An exercise cannot be marked as both favorite and disliked.");
