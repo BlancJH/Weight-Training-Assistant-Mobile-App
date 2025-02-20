@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     
                                     // Show success message from workout plan service
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(responseMessage)),
+                                      SnackBar(content: Text(responseMessage as String)),
                                     );
                                   } catch (e) {
                                     // Handle errors by showing an error message

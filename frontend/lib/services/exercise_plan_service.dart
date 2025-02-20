@@ -7,9 +7,8 @@ class ExercisePlanService {
   final String? _baseUrl = dotenv.env['BACKEND_BASE_URL']?? "http://default-url.com";
   final AuthService _authService = AuthService();
 
-  Future<String> createWorkoutPlans() async {
+  Future<Map<String, dynamic>> createWorkoutPlans() async {
     final jwtToken = await _authService.getToken();
-
     if (jwtToken == null) {
       throw Exception("JWT token not found. User must log in.");
     }
@@ -20,17 +19,17 @@ class ExercisePlanService {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $jwtToken',
       },
-      // Pass an empty JSON object if the endpoint requires a body.
-      body: jsonEncode({}),
+      body: jsonEncode({}), // adjust the payload as needed
     );
 
     print("JWT Sent: $jwtToken");
-    print("API Response: ${response.statusCode} - ${response.body}");
+    print("Response: ${response.statusCode} - ${response.body}");
 
     if (response.statusCode == 200) {
-      return response.body;
+      // Parse the JSON response.
+      return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
-      throw Exception('Failed to process request: ${response.reasonPhrase}');
+      throw Exception('Failed to generate workout plan: ${response.reasonPhrase}');
     }
   }
 

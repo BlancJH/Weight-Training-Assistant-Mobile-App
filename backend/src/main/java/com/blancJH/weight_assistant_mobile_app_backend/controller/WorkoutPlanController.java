@@ -22,7 +22,6 @@ import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanExerciseDT
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserDetails;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
-import com.blancJH.weight_assistant_mobile_app_backend.service.ChatGptService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserDetailsJsonService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserDetailsService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserService;
@@ -43,7 +42,6 @@ public class WorkoutPlanController {
     private static final Logger logger = LoggerFactory.getLogger(WorkoutPlanService.class);
 
     public WorkoutPlanController(WorkoutPlanService workoutPlanService,
-                                 ChatGptService chatGptService,
                                  JwtUtil jwtUtil,
                                  UserService userService,
                                  UserDetailsService userDetailsService,
