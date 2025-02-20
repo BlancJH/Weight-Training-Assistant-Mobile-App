@@ -148,7 +148,7 @@ public class WorkoutPlanController {
                     wp.isStatus(),
                     wp.getWorkoutSplitCategory() != null ? wp.getWorkoutSplitCategory().toString() : null,
                     wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
-                            ex.getExercise().getExerciseId(),
+                            ex.getExercise().getId(),
                             ex.getExercise().getExerciseName(),
                             ex.getExercise().getExerciseCategory() != null
                                     ? ex.getExercise().getExerciseCategory().toString()

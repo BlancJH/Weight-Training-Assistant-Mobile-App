@@ -19,7 +19,7 @@ public class Exercise { // try public Enum
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long exerciseId; // System-generated ID
+    private Long id; // System-generated ID
 
     @Column(nullable = false)
     private String exerciseName; // Name of the exercise
