@@ -1,5 +1,7 @@
 package com.blancJH.weight_assistant_mobile_app_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum WorkoutFrequency {
     ONE(1, "1 Time a Week"),
     TWO(2, "2 Times a Week"),
@@ -25,13 +27,20 @@ public enum WorkoutFrequency {
         return description;
     }
     
-    public static WorkoutFrequency fromValue(int value) {
-        for (WorkoutFrequency frequency : values()) {
-            if (frequency.getValue() == value) {
-                return frequency;
+    @JsonCreator
+    public static WorkoutFrequency from(String input) {
+        try {
+            int intValue = Integer.parseInt(input);
+            for (WorkoutFrequency wf : values()) {
+                if (wf.getValue() == intValue) {
+                    return wf;
+                }
             }
+        } catch (NumberFormatException e) {
+            // Fall back to standard valueOf if input isn't numeric
         }
-        throw new IllegalArgumentException("No enum constant for value " + value);
+        // Optionally, you can also try: return WorkoutFrequency.valueOf(input.toUpperCase());
+        throw new IllegalArgumentException("No enum constant for value " + input);
     }
-
+    
 }

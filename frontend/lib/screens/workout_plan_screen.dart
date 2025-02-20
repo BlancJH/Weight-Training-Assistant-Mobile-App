@@ -72,6 +72,25 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         ? int.tryParse(workoutSplitController.text)
         : null;
 
+    // Create a Map payload to log what will be sent.
+    final Map<String, dynamic> payload = {
+      'birthday': birthdayController.text,
+      'heightValue': heightValue,
+      'heightUnit': _activeHeightUnit,
+      'weightValue': weightValue,
+      'weightUnit': _activeWeightUnit,
+      'gender': genderController.text,
+      'constraints': constraintsController.text,
+      'workoutPurpose': workoutPurposeController.text,
+      'workoutFrequency': workoutFrequency,
+      'workoutDuration': workoutDuration,
+      'numberOfSplit': numberOfSplit,
+    };
+
+    // Print the payload before sending it.
+    debugPrint('Sending user details to backend: ${payload.toString()}');
+
+
     await profileService.saveProfile(
       context: context,
       formKey: _formKey,

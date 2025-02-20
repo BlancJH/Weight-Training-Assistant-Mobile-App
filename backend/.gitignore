@@ -52,3 +52,6 @@ gradle/wrapper/gradle-wrapper.jar
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Application Properties
+src/main/resources/application.properties
