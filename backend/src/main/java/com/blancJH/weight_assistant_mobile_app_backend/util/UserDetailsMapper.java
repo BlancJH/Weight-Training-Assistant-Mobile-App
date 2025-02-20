@@ -38,8 +38,20 @@ public class UserDetailsMapper {
             dto.setGender(null); // Explicitly set to null if Gender is missing
         }
         
-        dto.setWorkoutPurpose(userDetails.getWorkoutPurpose());
-        dto.setWorkoutFrequency(userDetails.getWorkoutFrequency());
+        // Convert workoutPurpose enum to String
+        if (userDetails.getWorkoutPurpose() != null) {
+            dto.setWorkoutPurpose(userDetails.getWorkoutPurpose().name());
+        } else {
+            dto.setWorkoutPurpose(null);
+        }
+        
+        // Conver workoutFrequency enum to Integer
+        if (userDetails.getWorkoutFrequency() != null) {
+            dto.setWorkoutFrequency(userDetails.getWorkoutFrequency().ordinal());
+        } else {
+            dto.setWorkoutFrequency(null);
+        }
+
         dto.setWorkoutDuration(userDetails.getWorkoutDuration());
         dto.setNumberOfSplit(userDetails.getNumberOfSplit());
         dto.setInjuriesOrConstraints(userDetails.getInjuriesOrConstraints());

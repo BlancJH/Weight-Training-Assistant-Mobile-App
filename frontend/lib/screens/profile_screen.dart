@@ -56,6 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserProfile() async {
     try {
       final userDetails = await profileService.loadProfile(context);
+      print("Fetched user details: $userDetails");
 
       // Populate controllers with the fetched data
       setState(() {
@@ -89,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         constraintsController.text = userDetails['injuriesOrConstraints'] ?? '';
 
         // Workout purpose
-        workoutPurposeController.text = userDetails['purpose'] ?? '';
+        workoutPurposeController.text = userDetails['workoutPurpose'] ?? '';
       });
     } catch (e) {
       // Show error message if loading fails

@@ -27,7 +27,7 @@ class ProfileService {
     String? gender,
     String? constraints,
     String? workoutPurpose,
-    String? workoutFrequency,
+    int? workoutFrequency,
     int? workoutDuration,
     int? numberOfSplit,
   }) async {
@@ -61,9 +61,9 @@ class ProfileService {
       profileData['injuriesOrConstraints'] = constraints;
     }
     if (workoutPurpose != null && workoutPurpose.isNotEmpty) {
-      profileData['purpose'] = workoutPurpose;
+      profileData['workoutPurpose'] = workoutPurpose;
     }
-    if (workoutFrequency != null && workoutFrequency.isNotEmpty) {
+    if (workoutFrequency != null) {
       profileData['workoutFrequency'] = workoutFrequency;
     }
     if (workoutDuration != null) {

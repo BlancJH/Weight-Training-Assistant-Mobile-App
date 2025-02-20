@@ -30,7 +30,6 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   final TextEditingController genderController = TextEditingController();
   final TextEditingController constraintsController = TextEditingController();
   final TextEditingController workoutPurposeController = TextEditingController();
-  final TextEditingController workoutFrequencyController = TextEditingController();
   final TextEditingController workoutDurationController = TextEditingController();
   final TextEditingController workoutSplitController = TextEditingController();
 
@@ -48,6 +47,8 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
 
   bool _isLoading = true; // To track if data is being fetched
 
+  int? _selectedWorkoutFrequency;
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +64,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
     final double? weightValue = weightController.text.isNotEmpty
         ? double.tryParse(weightController.text)
         : null;
+    final int? workoutFrequency = _selectedWorkoutFrequency;
     final int? workoutDuration = workoutDurationController.text.isNotEmpty
         ? int.tryParse(workoutDurationController.text)
         : null;
@@ -81,7 +83,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
       gender: genderController.text,
       constraints: constraintsController.text,
       workoutPurpose: workoutPurposeController.text,
-      workoutFrequency: workoutFrequencyController.text,
+      workoutFrequency: workoutFrequency,
       workoutDuration: workoutDuration,
       numberOfSplit: numberOfSplit,
     );
@@ -127,7 +129,11 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         workoutPurposeController.text = userDetails['purpose'] ?? '';
 
         // Workout Frequency
-        workoutFrequencyController.text = userDetails['workoutFrequency'] ?? '';
+        if (userDetails['workoutFrequency'] != null) {
+          _selectedWorkoutFrequency = int.tryParse(userDetails['workoutFrequency'].toString());
+        } else {
+          _selectedWorkoutFrequency = null;
+        }
 
         // Workout Duration
         workoutDurationController.text = (userDetails['workoutDuration'] != null)
@@ -429,33 +435,36 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
               ),
               const SizedBox(height: 10),
 
-              // Workout Frequency (String)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 5),
-                  DropdownButtonFormField<String>(
-                    value: workoutFrequencyController.text.isNotEmpty ? workoutFrequencyController.text : null,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    // Workout Frequency (Integer Dropdown)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 5),
+                        DropdownButtonFormField<int>(
+                          value: _selectedWorkoutFrequency,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                          hint: const Text('Select Frequency'),
+                          items: List.generate(
+                            7,
+                            (index) {
+                              final frequency = index + 1;
+                              return DropdownMenuItem<int>(
+                                value: frequency,
+                                child: Text('$frequency ${frequency == 1 ? "Time" : "Times"} a Week'),
+                              );
+                            },
+                          ),
+                          onChanged: (int? newValue) {
+                            setState(() {
+                              _selectedWorkoutFrequency = newValue;
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                    hint: const Text('Select Frequency'),
-                    items: List.generate(
-                      7,
-                      (index) => DropdownMenuItem(
-                        value: '${index + 1}', // The value as a string
-                        child: Text('${index + 1} ${index + 1 == 1 ? "Time" : "Times"} a Week'),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        workoutFrequencyController.text = value ?? '';
-                      });
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
               // Workout Duration (Integer)
               Column(

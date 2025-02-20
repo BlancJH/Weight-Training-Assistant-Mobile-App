@@ -1,15 +1,12 @@
 package com.blancJH.weight_assistant_mobile_app_backend.dto;
 
-import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutFrequency;
-import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPurpose;
-
 public class UserDetailsDTO {
     private Integer age;
     private String height;
     private String weight;
     private String gender;
-    private WorkoutPurpose workoutPurpose;
-    private WorkoutFrequency workoutFrequency;
+    private String workoutPurpose;
+    private Integer workoutFrequency;
     private Integer workoutDuration;
     private Integer numberOfSplit;
     private String injuriesOrConstraints;
@@ -48,19 +45,19 @@ public class UserDetailsDTO {
         this.gender = gender;
     }
 
-    public WorkoutPurpose getWorkoutPurpose() {
+    public String getWorkoutPurpose() {
         return workoutPurpose;
     }
 
-    public void setWorkoutPurpose(WorkoutPurpose workoutPurpose) {
+    public void setWorkoutPurpose(String workoutPurpose) {
         this.workoutPurpose = workoutPurpose;
     }
 
-    public WorkoutFrequency getWorkoutFrequency() {
+    public Integer getWorkoutFrequency() {
         return workoutFrequency;
     }
 
-    public void setWorkoutFrequency(WorkoutFrequency workoutFrequency) {
+    public void setWorkoutFrequency(Integer workoutFrequency) {
         this.workoutFrequency = workoutFrequency;
     }
 
