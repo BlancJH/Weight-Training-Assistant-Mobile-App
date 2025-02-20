@@ -24,4 +24,14 @@ public enum WorkoutFrequency {
     public String getDescription() {
         return description;
     }
+    
+    public static WorkoutFrequency fromValue(int value) {
+        for (WorkoutFrequency frequency : values()) {
+            if (frequency.getValue() == value) {
+                return frequency;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant for value " + value);
+    }
+
 }

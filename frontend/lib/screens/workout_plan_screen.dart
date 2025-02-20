@@ -441,7 +441,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                       children: [
                         const SizedBox(height: 5),
                         DropdownButtonFormField<int>(
-                          value: _selectedWorkoutFrequency,
+                          value: _selectedWorkoutFrequency,  // if using the controller, you might be using its text value instead
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                           ),
