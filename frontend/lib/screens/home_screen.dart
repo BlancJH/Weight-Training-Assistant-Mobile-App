@@ -26,11 +26,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String? profileUrl;
   List<Map<String, dynamic>> exerciseData = []; // Non-nullable
 
+  // to store the selected date from the calendar
+  DateTime _selectedDate = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     _fetchUserData();
-    _fetchExerciseData();
+    _fetchExerciseData(date: _selectedDate);
   }
 
   Future<void> _fetchUserData() async {
@@ -49,14 +52,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _fetchExerciseData() async {
+  Future<void> _fetchExerciseData({DateTime? date}) async {
     try {
       final token = await _authService.getToken();
       if (token == null) {
         throw Exception('Token is null. Unable to fetch workout plans.');
       }
 
-      final List<Map<String, dynamic>> fetchedPlans = await _exercisePlanService.fetchWorkoutPlans();
+      // Pass the date parameter to the service method
+      final List<Map<String, dynamic>> fetchedPlans = 
+          await _exercisePlanService.fetchWorkoutPlans(date: date);
 
       setState(() {
         exerciseData = fetchedPlans
@@ -73,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
 
   void _handleMenuSelection(MenuOptions option) async {
     switch (option) {
@@ -124,7 +130,10 @@ class _HomeScreenState extends State<HomeScreen> {
               events: {},
               onDaySelected: (selectedDay, events) {
                 print('Selected day: $selectedDay');
-                print('Events: $events');
+                setState(() {
+                  _selectedDate = selectedDay;
+                });
+                _fetchExerciseData(date: selectedDay);
               },
             ),
           ),

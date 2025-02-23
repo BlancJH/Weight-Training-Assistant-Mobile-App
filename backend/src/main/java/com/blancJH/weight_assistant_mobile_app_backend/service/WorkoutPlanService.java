@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,49 +59,74 @@ public class WorkoutPlanService {
     private UserStatisticsService userStatisticsService;
 
     /**
-     * Creates a workout plan for a user by integrating:
+     * Creates workout plans for a user by:
      * <ol>
-     *   <li>Allocation of splits based on the user's workout purpose and number of splits.</li>
-     *   <li>Calculation of the number of exercises to pick per split from the workout duration.</li>
-     *   <li>For each allocated split, retrieving candidate exercises from the repository
-     *       (filtered by target split category) and picking top exercises using the ratio distribution.</li>
-     *   <li>Incorporating popularity (and optionally user preference) via composite scoring.</li>
+     *   <li>Allocating splits based on the user's workout purpose and number of splits.</li>
+     *   <li>Calculating the number of exercises per split from the workout duration.</li>
+     *   <li>For each split, retrieving the top exercises using the ratio distribution, then creating a WorkoutPlan
+     *       and its associated WorkoutPlanExercise entities (which link via foreign keys).</li>
+     *   <li>Each WorkoutPlan gets a planned date starting from today, its status is set to false, and the split category is saved.</li>
      * </ol>
      *
      * @param userDetails The user's workout details.
-     * @return A map where each key is a split (e.g., "Upper Body") and the value is a list of selected exercise names.
+     * @return A list of saved WorkoutPlan entities.
      */
-    public Map<String, List<String>> createWorkoutPlan(UserDetails userDetails) {
+    public List<WorkoutPlan> createWorkoutPlans(UserDetails userDetails) {
         if (userDetails == null) {
             throw new IllegalArgumentException("User details must not be null");
         }
         
-        // 1. Allocate splits based on user's workout purpose and number of splits.
+        // 1. Allocate splits based on the user's workout purpose and number of splits.
         List<WorkoutSplit> splits = splitAllocationService.allocateSplitsForUser(userDetails);
         
-        // 2. Calculate the number of exercises to pick per split from the workout duration.
+        // 2. Calculate the number of exercises to pick per split based on workout duration.
         int exerciseCountPerSplit = splitAllocationService.calculateExerciseCount(userDetails.getWorkoutDuration());
         
-        // 3. Retrieve total user count for popularity calculations.
+        // 3. Get total user count for popularity scoring.
         int totalUserCount = userStatisticsService.getTotalUserCount();
         
-        // 4. For each allocated split, use the repository to filter candidate exercises,
-        //    then pick top exercises using the ratio distribution.
-        Map<String, List<String>> workoutPlan = splits.stream().collect(Collectors.toMap(
-            WorkoutSplit::getCategoryPath,
-            split -> {
-                // Convert the split's display name to its corresponding enum.
-                WorkoutSplitCategory targetCategory = WorkoutSplitCategory.fromDisplayName(split.getCategoryPath());
-                if (targetCategory == null) {
-                    return List.of();
-                }
-                
-                // Use the ranking service method that applies the ratio distribution.
-                return rankingService.pickTopExercisesByDistribution(targetCategory, exerciseCountPerSplit, totalUserCount);
-            }
-        ));
+        List<WorkoutPlan> plans = new ArrayList<>();
+        LocalDate startDate = LocalDate.now();
         
-        return workoutPlan;
+        // 4. For each allocated split, create a WorkoutPlan and associated WorkoutPlanExercise entities.
+        for (int i = 0; i < splits.size(); i++) {
+            WorkoutSplit split = splits.get(i);
+            // Convert the split's display name to its corresponding enum.
+            WorkoutSplitCategory targetCategory = WorkoutSplitCategory.fromDisplayName(split.getCategoryPath());
+            if (targetCategory == null) {
+                continue;
+            }
+            
+            // Retrieve top exercise names for this split using the ranking service.
+            List<String> exerciseNames = rankingService.pickTopExercisesByDistribution(targetCategory, exerciseCountPerSplit, totalUserCount);
+            
+            // Create a new WorkoutPlan.
+            WorkoutPlan plan = new WorkoutPlan();
+            plan.setUser(userDetails.getUser());
+            plan.setPlannedDate(startDate.plusDays(i)); // Set planned date starting today.
+            plan.setStatus(false);
+            plan.setWorkoutSplitCategory(targetCategory);
+            
+            // Create WorkoutPlanExercise entities for each selected exercise.
+            List<WorkoutPlanExercise> planExercises = new ArrayList<>();
+            for (String exerciseName : exerciseNames) {
+                // Look up the Exercise entity by name.
+                Exercise exercise = exerciseRepository.findByExerciseName(exerciseName).orElse(null);
+                if (exercise != null) {
+                    WorkoutPlanExercise wpe = new WorkoutPlanExercise();
+                    // Set foreign keys by setting the associated entities.
+                    wpe.setWorkoutPlan(plan);  // This sets the workoutPlanId foreign key.
+                    wpe.setExercise(exercise); // This sets the exerciseId foreign key.
+                    // Optionally, you can set default values for sets, reps, or duration.
+                    planExercises.add(wpe);
+                }
+            }
+            plan.setExercises(planExercises);
+            
+            // Persist the workout plan (which cascades the WorkoutPlanExercise entities if mapped accordingly).
+            plans.add(workoutPlanRepository.save(plan));
+        }
+        return plans;
     }
 
 

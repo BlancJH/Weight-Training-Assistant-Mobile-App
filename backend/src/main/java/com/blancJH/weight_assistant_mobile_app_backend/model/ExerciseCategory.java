@@ -9,7 +9,8 @@ public enum ExerciseCategory {
     DUMBBELL,
     ASSISTED_BODYWEIGHT,
     KETTLEBELL,
-    MEDICINE_BALL
+    MEDICINE_BALL,
+    EQUIPMENT
 }
 
 

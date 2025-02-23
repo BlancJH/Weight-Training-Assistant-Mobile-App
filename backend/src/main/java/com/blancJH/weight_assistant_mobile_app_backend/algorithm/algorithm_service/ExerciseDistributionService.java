@@ -22,34 +22,32 @@ public class ExerciseDistributionService {
      * Retrieves the ratio map for the given target split.
      * If a direct mapping is not found for the target split,
      * this method will try to combine the ratio maps of its children.
+     * If neither is available, it returns a default map that assigns 100% weight to the target split.
      *
      * @param targetSplit the target split category.
      * @return a map where keys are sub-category names and values are ratios.
      */
     private Map<String, Double> getRatioMapForTargetSplit(WorkoutSplitCategory targetSplit) {
+        // Get all ratio mappings from configuration
         Map<String, Map<String, Double>> allRatios = ratioConfig.getRatios();
-        // Attempt to get a direct mapping.
+        // Try to get a direct mapping
         Map<String, Double> directMap = allRatios.get(targetSplit.getDisplayName());
         if (directMap != null && !directMap.isEmpty()) {
             return directMap;
         }
 
-        // If no direct mapping is defined, attempt to combine the mappings from child categories.
+        // If no direct mapping exists, try to merge the mappings of all descendant categories.
         Map<String, Double> combined = new HashMap<>();
-        // Iterate over all possible categories.
         for (WorkoutSplitCategory cat : WorkoutSplitCategory.values()) {
-            // If cat is a descendant of targetSplit (but not equal to targetSplit)
             if (!cat.equals(targetSplit) && cat.isDescendantOf(targetSplit)) {
                 Map<String, Double> childMap = allRatios.get(cat.getDisplayName());
                 if (childMap != null && !childMap.isEmpty()) {
-                    // Merge the child mapping into the combined map.
-                    childMap.forEach((key, value) -> 
-                        combined.merge(key, value, Double::sum));
+                    childMap.forEach((key, value) -> combined.merge(key, value, Double::sum));
                 }
             }
         }
         if (!combined.isEmpty()) {
-            // Normalize the combined map so that the sum of ratios equals 1.
+            // Normalize the combined map so that the sum equals 1.
             double total = combined.values().stream().mapToDouble(Double::doubleValue).sum();
             return combined.entrySet().stream()
                     .filter(Objects::nonNull)
@@ -57,8 +55,12 @@ public class ExerciseDistributionService {
                             Map.Entry::getKey,
                             e -> e.getValue() / total
                     ));
+        } else {
+            // Fallback: if no mapping is found, return a default map with 100% assigned to the target split itself.
+            Map<String, Double> defaultMap = new HashMap<>();
+            defaultMap.put(targetSplit.getDisplayName(), 1.0);
+            return defaultMap;
         }
-        throw new IllegalArgumentException("Ratio distribution not defined for target split: " + targetSplit);
     }
 
     /**

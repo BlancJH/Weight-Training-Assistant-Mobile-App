@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 import 'auth_service.dart';
 
 class ExercisePlanService {
@@ -33,15 +34,23 @@ class ExercisePlanService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchWorkoutPlans() async {
+  /// If [date] is provided, it is sent as a query parameter in the format yyyy-MM-dd.
+  Future<List<Map<String, dynamic>>> fetchWorkoutPlans({DateTime? date}) async {
     final jwtToken = await _authService.getToken();
 
     if (jwtToken == null) {
       throw Exception("JWT token not found. Cannot fetch workout plans.");
     }
 
+    // Build the URL, appending the date query parameter if provided.
+    String url = '$_baseUrl/v1/workout-plans/get';
+    if (date != null) {
+      final formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      url += '?date=$formattedDate';
+    }
+
     final response = await http.get(
-      Uri.parse('$_baseUrl/v1/workout-plans/get'),
+      Uri.parse(url),
       headers: {
         'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
@@ -52,7 +61,6 @@ class ExercisePlanService {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
-
       return jsonResponse.map((plan) => plan as Map<String, dynamic>).toList();
     } else {
       throw Exception('Failed to fetch workout plans: ${response.reasonPhrase}');
