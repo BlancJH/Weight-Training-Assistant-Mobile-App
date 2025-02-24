@@ -1,6 +1,7 @@
 package com.blancJH.weight_assistant_mobile_app_backend.controller;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class WorkoutPlanController {
             List<WorkoutPlan> workoutPlans = workoutPlanService.createWorkoutPlans(userDetailsOpt.get());
 
             // 7. Return the generated workout plan.
-            return ResponseEntity.ok(workoutPlans);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Workout plans generated successfully."));
         } catch (Exception e) {
             logger.error("Error generating or saving workout plan", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

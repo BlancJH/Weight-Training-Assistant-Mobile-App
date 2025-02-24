@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/screens/home_screen.dart';
 import 'package:frontend_1/utils/validator.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/submit_button.dart';
@@ -253,8 +254,10 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         iconTheme: const IconThemeData(color: Colors.black),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction, // Enable live validation
@@ -562,22 +565,32 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
               return;
             }
 
+            setState(() {
+              _isLoading = true;
+            });
             try {
-              // Update the user details
               await _updateUserDetails();
-
-              // Generate the workout plan
-              final responseMessage = await exercisePlanService.createWorkoutPlans();
-
-              // Show success message from workout plan service
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(responseMessage as String)),
+              // Wait for workout plan generation.
+              final response = await exercisePlanService.createWorkoutPlans();
+              debugPrint("Workout Plan Response: $response");
+              // On success, navigate to HomeScreen.
+              debugPrint("Navigating to HomeScreen");
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
               );
             } catch (e) {
-              // Handle errors
+              // Show error message if request fails.
+              debugPrint("Error during request: $e");
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Error: ${e.toString()}')),
               );
+            } finally {
+              if (mounted) {
+                setState(() {
+                  _isLoading = false;
+                });
+              }
             }
           },
         ),

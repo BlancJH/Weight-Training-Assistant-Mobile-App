@@ -162,21 +162,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 title: "Re-plan Workout",
                                 content: "Unfinished plans will be discarded.",
                                 onConfirm: () async {
-                                  try {
-                                    print("Re-plan confirmed!");
-                                    // Send workout plan request asynchronously
-                                    final responseMessage = await _exercisePlanService.createWorkoutPlans();
-                                    
-                                    // Show success message from workout plan service
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(responseMessage as String)),
-                                    );
-                                  } catch (e) {
-                                    // Handle errors by showing an error message
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Error: ${e.toString()}')),
-                                    );
-                                  }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => 
+                                    WorkoutPlanScreen(username: username ?? 'Guest'),
+                                  ),
+                                );
                                 },
                               );
                             },

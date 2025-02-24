@@ -27,14 +27,14 @@ public class LossWeightSplitAllocationAlgorithm implements WorkoutSplitAllocatio
             }
             case 4 -> {
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
             }
             case 5 -> {
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.HIIT.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.CORE.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
             }
@@ -43,7 +43,7 @@ public class LossWeightSplitAllocationAlgorithm implements WorkoutSplitAllocatio
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.STEADY_STATE.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.UPPER_BODY.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.LOWER_BODY.getDisplayName()));
-                splits.add(new WorkoutSplit(WorkoutSplitCategory.CIRCUIT.getDisplayName()));
+                splits.add(new WorkoutSplit(WorkoutSplitCategory.FUNCTIONAL.getDisplayName()));
                 splits.add(new WorkoutSplit(WorkoutSplitCategory.RECOVERY.getDisplayName()));
             }
             case 7 -> {
