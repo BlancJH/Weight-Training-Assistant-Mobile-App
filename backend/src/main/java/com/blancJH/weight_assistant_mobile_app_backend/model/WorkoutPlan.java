@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,11 +34,15 @@ public class WorkoutPlan {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Version
+    private Long version;
+    
     @Column(name = "planned_date", nullable = false)
     private LocalDate plannedDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private boolean status; // true = done, false = not done
+    private WorkoutPlanStatus status;
 
     @Enumerated(EnumType.STRING) // SplitName
     @Column(name = "workout_split_category", nullable = true)

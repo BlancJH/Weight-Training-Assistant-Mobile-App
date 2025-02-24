@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,12 +39,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/v1/workout-plans")
 public class WorkoutPlanController {
-
-    private final WorkoutPlanService workoutPlanService;
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final UserDetailsService userDetailsService; // Service to fetch UserDetails from DB
     private static final Logger logger = LoggerFactory.getLogger(WorkoutPlanService.class);
+
+    @Autowired
+    private WorkoutPlanService workoutPlanService;
 
     public WorkoutPlanController(WorkoutPlanService workoutPlanService,
                                  JwtUtil jwtUtil,
@@ -121,9 +123,10 @@ public class WorkoutPlanController {
             @PathVariable Long planId,
             @RequestBody List<Map<String, Object>> updatedExercises) {
         try {
-            WorkoutPlan updatedPlan = workoutPlanService.editWorkoutPlan(planId, updatedExercises);
-            return ResponseEntity.ok(updatedPlan);
+            workoutPlanService.updateWorkoutPlanExercises(planId, updatedExercises);
+            return ResponseEntity.ok("Workout plan updated successfully.");
         } catch (Exception e) {
+            logger.error("Error editing workout plan with id {}: {}", planId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body("Error editing workout plan: " + e.getMessage());
         }
@@ -161,7 +164,7 @@ public class WorkoutPlanController {
             List<WorkoutPlanDTO> response = workoutPlans.stream().map(wp -> new WorkoutPlanDTO(
                     wp.getId(),
                     wp.getPlannedDate(),
-                    wp.isStatus(),
+                    wp.getStatus().toString(),
                     wp.getWorkoutSplitCategory() != null ? wp.getWorkoutSplitCategory().toString() : null,
                     wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
                             ex.getExercise().getId(),

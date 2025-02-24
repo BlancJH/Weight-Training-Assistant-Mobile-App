@@ -2,14 +2,17 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.blancJH.weight_assistant_mobile_app_backend.algorithm.algorithm_service.ExerciseRankingService;
 import com.blancJH.weight_assistant_mobile_app_backend.algorithm.algorithm_service.UserStatisticsService;
@@ -19,12 +22,13 @@ import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserDetails;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlanExercise;
+import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlanStatus;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutSplit;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutSplitCategory;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.ExerciseRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserDetailsRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.WorkoutPlanRepository;
-import com.blancJH.weight_assistant_mobile_app_backend.util.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -33,6 +37,7 @@ public class WorkoutPlanService {
 
     private final WorkoutPlanRepository workoutPlanRepository;
     private final UserRepository userRepository;
+    private final UserDetailsRepository userDetailsRepository;
     private final ExerciseRepository exerciseRepository;
     private final ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(WorkoutPlanService.class);
@@ -40,11 +45,13 @@ public class WorkoutPlanService {
     public WorkoutPlanService(
         WorkoutPlanRepository workoutPlanRepository,
         UserRepository userRepository,
+        UserDetailsRepository userDetailsRepository,
         ExerciseRepository exerciseRepository,
         ObjectMapper objectMapper
     ) {
         this.workoutPlanRepository = workoutPlanRepository;
         this.userRepository = userRepository;
+        this.userDetailsRepository = userDetailsRepository;
         this.exerciseRepository = exerciseRepository;
         this.objectMapper = objectMapper;
     }
@@ -104,7 +111,7 @@ public class WorkoutPlanService {
             WorkoutPlan plan = new WorkoutPlan();
             plan.setUser(userDetails.getUser());
             plan.setPlannedDate(startDate.plusDays(i)); // Set planned date starting today.
-            plan.setStatus(false);
+            plan.setStatus(WorkoutPlanStatus.COMPLETED);
             plan.setWorkoutSplitCategory(targetCategory);
             
             // Create WorkoutPlanExercise entities for each selected exercise.
@@ -130,20 +137,28 @@ public class WorkoutPlanService {
     }
 
 
-    public void adjustDatesForSkippedPlans(User user) {
-        List<WorkoutPlan> plans = workoutPlanRepository.findByUserIdAndStatusFalse(user.getId());
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void rescheduleUserIncompletedWorkoutPlans(Long userId) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
 
-        plans.sort(Comparator.comparing(WorkoutPlan::getPlannedDate));
+        // 1. Check if the user's workout plan from yesterday is still SCHEDULED.
+        Optional<WorkoutPlan> yesterdayPlanOpt = workoutPlanRepository.findByUserIdAndPlannedDateAndStatus(
+                userId, yesterday, WorkoutPlanStatus.SCHEDULED);
 
-        LocalDate today = LocalDate.now();
-        for (WorkoutPlan plan : plans) {
-            if (plan.getPlannedDate().isBefore(today)) {
-                plan.setPlannedDate(today);
-                today = today.plusDays(1);
+        if (yesterdayPlanOpt.isPresent()) {
+            // 2. Fetch all scheduled workout plans for the user with plannedDate >= yesterday.
+            List<WorkoutPlan> scheduledPlans = workoutPlanRepository
+                .findByUserIdAndStatusAndPlannedDateGreaterThanEqual(
+                    userId, WorkoutPlanStatus.SCHEDULED, yesterday);
+
+            if (!scheduledPlans.isEmpty()) {
+                // 3. Postpone each scheduled workout plan by +1 day.
+                for (WorkoutPlan plan : scheduledPlans) {
+                    plan.setPlannedDate(plan.getPlannedDate().plusDays(1));
+                }
+                workoutPlanRepository.saveAll(scheduledPlans);
             }
         }
-
-        workoutPlanRepository.saveAll(plans);
     }
 
     public void markPlanAsDone(Long planId) {
@@ -152,112 +167,80 @@ public class WorkoutPlanService {
                 .orElseThrow(() -> new RuntimeException("Workout Plan not found"));
 
         // Mark the plan as done
-        plan.setStatus(true);
+        plan.setStatus(WorkoutPlanStatus.COMPLETED);
         workoutPlanRepository.save(plan);
-
-        // Check if all plans for the user are done
-        Long userId = plan.getUser().getId();
-        boolean allPlansDone = workoutPlanRepository.findByUserId(userId)
-                .stream()
-                .allMatch(WorkoutPlan::isStatus);
-
-        if (allPlansDone) {
-            // Duplicate workout plans and reset
-            resetAndRescheduleWorkoutPlans(userId);
-        }
     }
 
-    public void resetAndRescheduleWorkoutPlans(Long userId) {
-        // Fetch all existing workout plans for the user
-        List<WorkoutPlan> existingPlans = workoutPlanRepository.findByUserId(userId);
+    @Transactional
+    public void repeatCompletedWorkoutPlans(Long userId) {
+        // 1. Retrieve user details (assuming a service or repository exists for this)
+        UserDetails userDetails = userDetailsRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User details not found"));
+        int numberOfSplit = userDetails.getNumberOfSplit();
 
-        if (existingPlans.isEmpty()) {
-            throw new RuntimeException("No workout plans found for the user.");
+        // 2. Retrieve the most recent workout plan for the user (sorted by planned date descending)
+        WorkoutPlan lastWorkoutPlan = workoutPlanRepository.findTopByUserIdOrderByPlannedDateDesc(userId)
+                .orElseThrow(() -> new RuntimeException("No workout plans found for user"));
+
+        // Only proceed if the most recent workout plan is COMPLETED.
+        if (lastWorkoutPlan.getStatus() != WorkoutPlanStatus.COMPLETED) {
+            return; // User hasn't finished all workout plans.
         }
+        
+        LocalDate lastCompletedDate = lastWorkoutPlan.getPlannedDate();
 
-        // Get the user from the existing plans
-        User user = existingPlans.get(0).getUser();
+        // 3. Fetch the latest 'numberOfSplit' workout plans to use as templates.
+        // Here we assume a repository method that returns the top N plans, sorted descending.
+        List<WorkoutPlan> templatePlans = workoutPlanRepository.findTopNByUserIdOrderByPlannedDateDesc(userId, numberOfSplit);
+        
+        // Reverse the list so that the oldest among the latest is first.
+        Collections.reverse(templatePlans);
 
-        // Determine the starting date for the new plans
-        LocalDate startDate = LocalDate.now();
-
-        // Duplicate workout plans
-        for (int i = 0; i < existingPlans.size(); i++) {
-            WorkoutPlan originalPlan = existingPlans.get(i);
-
-            // Create a new WorkoutPlan
-            WorkoutPlan newPlan = new WorkoutPlan();
-            newPlan.setUser(user);
-            newPlan.setPlannedDate(startDate.plusDays(i)); // Set new dates sequentially
-            newPlan.setStatus(false); // Reset status to not done
-            newPlan.setWorkoutSplitCategory(originalPlan.getWorkoutSplitCategory()); // Copy split name
-
-            // Duplicate exercises
-            List<WorkoutPlanExercise> newPlanExercises = new ArrayList<>();
-            for (WorkoutPlanExercise originalExercises : originalPlan.getExercises()) {
-                WorkoutPlanExercise newExercise = new WorkoutPlanExercise();
-                newExercise.setSets(originalExercises.getSets());
-                newExercise.setReps(originalExercises.getReps());
-                newExercise.setExercise(originalExercises.getExercise()); // Reuse the same Exercise
-                newExercise.setWorkoutPlan(newPlan); // Set relationship to the new plan
-
-                newPlanExercises.add(newExercise);
-            }
-
-            newPlan.setExercises(newPlanExercises);
-
-            // Save the new workout plan
+        // 4. Duplicate each template plan and set new planned dates.
+        for (int i = 0; i < templatePlans.size(); i++) {
+            WorkoutPlan originalPlan = templatePlans.get(i);
+            WorkoutPlan newPlan = duplicateWorkoutPlan(originalPlan);
+            
+            // Set the new planned date as one day after the lastCompletedDate plus the index offset.
+            newPlan.setPlannedDate(lastCompletedDate.plusDays(i + 1));
+            newPlan.setStatus(WorkoutPlanStatus.SCHEDULED);
+            
             workoutPlanRepository.save(newPlan);
         }
     }
 
-    public WorkoutPlan editWorkoutPlan(Long workoutPlanId, List<Map<String, Object>> updatedExercises) {
-        // Fetch the workout plan by ID
+    @Transactional
+    public void updateWorkoutPlanExercises(Long workoutPlanId, List<Map<String, Object>> updatedExercises) {
+        // 1. Fetch the workout plan by ID.
         WorkoutPlan plan = workoutPlanRepository.findById(workoutPlanId)
-                .orElseThrow(() -> new RuntimeException("Workout Plan not found"));
+                .orElseThrow(() -> new RuntimeException("Workout plan not found"));
 
-        // Clear existing exercises for this workout plan
-        plan.getExercises().clear();
-
-        // Parse and update exercises from the updatedExercises list
-        List<WorkoutPlanExercise> updatedPlanExercises = new ArrayList<>();
-
+        // 2. Iterate over each update request.
         for (Map<String, Object> exerciseMap : updatedExercises) {
-            // Normalize the exercise name
-            String rawExerciseName = (String) exerciseMap.get("exerciseName");
-            String normalizedExerciseName = StringUtil.normaliseExerciseName(rawExerciseName);
+            // Extract the workoutPlanExerciseId and newExerciseId from the map.
+            Long workoutPlanExerciseId = ((Number) exerciseMap.get("workoutPlanExerciseId")).longValue();
+            Long newExerciseId = ((Number) exerciseMap.get("newExerciseId")).longValue();
 
-            // Find or create the Exercise entity
-            Exercise exercise = exerciseRepository.findByExerciseName(normalizedExerciseName)
-                    .orElseGet(() -> {
-                        Exercise newExercise = new Exercise();
-                        newExercise.setExerciseName(normalizedExerciseName);
-                        newExercise.setExerciseCategory(null); // Set default or null
-                        newExercise.setPrimaryMuscle(null); // Set muscles to null
-                        newExercise.setSecondaryMuscle(null); // Set muscles to null
-                        newExercise.setExerciseGifUrl(null); // Optional: set GIF URL to null
-                        return exerciseRepository.save(newExercise);
-                    });
+            // Find the corresponding WorkoutPlanExercise from the plan.
+            Optional<WorkoutPlanExercise> optWpe = plan.getExercises().stream()
+                    .filter(wpe -> wpe.getId().equals(workoutPlanExerciseId))
+                    .findFirst();
 
-            // Create a new WorkoutPlanExercises entity
-            WorkoutPlanExercise workoutPlanExercise = new WorkoutPlanExercise();
-            workoutPlanExercise.setExercise(exercise);
-            workoutPlanExercise.setSets((Integer) exerciseMap.get("sets"));
-            workoutPlanExercise.setReps((Integer) exerciseMap.get("reps"));
-            workoutPlanExercise.setWorkoutPlan(plan); // Link it to the current workout plan
+            if (!optWpe.isPresent()) {
+                // Optionally, log or handle missing workoutPlanExercise.
+                continue;
+            }
+            WorkoutPlanExercise wpe = optWpe.get();
 
-            updatedPlanExercises.add(workoutPlanExercise);
+            // 3. Retrieve the new Exercise entity by its ID.
+            Exercise newExercise = exerciseRepository.findById(newExerciseId)
+                    .orElseThrow(() -> new RuntimeException("Exercise not found for id: " + newExerciseId));
+
+            // 4. Update the exercise reference.
+            wpe.setExercise(newExercise);
         }
-
-        // Update the workout plan with new exercises
-        plan.setExercises(updatedPlanExercises);
-
-        // Save the updated workout plan and return it
-        return workoutPlanRepository.save(plan);
-    }
-
-    public List<WorkoutPlan> getWorkoutPlansByUserId(Long userId) {
-        return workoutPlanRepository.findByUserId(userId);
+        // 5. Save the workout plan to persist changes in its exercises.
+        workoutPlanRepository.save(plan);
     }
 
     public List<WorkoutPlanExercise> getExercisesByWorkoutPlanId(Long workoutPlanId) {
@@ -269,7 +252,7 @@ public class WorkoutPlanService {
     public void deleteIncompleteWorkoutPlans(User user) {
 
         // Retrieve incomplete workout plans for the user
-        List<WorkoutPlan> incompletePlans = workoutPlanRepository.findByUserIdAndStatusFalse(user.getId());
+        List<WorkoutPlan> incompletePlans = workoutPlanRepository.findByUserIdAndStatus(user.getId(), WorkoutPlanStatus.SCHEDULED);
 
         // Check if there are any incomplete plans to delete
         if (incompletePlans == null || incompletePlans.isEmpty()) {
@@ -281,4 +264,28 @@ public class WorkoutPlanService {
         workoutPlanRepository.deleteAll(incompletePlans);
     }
 
+    private WorkoutPlan duplicateWorkoutPlan(WorkoutPlan originalPlan) {
+        WorkoutPlan newPlan = new WorkoutPlan();
+        newPlan.setUser(originalPlan.getUser());
+        newPlan.setWorkoutSplitCategory(originalPlan.getWorkoutSplitCategory());
+        // Duplicate other necessary fields if any.
+
+        // Duplicate the associated workoutPlanExercises.
+        List<WorkoutPlanExercise> newExercises = new ArrayList<>();
+        for (WorkoutPlanExercise originalExercise : originalPlan.getExercises()) {
+            WorkoutPlanExercise newExercise = new WorkoutPlanExercise();
+            newExercise.setSets(originalExercise.getSets());
+            newExercise.setReps(originalExercise.getReps());
+            newExercise.setDuration(originalExercise.getDuration());
+            newExercise.setExercise(originalExercise.getExercise()); // Reuse the same Exercise
+            newExercise.setWorkoutPlan(newPlan); // Link the exercise to the new plan
+            newExercises.add(newExercise);
+        }
+        newPlan.setExercises(newExercises);
+        return newPlan;
+    }
+
+    public List<WorkoutPlan> getWorkoutPlansByUserId(Long userId) {
+        return workoutPlanRepository.findByUserId(userId);
+    }
 }

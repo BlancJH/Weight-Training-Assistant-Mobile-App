@@ -13,7 +13,7 @@ import lombok.Setter;
 public class WorkoutPlanDTO {
     private Long id;
     private LocalDate plannedDate;
-    private boolean status;
+    private String WorkoutPlanStatus;
     private String WorkoutSplitCategory;
     private List<WorkoutPlanExerciseDTO> exercises;
 }
