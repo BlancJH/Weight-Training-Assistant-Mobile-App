@@ -111,7 +111,7 @@ public class WorkoutPlanService {
             WorkoutPlan plan = new WorkoutPlan();
             plan.setUser(userDetails.getUser());
             plan.setPlannedDate(startDate.plusDays(i)); // Set planned date starting today.
-            plan.setStatus(WorkoutPlanStatus.COMPLETED);
+            plan.setStatus(WorkoutPlanStatus.SCHEDULED);
             plan.setWorkoutSplitCategory(targetCategory);
             
             // Create WorkoutPlanExercise entities for each selected exercise.
