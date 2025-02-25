@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/widgets/shake_animation.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/table_calendar.dart';
 import '../widgets/gif_widget.dart';
@@ -28,6 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // to store the selected date from the calendar
   DateTime _selectedDate = DateTime.now();
+
+  // workoutPlan edit mode
+  bool isEditing = false;
 
   @override
   void initState() {
@@ -155,32 +159,39 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              AlertWidget.show(
-                                context: context,
-                                title: "Re-plan Workout",
-                                content: "Unfinished plans will be discarded.",
-                                onConfirm: () async {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => 
-                                    WorkoutPlanScreen(username: username ?? 'Guest'),
-                                  ),
-                                );
-                                },
-                              );
-                            },
-                            child: Text('Re-plan >',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                color: Colors.blue,
-                              ),
+                              Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.refresh, color: Colors.blue, size: 28),
+                                  onPressed: () {
+                                    AlertWidget.show(
+                                      context: context,
+                                      title: "Re-plan Workout",
+                                      content: "Unfinished plans will be discarded.",
+                                      onConfirm: () async {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => WorkoutPlanScreen(username: username ?? 'Guest'),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.edit, color: Colors.blue, size: 28),
+                                  onPressed: () {
+                                    setState(() {
+                                      isEditing = !isEditing;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        )
                     ),
                     Container(
                       margin: const EdgeInsets.only(bottom: 16.0),
@@ -188,23 +199,55 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: CustomListView(
                         itemCount: exerciseData.length,
                         scrollDirection: Axis.horizontal,
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         itemBuilder: (context, index) {
                           final gif = exerciseData[index];
-
-                          // Ensure correct keys exist in gif object
-                          return Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: GifWidget(
-                              gifUrl: gif['gifUrl'] ?? 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif', // Ensure key matches backend response
-                              text: capitalise(gif['exerciseName'] ?? 'Exercise'),
-                              optionalText: gif['optionalText'] ?? "${gif['sets']} sets ${gif['reps']} reps",
-                              width: 200,
-                              height: 150,
-                            ),
+                          
+                          // Build GifWidget.
+                          Widget gifWidget = GifWidget(
+                            gifUrl: gif['gifUrl'] ?? 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
+                            text: capitalise(gif['exerciseName'] ?? 'Exercise'),
+                            optionalText: gif['optionalText'] ??
+                                ((gif['sets'] != null && gif['reps'] != null)
+                                    ? "${gif['sets']} sets ${gif['reps']} reps"
+                                    : ''),
+                            width: 250,
+                            height: 150,
                           );
+
+                          // If in editing mode, wrap with ShakeAnimation and Draggable.
+                          if (isEditing) {
+                            gifWidget = ShakeAnimation(
+                              shake: true,
+                              child: gifWidget,
+                            );
+                            
+                            gifWidget = Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Draggable<Map<String, dynamic>>(
+                                data: gif, // Pass the exercise data for deletion/edit actions.
+                                feedback: Material(
+                                  color: Colors.transparent,
+                                  child: Opacity(
+                                    opacity: 0.8,
+                                    child: gifWidget,
+                                  ),
+                                ),
+                                childWhenDragging: Opacity(
+                                  opacity: 0.5,
+                                  child: gifWidget,
+                                ),
+                                child: gifWidget,
+                              ),
+                            );
+                            return gifWidget;
+                          } else {
+                            // Otherwise, display normally.
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: gifWidget,
+                            );
+                          }
                         },
                       ),
                     ),
