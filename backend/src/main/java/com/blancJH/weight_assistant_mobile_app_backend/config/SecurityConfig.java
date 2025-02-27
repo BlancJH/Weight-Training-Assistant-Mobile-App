@@ -26,7 +26,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configure(http))
             .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/v1/workout-plans/**").authenticated() 
-                .requestMatchers("/api/v1/chatgpt").authenticated() // Allow access to ChatGPT endpoint
+                .requestMatchers("/api/exercises/**").authenticated()
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

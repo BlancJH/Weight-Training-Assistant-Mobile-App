@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
@@ -24,15 +25,27 @@ public class ExerciseController {
         this.exerciseService = exerciseService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Exercise>> getAllExercises() {
-        return ResponseEntity.ok(exerciseService.getAllExercises());
-    }
+    @GetMapping("/search")
+    public ResponseEntity<List<Exercise>> searchExercises(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String primaryMuscle) {
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Exercise> getExerciseById(@PathVariable Long id) {
-        Exercise exercise = exerciseService.getExerciseById(id);
-        return ResponseEntity.ok(exercise);
+        if (name == null && primaryMuscle == null) {
+            // Return a bad request response or an empty list
+            return ResponseEntity.badRequest().build();
+            // Alternatively: return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        List<Exercise> results;
+        if (name != null && primaryMuscle != null) {
+            results = exerciseService.searchExercises(name, primaryMuscle);
+        } else if (name != null) {
+            results = exerciseService.searchExercisesByName(name);
+        } else {
+            results = exerciseService.searchExercisesByPrimaryMuscle(primaryMuscle);
+        }
+
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("/by-workout-plan/{workoutPlanId}")

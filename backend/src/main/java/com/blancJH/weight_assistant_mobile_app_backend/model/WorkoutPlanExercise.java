@@ -30,10 +30,10 @@ public class WorkoutPlanExercise {
     private String duration;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exercise_id", nullable = false)
+    @JoinColumn(name = "exercise_id", referencedColumnName = "id", nullable = false)
     private Exercise exercise;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workout_plan_id", nullable = false)
+    @JoinColumn(name = "workout_plan_id", referencedColumnName = "id", nullable = false)
     private WorkoutPlan workoutPlan;
 }

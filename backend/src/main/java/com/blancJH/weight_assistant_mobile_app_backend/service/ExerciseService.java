@@ -57,4 +57,17 @@ public class ExerciseService {
         return workoutPlanExerciseRepository.findByWorkoutPlan_Id(workoutPlanId);
     }
 
+    public List<Exercise> searchExercisesByName(String searchTerm) {
+        return exerciseRepository.findByExerciseNameContainingIgnoreCase(searchTerm);
+    }
+    
+    // Search by primary muscle (exact match, as a string)
+    public List<Exercise> searchExercisesByPrimaryMuscle(String primaryMuscle) {
+        return exerciseRepository.findByPrimaryMuscle(primaryMuscle);
+    }
+
+    public List<Exercise> searchExercises(String searchTerm, String primaryMuscle) {
+        return exerciseRepository.findByExerciseNameContainingIgnoreCaseAndPrimaryMuscle(searchTerm, primaryMuscle);
+    }
+
 }

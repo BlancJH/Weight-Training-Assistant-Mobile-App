@@ -9,9 +9,13 @@ import com.blancJH.weight_assistant_mobile_app_backend.model.Exercise;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutSplitCategory;
 
 public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
-    Optional<Exercise> findByExerciseName(String exerciseName);
     Optional<Exercise> findByExerciseCategory(String exerciseCategory);
-    Optional<Exercise> findByPrimaryMuscle(String primaryMuscle);
+    List<Exercise> findByPrimaryMuscle(String primaryMuscle);
     List<Exercise> findByWorkoutSplitCategory(WorkoutSplitCategory workoutSplitCategory);
+    List<Exercise> findByExerciseNameContainingIgnoreCase(String searchTerm);
+    Optional<Exercise> findByExerciseName(String exerciseName);
+
+    // Search by exercise name and primary muscle
+    List<Exercise> findByExerciseNameContainingIgnoreCaseAndPrimaryMuscle(String searchTerm, String primaryMuscle);
 
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/models/exercise_gif.dart';
 import '../widgets/gif_widget.dart';
-import '../models/exercise_gif.dart';
 
 class GifWidgetBuilder extends StatelessWidget {
   final List<ExerciseGifModel> gifData;

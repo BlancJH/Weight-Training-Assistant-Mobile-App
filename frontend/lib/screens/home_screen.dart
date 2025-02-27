@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/models/exercise.dart';
 import 'package:frontend_1/widgets/shake_animation.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/table_calendar.dart';
@@ -7,13 +8,15 @@ import '../widgets/custome_list_view.dart';
 import '../widgets/submit_button.dart';
 import '../services/auth_service.dart';
 import '../models/exercise_gif.dart';
+import '../widgets/exercise_search_popup.dart';
 import '../widgets/popup_menu.dart';
 import '../screens/profile_screen.dart';
 import '../screens/workout_plan_screen.dart';
 import '../services/exercise_plan_service.dart';
 import '../utils/string_utils.dart';
 import '../widgets/alert_widget.dart';
-import '../services/exercise_plan_service.dart';
+import '../widgets/delete_target.dart';
+import '../services/exercise_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -23,9 +26,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final AuthService _authService = AuthService();
   final ExercisePlanService _exercisePlanService = ExercisePlanService();
+  final ExerciseService _exerciseService = ExerciseService();
   String? username;
   String? profileUrl;
-  List<Map<String, dynamic>> exerciseData = []; // Non-nullable
+  List<Map<String, dynamic>> exerciseData = [];
 
   // to store the selected date from the calendar
   DateTime _selectedDate = DateTime.now();
@@ -38,6 +42,41 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _fetchUserData();
     _fetchExerciseData(date: _selectedDate);
+  }
+
+  void showExerciseSearchPopup(
+    BuildContext context,
+    Function(Exercise) onExerciseSelected,
+  ) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 200),
+      pageBuilder: (BuildContext buildContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        return Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            margin: EdgeInsets.only(top: 100, left: 20, right: 20),
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: 400,
+            child: Material(
+              borderRadius: BorderRadius.circular(16),
+              child: ExerciseSearchPopup(
+                onExerciseSelected: onExerciseSelected,
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+    );
   }
 
   Future<void> _fetchUserData() async {
@@ -83,7 +122,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   void _handleMenuSelection(MenuOptions option) async {
     switch (option) {
       case MenuOptions.profile:
@@ -126,166 +164,213 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: CustomCalendar(
-              events: {},
-              onDaySelected: (selectedDay, events) {
-                print('Selected day: $selectedDay');
-                setState(() {
-                  _selectedDate = selectedDay;
-                });
-                _fetchExerciseData(date: selectedDay);
-              },
-            ),
-          ),
+          // Main content as a Column.
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: CustomCalendar(
+                  events: {},
+                  onDaySelected: (selectedDay, events) {
+                    print('Selected day: $selectedDay');
+                    setState(() {
+                      _selectedDate = selectedDay;
+                    });
+                    _fetchExerciseData(date: selectedDay);
+                  },
+                ),
+              ),
 
           // Conditional rendering based on exercise data
-          exerciseData.isNotEmpty
-              ? Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Your Exercises',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+              exerciseData.isNotEmpty
+                  ? Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Your Exercises',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.refresh, color: Colors.blue, size: 28),
-                                  onPressed: () {
-                                    AlertWidget.show(
-                                      context: context,
-                                      title: "Re-plan Workout",
-                                      content: "Unfinished plans will be discarded.",
-                                      onConfirm: () async {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => WorkoutPlanScreen(username: username ?? 'Guest'),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.edit, color: Colors.blue, size: 28),
-                                  onPressed: () {
-                                    setState(() {
-                                      isEditing = !isEditing;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 16.0),
-                      height: 170,
-                      child: CustomListView(
-                        itemCount: exerciseData.length,
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        itemBuilder: (context, index) {
-                          final gif = exerciseData[index];
-                          
-                          // Build GifWidget.
-                          Widget gifWidget = GifWidget(
-                            gifUrl: gif['gifUrl'] ?? 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
-                            text: capitalise(gif['exerciseName'] ?? 'Exercise'),
-                            optionalText: gif['optionalText'] ??
-                                ((gif['sets'] != null && gif['reps'] != null)
-                                    ? "${gif['sets']} sets ${gif['reps']} reps"
-                                    : ''),
-                            width: 250,
-                            height: 150,
-                          );
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Re-plan button
+                                  IconButton(
+                                    icon: Icon(Icons.refresh,
+                                        color: Colors.blue, size: 28),
+                                    onPressed: () {
+                                      AlertWidget.show(
+                                        context: context,
+                                        title: "Re-plan Workout",
+                                        content:
+                                            "Unfinished plans will be discarded.",
+                                        onConfirm: () async {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  WorkoutPlanScreen(
+                                                      username:
+                                                          username ?? 'Guest'),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
 
-                          // If in editing mode, wrap with ShakeAnimation and Draggable.
-                          if (isEditing) {
-                            gifWidget = ShakeAnimation(
-                              shake: true,
-                              child: gifWidget,
+                                  // Edit workout button
+                                  IconButton(
+                                    icon: Icon(Icons.edit, color: Colors.blue, size: 28),
+                                    onPressed: () async {
+                                      setState(() {
+                                        isEditing = !isEditing;
+                                      });
+                                      showExerciseSearchPopup(context, (exercise) {
+                                        print("Selected exercise: ${exercise.name}");
+                                        Navigator.pop(context);
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 16.0),
+                          height: 170,
+                          child: CustomListView(
+                            itemCount: exerciseData.length,
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0),
+                            itemBuilder: (context, index) {
+                            final gif = exerciseData[index];
+
+                            // Build GifWidget.
+                            Widget gifWidget = GifWidget(
+                              gifUrl: gif['gifUrl'] ??
+                                  'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
+                              text: capitalise(gif['exerciseName'] ?? 'Exercise'),
+                              optionalText: gif['optionalText'] ??
+                                  ((gif['sets'] != null && gif['reps'] != null)
+                                      ? "${gif['sets']} sets ${gif['reps']} reps"
+                                      : ''),
+                              width: 250,
+                              height: 150,
                             );
-                            
-                            gifWidget = Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Draggable<Map<String, dynamic>>(
-                                data: gif, // Pass the exercise data for deletion/edit actions.
-                                feedback: Material(
-                                  color: Colors.transparent,
-                                  child: Opacity(
-                                    opacity: 0.8,
+
+                            if (isEditing) {
+                              // Wrap the widget in a Draggable.
+                              Widget draggableWidget = Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Draggable<Map<String, dynamic>>(
+                                  data: gif, // exercise data
+                                  feedback: Material(
+                                    color: Colors.transparent,
+                                    child: Opacity(
+                                      opacity: 0.8,
+                                      child: gifWidget,
+                                    ),
+                                  ),
+                                  childWhenDragging: Opacity(
+                                    opacity: 0.5,
                                     child: gifWidget,
                                   ),
-                                ),
-                                childWhenDragging: Opacity(
-                                  opacity: 0.5,
                                   child: gifWidget,
                                 ),
+                              );
+
+                              // Wrap the draggable widget in a DragTarget.
+                              gifWidget = ShakeAnimation(
+                                shake: true,
+                                child: DragTarget<Map<String, dynamic>>(
+                                  onWillAccept: (data) => data != null,
+                                  onAccept: (data) {
+                                    // Handle the drop.
+                                    // For example, swap positions or insert the dropped item here.
+                                    // You can access the dropped data (another exercise) via 'data'.
+                                    print("Dropped exercise: ${data['exerciseName']} on ${gif['exerciseName']}");
+                                    // TODO: Add your logic to update the list (e.g., reordering).
+                                  },
+                                  builder: (context, candidateData, rejectedData) {
+                                    // You may change appearance if an item is hovering.
+                                    return draggableWidget;
+                                  },
+                                ),
+                              );
+                              return gifWidget;
+                            } else {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                 child: gifWidget,
-                              ),
-                            );
-                            return gifWidget;
-                          } else {
-                            // Otherwise, display normally.
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: gifWidget,
-                            );
-                          }
-                        },
+                              );
+                            }
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: SubmitButton(
+                            text: 'Start workout!',
+                            onPressed: () {
+                              print('Workout button pressed!');
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  : Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'No exercises available.',
+                            style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                          ),
+                          SizedBox(height: 16.0),
+                          SubmitButton(
+                            text: 'Plan Workout',
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WorkoutPlanScreen(
+                                      username: username ?? 'Guest'),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SubmitButton(
-                        text: 'Start workout!',
-                        onPressed: () {
-                          print('Workout button pressed!');
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              : Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min, // Ensures the Column only takes as much space as needed
-                    children: [
-                      Text(
-                        'No exercises available.',
-                        style: TextStyle(fontSize: 16.0, color: Colors.grey),
-                      ),
-                      SizedBox(height: 16.0),
-                      SubmitButton(
-                        text: 'Plan Workout',
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  WorkoutPlanScreen(username: username ?? 'Guest'),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+            ],
+          ),
+          // DeleteTarget widget shown only when in editing mode.
+          if (isEditing)
+            Positioned(
+              bottom: 30,
+              left: 0,
+              right: 0,
+              child: DeleteTarget(
+                onAccept: (data) {
+                  setState(() {
+                    exerciseData.remove(data);
+                    // TODO: Call your backend deletion API with the exercise id.
+                  });
+                },
+              ),
+            ),
         ],
       ),
     );
