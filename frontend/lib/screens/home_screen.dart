@@ -230,14 +230,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                   // Edit workout button
                                   IconButton(
-                                    icon: Icon(Icons.edit, color: Colors.blue, size: 28),
-                                    onPressed: () async {
+                                    icon: Icon(Icons.edit,
+                                        color: Colors.blue, size: 28),
+                                    onPressed: () {
                                       setState(() {
                                         isEditing = !isEditing;
-                                      });
-                                      showExerciseSearchPopup(context, (exercise) {
-                                        print("Selected exercise: ${exercise.name}");
-                                        Navigator.pop(context);
                                       });
                                     },
                                   ),
@@ -250,72 +247,102 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: const EdgeInsets.only(bottom: 16.0),
                           height: 170,
                           child: CustomListView(
-                            itemCount: exerciseData.length,
+                            // Increase item count by 1 to include the "+" button.
+                            itemCount: exerciseData.length + 1,
                             scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             itemBuilder: (context, index) {
-                            final gif = exerciseData[index];
-
-                            // Build GifWidget.
-                            Widget gifWidget = GifWidget(
-                              gifUrl: gif['gifUrl'] ??
-                                  'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
-                              text: capitalise(gif['exerciseName'] ?? 'Exercise'),
-                              optionalText: gif['optionalText'] ??
-                                  ((gif['sets'] != null && gif['reps'] != null)
-                                      ? "${gif['sets']} sets ${gif['reps']} reps"
-                                      : ''),
-                              width: 250,
-                              height: 150,
-                            );
-
-                            if (isEditing) {
-                              // Wrap the widget in a Draggable.
-                              Widget draggableWidget = Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Draggable<Map<String, dynamic>>(
-                                  data: gif, // exercise data
-                                  feedback: Material(
-                                    color: Colors.transparent,
-                                    child: Opacity(
-                                      opacity: 0.8,
-                                      child: gifWidget,
+                              // If this is the last item, return the "+" button.
+                              if (index == exerciseData.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showExerciseSearchPopup(context, (exercise) {
+                                        print("Selected exercise: ${exercise.exerciseName}");
+                                        Navigator.pop(context);
+                                      });
+                                    },
+                                    child: Container(
+                                      width: 250,
+                                      height: 150,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.add,
+                                          size: 50,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  childWhenDragging: Opacity(
-                                    opacity: 0.5,
-                                    child: gifWidget,
-                                  ),
-                                  child: gifWidget,
-                                ),
+                                );
+                              }
+
+                              // Otherwise, build the exercise widget.
+                              final gif = exerciseData[index];
+                              // Build GifWidget.
+                              Widget gifWidget = GifWidget(
+                                gifUrl: gif['gifUrl'] ??
+                                    'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
+                                text: capitalise(gif['exerciseName'] ?? 'Exercise'),
+                                optionalText: gif['optionalText'] ??
+                                    ((gif['sets'] != null && gif['reps'] != null)
+                                        ? "${gif['sets']} sets ${gif['reps']} reps"
+                                        : ''),
+                                width: 250,
+                                height: 150,
                               );
 
+                              if (isEditing) {
+                              // Wrap the widget in a Draggable.
+                                Widget draggableWidget = Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Draggable<Map<String, dynamic>>(
+                                    data: gif, // exercise data
+                                    feedback: Material(
+                                      color: Colors.transparent,
+                                      child: Opacity(
+                                        opacity: 0.8,
+                                        child: gifWidget,
+                                      ),
+                                    ),
+                                    childWhenDragging: Opacity(
+                                      opacity: 0.5,
+                                      child: gifWidget,
+                                    ),
+                                    child: gifWidget,
+                                  ),
+                                );
+
                               // Wrap the draggable widget in a DragTarget.
-                              gifWidget = ShakeAnimation(
-                                shake: true,
-                                child: DragTarget<Map<String, dynamic>>(
-                                  onWillAccept: (data) => data != null,
-                                  onAccept: (data) {
+                                gifWidget = ShakeAnimation(
+                                  shake: true,
+                                  child: DragTarget<Map<String, dynamic>>(
+                                    onWillAccept: (data) => data != null,
+                                    onAccept: (data) {
                                     // Handle the drop.
                                     // For example, swap positions or insert the dropped item here.
                                     // You can access the dropped data (another exercise) via 'data'.
-                                    print("Dropped exercise: ${data['exerciseName']} on ${gif['exerciseName']}");
-                                    // TODO: Add your logic to update the list (e.g., reordering).
-                                  },
-                                  builder: (context, candidateData, rejectedData) {
-                                    // You may change appearance if an item is hovering.
-                                    return draggableWidget;
-                                  },
-                                ),
-                              );
-                              return gifWidget;
-                            } else {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: gifWidget,
-                              );
-                            }
+                                      print("Dropped exercise: ${data['exerciseName']} on ${gif['exerciseName']}");
+                                      // TODO: Add your logic to update the list.
+                                    },
+                                    builder: (context, candidateData, rejectedData) {
+                                    // Appearance if an item is hovering.
+                                      return draggableWidget;
+                                    },
+                                  ),
+                                );
+                                return gifWidget;
+                              } else {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: gifWidget,
+                                );
+                              }
                             },
                           ),
                         ),

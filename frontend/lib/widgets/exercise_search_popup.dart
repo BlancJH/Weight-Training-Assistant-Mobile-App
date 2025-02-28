@@ -23,10 +23,10 @@ class _ExerciseSearchPopupState extends State<ExerciseSearchPopup> {
   bool isLoading = false;
   String? errorMessage;
 
-  // Create an instance of your API service
+  // Instance of your API service.
   final ExerciseService exerciseService = ExerciseService();
 
-  // Call the API when user presses search.
+  // Call the API when user presses the Search button.
   void _performSearch() async {
     setState(() {
       isLoading = true;
@@ -35,14 +35,13 @@ class _ExerciseSearchPopupState extends State<ExerciseSearchPopup> {
     });
 
     try {
-      // Call the API with name and primaryMuscle.
-      // Note: The backend controller supports only 'name' and 'primaryMuscle'.
+      // Call the API with 'name' and 'primaryMuscle'
       List<Exercise> results = await exerciseService.searchExercises(
         name: searchQuery,
         primaryMuscle: selectedPrimaryMuscle,
       );
 
-      // Optionally, further filter by category locally if needed.
+      // Optionally filter locally by category.
       if (selectedCategory != null && selectedCategory!.isNotEmpty) {
         results = results
             .where((exercise) => exercise.category == selectedCategory)
@@ -63,20 +62,41 @@ class _ExerciseSearchPopupState extends State<ExerciseSearchPopup> {
     }
   }
 
+  // Build a simple ListTile for an exercise.
+  Widget _buildExerciseTile(Exercise exercise) {
+    return ListTile(
+      leading: Image.network(
+        exercise.gifUrl,
+        width: 50,
+        height: 50,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.broken_image),
+      ),
+      title: Text(
+        exercise.exerciseName,
+        style: const TextStyle(color: Colors.black, fontSize: 16.0),
+      ),
+      onTap: () {
+        widget.onExerciseSelected(exercise);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        // Adjust padding as needed
+        // Adjust padding as needed.
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Size to its content
+          mainAxisSize: MainAxisSize.min, // Size to its content.
           children: [
             // Search Bar
             TextField(
               decoration: InputDecoration(
                 hintText: 'Search exercise...',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -86,7 +106,7 @@ class _ExerciseSearchPopupState extends State<ExerciseSearchPopup> {
               },
             ),
             const SizedBox(height: 16.0),
-            // Dropdowns for filtering
+            // Row for dropdown filters
             Row(
               children: [
                 Expanded(
@@ -142,77 +162,27 @@ class _ExerciseSearchPopupState extends State<ExerciseSearchPopup> {
             // Search button
             ElevatedButton(
               onPressed: _performSearch,
-              child: Text('Search'),
+              child: const Text('Search'),
             ),
             const SizedBox(height: 16.0),
-            // Display loading indicator or error message if applicable
-            if (isLoading) CircularProgressIndicator(),
+            // Show loading indicator or error message if applicable.
+            if (isLoading) const CircularProgressIndicator(),
             if (errorMessage != null)
               Text(
                 errorMessage!,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               ),
-            // List of search results
+            // Scrollable list of search results.
             Expanded(
               child: searchResults.isNotEmpty
                   ? ListView.builder(
                       itemCount: searchResults.length,
                       itemBuilder: (context, index) {
                         final exercise = searchResults[index];
-                        return Draggable<Exercise>(
-                          data: exercise,
-                          feedback: Material(
-                            color: Colors.transparent,
-                            child: ListTile(
-                              leading: Image.network(
-                                exercise.gifUrl,
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.broken_image),
-                              ),
-                              title: Text(exercise.name),
-                              subtitle: Text(
-                                  '${exercise.primaryMuscle} • ${exercise.category}'),
-                            ),
-                          ),
-                          childWhenDragging: Opacity(
-                            opacity: 0.5,
-                            child: ListTile(
-                              leading: Image.network(
-                                exercise.gifUrl,
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.broken_image),
-                              ),
-                              title: Text(exercise.name),
-                              subtitle: Text(
-                                  '${exercise.primaryMuscle} • ${exercise.category}'),
-                            ),
-                          ),
-                          child: ListTile(
-                            leading: Image.network(
-                              exercise.gifUrl,
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Icon(Icons.broken_image),
-                            ),
-                            title: Text(exercise.name),
-                            subtitle: Text(
-                                '${exercise.primaryMuscle} • ${exercise.category}'),
-                            onTap: () {
-                              widget.onExerciseSelected(exercise);
-                            },
-                          ),
-                        );
+                        return _buildExerciseTile(exercise);
                       },
                     )
-                  : Center(child: Text('No results found')),
+                  : const Center(child: Text('No results found')),
             ),
           ],
         ),
