@@ -44,6 +44,25 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchExerciseData(date: _selectedDate);
   }
 
+  int? _planId; 
+
+  Future<void> _updateWorkoutPlanExercises() async {
+    if (_planId == null) {
+      print("Plan ID is not available!");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("No workout plan found. Please create one first.")),
+      );
+      return;
+    }
+    try {
+      await _exercisePlanService.updateWorkoutPlanExercises(_planId!, exerciseData);
+      print("Workout plan updated successfully with: $exerciseData");
+    } catch (error) {
+      print("Failed to update workout plan: $error");
+    }
+  }
+
+  // Show the search popup. No preloaded exercises are passed.
   void showExerciseSearchPopup(
     BuildContext context,
     Function(Exercise) onExerciseSelected,
@@ -102,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
         throw Exception('Token is null. Unable to fetch workout plans.');
       }
 
-      // Pass the date parameter to the service method
+      // Pass the date parameter to the service method.
       final List<Map<String, dynamic>> fetchedPlans = 
           await _exercisePlanService.fetchWorkoutPlans(date: date);
 
@@ -182,8 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
-
-          // Conditional rendering based on exercise data
+              // Conditional rendering based on exercise data.
               exerciseData.isNotEmpty
                   ? Column(
                       children: [
@@ -203,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Re-plan button
+                                  // Re-plan button.
                                   IconButton(
                                     icon: Icon(Icons.refresh,
                                         color: Colors.blue, size: 28),
@@ -227,12 +245,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       );
                                     },
                                   ),
-
-                                  // Edit workout button
+                                  // Pencil button now toggles edit mode.
                                   IconButton(
                                     icon: Icon(Icons.edit,
                                         color: Colors.blue, size: 28),
-                                    onPressed: () {
+                                    onPressed: () async {
+                                      // If currently editing, finish editing mode and update workout plan.
+                                      if (isEditing) {
+                                        await _updateWorkoutPlanExercises();
+                                      }
                                       setState(() {
                                         isEditing = !isEditing;
                                       });
@@ -247,20 +268,33 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: const EdgeInsets.only(bottom: 16.0),
                           height: 170,
                           child: CustomListView(
-                            // Increase item count by 1 to include the "+" button.
-                            itemCount: exerciseData.length + 1,
+                            // In edit mode, include an extra item for the "+" button.
+                            itemCount: isEditing ? exerciseData.length + 1 : exerciseData.length,
                             scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             itemBuilder: (context, index) {
-                              // If this is the last item, return the "+" button.
-                              if (index == exerciseData.length) {
+                              // In edit mode, if this is the extra item, show the "+" button.
+                              if (isEditing && index == exerciseData.length) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: GestureDetector(
                                     onTap: () {
+                                      // Call the search popup to add an exercise.
                                       showExerciseSearchPopup(context, (exercise) {
                                         print("Selected exercise: ${exercise.exerciseName}");
-                                        Navigator.pop(context);
+                                        setState(() {
+                                          // Add the selected exercise to the list.
+                                          exerciseData.add({
+                                            'workoutPlanExerciseId': null, // New exercise; no existing association.
+                                            'newExerciseId': exercise.id,    // Use 'newExerciseId' here.
+                                            'exerciseName': exercise.exerciseName,
+                                            'gifUrl': exercise.gifUrl,
+                                            'category': exercise.category,
+                                            'primaryMuscle': exercise.primaryMuscle,
+                                            // Add additional fields if needed.
+                                          });
+                                        });
+                                        Navigator.of(context, rootNavigator: true).pop();
                                       });
                                     },
                                     child: Container(
@@ -298,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
 
                               if (isEditing) {
-                              // Wrap the widget in a Draggable.
+                                // Wrap the widget in a Draggable and DragTarget for reordering if needed.
                                 Widget draggableWidget = Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Draggable<Map<String, dynamic>>(
@@ -324,14 +358,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: DragTarget<Map<String, dynamic>>(
                                     onWillAccept: (data) => data != null,
                                     onAccept: (data) {
-                                    // Handle the drop.
-                                    // For example, swap positions or insert the dropped item here.
-                                    // You can access the dropped data (another exercise) via 'data'.
                                       print("Dropped exercise: ${data['exerciseName']} on ${gif['exerciseName']}");
-                                      // TODO: Add your logic to update the list.
+                                      // TODO: Add your logic to update the list (e.g., reordering).
                                     },
                                     builder: (context, candidateData, rejectedData) {
-                                    // Appearance if an item is hovering.
                                       return draggableWidget;
                                     },
                                   ),
@@ -393,7 +423,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 onAccept: (data) {
                   setState(() {
                     exerciseData.remove(data);
-                    // TODO: Call your backend deletion API with the exercise id.
                   });
                 },
               ),
