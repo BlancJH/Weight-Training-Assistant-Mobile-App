@@ -61,6 +61,12 @@ dependencies {
     //Fasterxml
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6:2.15.2'
 
+    // Google API Client for token verification
+    implementation 'com.google.api-client:google-api-client:2.2.0'
+
+    // Nimbus JOSE + JWT for Apple token verification
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+
 }
 
 tasks.withType(JavaCompile) {

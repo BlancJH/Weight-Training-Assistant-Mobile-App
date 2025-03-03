@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AuthService {
   // Base URL for your backend
@@ -93,6 +95,81 @@ class AuthService {
       return JwtDecoder.decode(token); // Decodes the JWT
     }
     return null; // Return null if no token exists
+  }
+
+  // Google auth
+  Future<void> handleGoogleSignIn() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      scopes: ['email', 'profile'],
+    );
+
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception("Google Sign-In cancelled");
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final String? idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw Exception("Failed to get Google ID Token");
+      }
+
+      // Send ID token to backend for verification & login
+      await _loginWithOAuthProvider('google', idToken);
+    } catch (e) {
+      print('Google Sign-In Error: $e');
+      throw Exception("Failed to sign in with Google: $e");
+    }
+  }
+
+  Future<void> handleAppleSignIn() async {
+    try {
+      final AuthorizationCredentialAppleID credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final String idToken = credential.identityToken ?? '';
+      if (idToken.isEmpty) {
+        throw Exception("Failed to get Apple ID Token");
+      }
+
+      // Send ID token to backend for verification & login
+      await _loginWithOAuthProvider('apple', idToken);
+    } catch (e) {
+      print('Apple Sign-In Error: $e');
+      throw Exception("Failed to sign in with Apple: $e");
+    }
+  }
+
+  Future<void> _loginWithOAuthProvider(String provider, String idToken) async {
+    final url = '$_baseUrl/auth/oauth/login';
+
+    final body = json.encode({
+      'provider': provider,
+      'idToken': idToken,
+    });
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final token = data['token'];
+
+      await _storage.write(key: 'jwt', value: token);
+      print("OAuth login successful. JWT stored.");
+    } else {
+      final error = json.decode(response.body);
+      throw Exception('OAuth login failed: ${error['message'] ?? response.body}');
+    }
   }
 
 }

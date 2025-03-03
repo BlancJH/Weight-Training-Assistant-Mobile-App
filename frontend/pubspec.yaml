@@ -59,6 +59,10 @@ dependencies:
   intl: ^0.18.0
   flutter_dotenv: ^5.2.1
 
+  # 0Auth
+  google_sign_in: ^6.1.6
+  sign_in_with_apple: ^5.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
