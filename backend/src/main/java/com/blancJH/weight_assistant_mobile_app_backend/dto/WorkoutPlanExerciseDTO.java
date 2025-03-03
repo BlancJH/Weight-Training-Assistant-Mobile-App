@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkoutPlanExerciseDTO {
+    private Long workoutPlanExerciseId;
     private Long exerciseId;
     private String exerciseName;
     private String exerciseCategory;

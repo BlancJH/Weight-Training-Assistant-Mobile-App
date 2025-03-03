@@ -66,4 +66,26 @@ class ExercisePlanService {
       throw Exception('Failed to fetch workout plans: ${response.reasonPhrase}');
     }
   }
+
+  Future<void> updateWorkoutPlanExercises(int planId, List<Map<String, dynamic>> updatedExercises) async {
+    final jwtToken = await _authService.getToken();
+    if (jwtToken == null) {
+      throw Exception("JWT token not found. User must log in.");
+    }
+    
+    final url = Uri.parse('$_baseUrl/v1/workout-plans/$planId/edit');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken',
+      },
+      body: jsonEncode(updatedExercises), // Send the list of maps.
+    );
+    
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update workout plan: ${response.body}');
+    }
+  }
+
 }

@@ -78,7 +78,10 @@ class _ExerciseSearchPopupState extends State<ExerciseSearchPopup> {
         style: const TextStyle(color: Colors.black, fontSize: 16.0),
       ),
       onTap: () {
+        // Call the callback to add the exercise to the plan.
         widget.onExerciseSelected(exercise);
+        // Close the popup.
+        Navigator.of(context, rootNavigator: true).pop();
       },
     );
   }

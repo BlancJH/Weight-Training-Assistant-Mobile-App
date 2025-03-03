@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,33 +217,82 @@ public class WorkoutPlanService {
         WorkoutPlan plan = workoutPlanRepository.findById(workoutPlanId)
                 .orElseThrow(() -> new RuntimeException("Workout plan not found"));
 
-        // 2. Iterate over each update request.
-        for (Map<String, Object> exerciseMap : updatedExercises) {
-            // Extract the workoutPlanExerciseId and newExerciseId from the map.
-            Long workoutPlanExerciseId = ((Number) exerciseMap.get("workoutPlanExerciseId")).longValue();
-            Long newExerciseId = ((Number) exerciseMap.get("newExerciseId")).longValue();
+        // Remove exercises that are missing both IDs (invalid entries)
+        updatedExercises = updatedExercises.stream()
+            .filter(exerciseMap ->
+                exerciseMap.containsKey("workoutPlanExerciseId") ||
+                exerciseMap.containsKey("newExerciseId"))
+            .collect(Collectors.toList());
 
-            // Find the corresponding WorkoutPlanExercise from the plan.
-            Optional<WorkoutPlanExercise> optWpe = plan.getExercises().stream()
-                    .filter(wpe -> wpe.getId().equals(workoutPlanExerciseId))
-                    .findFirst();
-
-            if (!optWpe.isPresent()) {
-                // Optionally, log or handle missing workoutPlanExercise.
-                continue;
-            }
-            WorkoutPlanExercise wpe = optWpe.get();
-
-            // 3. Retrieve the new Exercise entity by its ID.
-            Exercise newExercise = exerciseRepository.findById(newExerciseId)
-                    .orElseThrow(() -> new RuntimeException("Exercise not found for id: " + newExerciseId));
-
-            // 4. Update the exercise reference.
-            wpe.setExercise(newExercise);
+        if (updatedExercises.isEmpty()) {
+            throw new IllegalArgumentException("No valid exercises found in the request.");
         }
-        // 5. Save the workout plan to persist changes in its exercises.
+
+        // Create a set of workoutPlanExerciseIds that are coming in the update.
+        Set<Long> updatedWpeIds = updatedExercises.stream()
+            .filter(map -> map.get("workoutPlanExerciseId") != null)
+            .map(map -> ((Number) map.get("workoutPlanExerciseId")).longValue())
+            .collect(Collectors.toSet());
+
+        // Only remove WPEs if they were not present in the incoming payload
+        Set<Long> existingWpeIds = plan.getExercises().stream()
+            .map(WorkoutPlanExercise::getId)
+            .collect(Collectors.toSet());
+
+        existingWpeIds.removeAll(updatedWpeIds);  // These are to be removed
+
+        plan.getExercises().removeIf(wpe -> existingWpeIds.contains(wpe.getId()));
+
+        // Process each update entry.
+        for (Map<String, Object> exerciseMap : updatedExercises) {
+            Long workoutPlanExerciseId = (exerciseMap.get("workoutPlanExerciseId") != null)
+                    ? ((Number) exerciseMap.get("workoutPlanExerciseId")).longValue()
+                    : null;
+
+            Long newExerciseId = (exerciseMap.get("newExerciseId") != null)
+                    ? ((Number) exerciseMap.get("newExerciseId")).longValue()
+                    : null;
+
+            if (workoutPlanExerciseId != null) {
+                // Case 1: Existing exercise — either keep or replace.
+                Optional<WorkoutPlanExercise> optWpe = plan.getExercises().stream()
+                        .filter(wpe -> wpe.getId().equals(workoutPlanExerciseId))
+                        .findFirst();
+
+                if (optWpe.isPresent()) {
+                    WorkoutPlanExercise wpe = optWpe.get();
+                    
+                    if (newExerciseId != null) {
+                        // Existing exercise needs to be replaced.
+                        Exercise newExercise = exerciseRepository.findById(newExerciseId)
+                                .orElseThrow(() -> new RuntimeException("Exercise not found for id: " + newExerciseId));
+                        wpe.setExercise(newExercise);
+                    }
+                    // else: no newExerciseId, just keep the existing exercise (no action needed).
+                } else {
+                    // Log a warning if the WPE was not found (shouldn't happen if data is in sync).
+                    logger.warn("WorkoutPlanExercise with id {} not found; ignoring", workoutPlanExerciseId);
+                }
+            } else if (newExerciseId != null) {
+                // Case 2: New exercise being added.
+                Exercise newExercise = exerciseRepository.findById(newExerciseId)
+                        .orElseThrow(() -> new RuntimeException("Exercise not found for id: " + newExerciseId));
+
+                WorkoutPlanExercise newWpe = new WorkoutPlanExercise();
+                newWpe.setExercise(newExercise);
+                newWpe.setWorkoutPlan(plan);
+                plan.getExercises().add(newWpe);
+            } else {
+                // Ignore invalid entry instead of throwing an error.
+                logger.warn("Skipping invalid entry: {}", exerciseMap);
+            }
+        }
+
+        // Save the workout plan to persist changes.
         workoutPlanRepository.save(plan);
     }
+
+
 
     public List<WorkoutPlanExercise> getExercisesByWorkoutPlanId(Long workoutPlanId) {
         WorkoutPlan workoutPlan = workoutPlanRepository.findById(workoutPlanId)

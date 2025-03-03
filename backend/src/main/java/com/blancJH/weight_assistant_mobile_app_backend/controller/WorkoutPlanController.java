@@ -128,7 +128,7 @@ public class WorkoutPlanController {
         } catch (Exception e) {
             logger.error("Error editing workout plan with id {}: {}", planId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Error editing workout plan: " + e.getMessage());
+                    .body("Error editing workout plan: " + e.getMessage());
         }
     }
 
@@ -167,6 +167,7 @@ public class WorkoutPlanController {
                     wp.getStatus().toString(),
                     wp.getWorkoutSplitCategory() != null ? wp.getWorkoutSplitCategory().toString() : null,
                     wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
+                            ex.getId(),
                             ex.getExercise().getId(),
                             ex.getExercise().getExerciseName(),
                             ex.getExercise().getExerciseCategory() != null
