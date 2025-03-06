@@ -20,6 +20,7 @@ import '../utils/string_utils.dart';
 import '../widgets/alert_widget.dart';
 import '../widgets/delete_target.dart';
 import '../services/exercise_service.dart';
+import '../widgets/sphere_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -39,6 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // workoutPlan edit mode flag.
   bool isEditing = false;
+
+  // Calendar toggle
+  bool _showCalendar = false;  // Default to showing the sphere widget
 
   // Store the current workout plan ID (fetched for the selected date; if none, it remains null)
   int? _planId;
@@ -237,19 +241,49 @@ class _HomeScreenState extends State<HomeScreen> {
           // Main content.
           Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: CustomCalendar(
-                  events: {},
-                  onDaySelected: (selectedDay, events) {
-                    print('Selected day: $selectedDay');
-                    setState(() {
-                      _selectedDate = selectedDay;
-                    });
-                    _fetchExerciseData(date: selectedDay);
-                  },
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _showCalendar = !_showCalendar;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                    ),
+                    child: Text(
+                      _showCalendar ? 'Show Sphere' : 'Show Calendar',
+                      style: const TextStyle(color: primaryTextColor),
+                    ),
+                  ),
+                ],
               ),
+              if (_showCalendar)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: CustomCalendar(
+                    events: {},
+                    onDaySelected: (selectedDay, events) {
+                      print('Selected day: $selectedDay');
+                      setState(() {
+                        _selectedDate = selectedDay;
+                      });
+                      _fetchExerciseData(date: selectedDay);
+                    },
+                  ),
+                )
+              else
+                const SizedBox(
+                  height: 400,
+                    child: Center(
+                      child: SphereWidget(
+                        imageUrl: 'assets/images/Rocky.jpeg',
+                        size: 250,
+                    ),
+                  ),
+                ),
               // Display the exercise list if available.
               exerciseData.isNotEmpty
                   ? Column(
