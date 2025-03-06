@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/design_utils.dart';
 
 class SubmitButton extends StatelessWidget {
   final String text;
@@ -11,8 +12,8 @@ class SubmitButton extends StatelessWidget {
   const SubmitButton({
     required this.text, // The button's label text
     required this.onPressed, // Callback for button press
-    this.backgroundColor = Colors.blue, // Default button color
-    this.textColor = Colors.white, // Default text color
+    this.backgroundColor = buttonColor, // Default button color
+    this.textColor = primaryTextColor, // Default text color
     this.borderRadius = 8.0, // Default rounded corners
     this.width, // Optional custom width
     Key? key,

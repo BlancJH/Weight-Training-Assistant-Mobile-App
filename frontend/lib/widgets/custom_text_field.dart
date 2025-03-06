@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/design_utils.dart';
 
 class CustomTextField extends StatelessWidget {
   final String labelText;
@@ -26,7 +27,11 @@ class CustomTextField extends StatelessWidget {
           controller: controller,
           decoration: InputDecoration(
             labelText: labelText,
+            labelStyle: TextStyle(color: primaryTextColor),
             border: const OutlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: highlightColor, width: 2.0),
+            ),
             counterText: '', // Hide default counter
           ),
           obscureText: obscureText,
@@ -40,7 +45,7 @@ class CustomTextField extends StatelessWidget {
               '${controller.text.length} / $maxLength',
               style: const TextStyle(
                 fontSize: 12.0,
-                color: Colors.grey,
+                color: primaryTextColor,
               ),
             ),
           ),

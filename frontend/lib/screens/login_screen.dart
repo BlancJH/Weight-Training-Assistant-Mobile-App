@@ -8,6 +8,7 @@ import '../widgets/submit_button.dart'; // Import submit button
 import '../utils/http_requester.dart'; // Import http requester
 import 'home_screen.dart'; // Import home screen
 import 'package:jwt_decoder/jwt_decoder.dart'; // Import JWT decoder
+import '../utils/design_utils.dart';
 
 // Create LoginScreen class // Modify to stateful widget
 class LoginScreen extends StatefulWidget {

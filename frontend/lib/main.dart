@@ -3,6 +3,7 @@ import 'screens/login_screen.dart'; // Import the login screen
 import 'screens/home_screen.dart'; // Import the home screen
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:io';
+import 'utils/design_utils.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,9 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'My App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: spaceTheme,
       initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(),

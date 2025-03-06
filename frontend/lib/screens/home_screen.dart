@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:frontend_1/models/exercise.dart';
+import '../utils/design_utils.dart';
 import 'package:frontend_1/widgets/shake_animation.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/table_calendar.dart';
@@ -212,9 +213,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); 
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         actions: [
           Padding(
@@ -265,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   // Re-plan button.
                                   IconButton(
-                                    icon: Icon(Icons.refresh, color: Colors.blue, size: 28),
+                                    icon: Icon(Icons.refresh, color: buttonColor, size: 28),
                                     onPressed: () {
                                       AlertWidget.show(
                                         context: context,
@@ -286,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   // Pencil button toggles edit mode.
                                   IconButton(
-                                    icon: Icon(Icons.edit, color: Colors.blue, size: 28),
+                                    icon: Icon(Icons.edit, color: buttonColor, size: 28),
                                     onPressed: () async {
                                       if (isEditing) {
                                         // Finish editing and update the plan.
@@ -323,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: 250,
                                       height: 150,
                                       decoration: BoxDecoration(
-                                        color: Colors.grey[300],
+                                        color: theme.colorScheme.secondary,
                                         borderRadius: BorderRadius.circular(8.0),
                                       ),
                                       child: Center(
