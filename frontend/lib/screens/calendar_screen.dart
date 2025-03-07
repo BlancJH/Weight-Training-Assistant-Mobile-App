@@ -265,14 +265,14 @@ class _CalendarPageState extends State<CalendarPage> {
                                       width: 250,
                                       height: 150,
                                       decoration: BoxDecoration(
-                                        color: theme.colorScheme.secondary,
+                                        color: primaryColor,
                                         borderRadius: BorderRadius.circular(8.0),
                                       ),
                                       child: Center(
                                         child: Icon(
                                           Icons.add,
                                           size: 50,
-                                          color: Colors.blue,
+                                          color: highlightColor,
                                         ),
                                       ),
                                     ),

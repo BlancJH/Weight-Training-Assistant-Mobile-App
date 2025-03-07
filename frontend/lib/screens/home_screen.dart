@@ -73,8 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: false,
         backgroundColor: theme.colorScheme.surface,
-        title: Text('My App'),
+        title: Text('Gymtinued'),
         actions: [
           PopupMenuWidget(
             trigger: ProfileAvatar(
