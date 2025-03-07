@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Primary colors
 const Color primaryColor = Color(0xFF0B1A30);  // Deep Space Navy
@@ -31,9 +32,19 @@ final ThemeData spaceTheme = ThemeData(
     onSurface: primaryTextColor,
     onBackground: primaryTextColor,
   ),
-  textTheme: const TextTheme(
+  textTheme: TextTheme(
     bodyLarge: TextStyle(color: primaryTextColor),
     bodyMedium: TextStyle(color: secondaryTextColor),
+    displayLarge: GoogleFonts.orbitron(
+      fontSize: 36,
+      fontWeight: FontWeight.bold,
+      color: primaryTextColor,
+    ),
+    titleLarge: GoogleFonts.orbitron(
+      fontSize: 24,
+      fontWeight: FontWeight.bold,
+      color: primaryTextColor,
+    ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
