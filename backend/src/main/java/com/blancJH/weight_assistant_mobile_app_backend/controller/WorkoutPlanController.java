@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanDTO;
-import com.blancJH.weight_assistant_mobile_app_backend.dto.WorkoutPlanExerciseDTO;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserDetails;
 import com.blancJH.weight_assistant_mobile_app_backend.model.WorkoutPlan;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserDetailsJsonService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserDetailsService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserService;
+import com.blancJH.weight_assistant_mobile_app_backend.service.WorkoutPlanMappingService;
 import com.blancJH.weight_assistant_mobile_app_backend.service.WorkoutPlanService;
 import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 
@@ -42,6 +41,7 @@ public class WorkoutPlanController {
     private final JwtUtil jwtUtil;
     private final UserService userService;
     private final UserDetailsService userDetailsService; // Service to fetch UserDetails from DB
+    private final WorkoutPlanMappingService workoutPlanMappingService;
     private static final Logger logger = LoggerFactory.getLogger(WorkoutPlanService.class);
 
     @Autowired
@@ -51,11 +51,13 @@ public class WorkoutPlanController {
                                  JwtUtil jwtUtil,
                                  UserService userService,
                                  UserDetailsService userDetailsService,
-                                 UserDetailsJsonService userDetailsJsonService) {
+                                 UserDetailsJsonService userDetailsJsonService,
+                                 WorkoutPlanMappingService workoutPlanMappingService) {
         this.workoutPlanService = workoutPlanService;
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.userDetailsService = userDetailsService;
+        this.workoutPlanMappingService = workoutPlanMappingService;
     }
 
     @PostMapping("/generate")
@@ -150,43 +152,12 @@ public class WorkoutPlanController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            // Fetch workout plans using the extracted userId
-            List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByUserId(userId);
-
-            // If a date is provided, filter the plans by plannedDate
-            if (date != null) {
-                workoutPlans = workoutPlans.stream()
-                        .filter(wp -> wp.getPlannedDate() != null && wp.getPlannedDate().isEqual(date))
-                        .collect(Collectors.toList());
-            }
-
-            // Map WorkoutPlan entities to WorkoutPlanDTOs
-            List<WorkoutPlanDTO> response = workoutPlans.stream().map(wp -> new WorkoutPlanDTO(
-                    wp.getId(),
-                    wp.getPlannedDate(),
-                    wp.getStatus().toString(),
-                    wp.getWorkoutSplitCategory() != null ? wp.getWorkoutSplitCategory().toString() : null,
-                    wp.getExercises().stream().map(ex -> new WorkoutPlanExerciseDTO(
-                            ex.getId(),
-                            ex.getExercise().getId(),
-                            ex.getExercise().getExerciseName(),
-                            ex.getExercise().getExerciseCategory() != null
-                                    ? ex.getExercise().getExerciseCategory().toString()
-                                    : null,
-                            ex.getExercise().getPrimaryMuscle(),
-                            ex.getExercise().getSecondaryMuscle(),
-                            ex.getExercise().getExerciseGifUrl(),
-                            ex.getSets(),
-                            ex.getReps(),
-                            ex.getDuration()
-                    )).collect(Collectors.toList())
-            )).collect(Collectors.toList());
-
+            // Delegate to the service layer to get the mapped DTOs.
+            List<WorkoutPlanDTO> response = workoutPlanMappingService.getWorkoutPlanDTOsForUser(userId, date);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Error fetching workout plans", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 }

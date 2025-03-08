@@ -20,4 +20,5 @@ public class WorkoutPlanExerciseDTO {
     private Integer sets;
     private Integer reps;
     private String duration;
+    private String userExercisePreference;
 }
