@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../widgets/custom_time_picker_dialog.dart';
 import '../services/exercise_plan_service.dart';
 import '../services/auth_service.dart';
+import '../utils/design_utils.dart';
 
 class WorkoutPlanScreen extends StatefulWidget {
   final String username;
@@ -246,10 +247,11 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Workout Plan'),
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         centerTitle: true,

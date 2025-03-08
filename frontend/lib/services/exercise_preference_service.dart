@@ -21,7 +21,7 @@ class ExercisePreferenceService {
 
     try {
       final response = await http.post(
-        Uri.parse(_baseUrl!),
+        Uri.parse('$_baseUrl/preferences/update'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $jwtToken',
