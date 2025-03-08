@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:frontend_1/models/exercise.dart';
+import 'package:frontend_1/widgets/exercise_preference_widget.dart';
 import '../utils/design_utils.dart';
 import 'package:frontend_1/widgets/shake_animation.dart';
 import '../widgets/profile_avatar.dart';
@@ -37,11 +38,21 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _selectedDate = DateTime.now();
   bool isEditing = false;
   int? _planId;
+  String? _jwtToken;
 
   @override
   void initState() {
     super.initState();
     _fetchExerciseData(date: _selectedDate);
+    _fetchJwtToken();
+  }
+
+  // Fetch JWT
+  Future<void> _fetchJwtToken() async {
+    String? token = await _authService.getToken();
+    setState(() {
+      _jwtToken = token;
+    });
   }
 
   // Helper function: Called when an exercise is selected from the search popup.
@@ -282,16 +293,32 @@ class _CalendarPageState extends State<CalendarPage> {
 
                               // Otherwise, build the exercise widget.
                               final gif = exerciseData[index];
-                              Widget gifWidget = GifWidget(
-                                gifUrl: gif['gifUrl'] ??
-                                    'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
-                                text: capitalise(gif['exerciseName'] ?? 'Exercise'),
-                                optionalText: gif['optionalText'] ??
-                                    ((gif['sets'] != null && gif['reps'] != null)
-                                        ? "${gif['sets']} sets ${gif['reps']} reps"
-                                        : ''),
-                                width: 250,
-                                height: 150,
+                              Widget gifWidget = Stack(
+                                children: [
+                                  GifWidget(
+                                    gifUrl: gif['gifUrl'] ??
+                                        'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif',
+                                    text: capitalise(gif['exerciseName'] ?? 'Exercise'),
+                                    optionalText: gif['optionalText'] ??
+                                        ((gif['sets'] != null && gif['reps'] != null)
+                                            ? "${gif['sets']} sets ${gif['reps']} reps"
+                                            : ''),
+                                    width: 250,
+                                    height: 150,
+                                  ),
+                                  Positioned(
+                                    bottom: 16, // adjust the spacing from the bottom as needed
+                                    right: 16,  // adjust the spacing from the right as needed
+                                    child: SizedBox(
+                                      width: 120, // adjust width as needed
+                                      height: 40, // adjust height as needed
+                                      child: ExercisePreferenceWidget(
+                                        jwtToken: _jwtToken!, 
+                                        exerciseId: gif['newExerciseId'] ?? gif['workoutPlanExerciseId'] ?? 0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               );
 
                               if (isEditing) {
