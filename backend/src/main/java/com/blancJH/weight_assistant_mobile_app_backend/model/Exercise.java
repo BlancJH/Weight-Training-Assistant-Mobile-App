@@ -51,7 +51,6 @@ public class Exercise { // try public Enum
     @Transient
     private int latestDislikeCount;
     
-    // Optionally, you could add helper methods:
     public int getLatestFavoriteCount() {
         return latestFavoriteCount;
     }
