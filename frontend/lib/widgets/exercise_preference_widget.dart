@@ -41,6 +41,17 @@ class _ExercisePreferenceWidgetState extends State<ExercisePreferenceWidget> {
     isDisliked = widget.initialPreference == "DISLIKE";
   }
 
+  @override
+  void didUpdateWidget(covariant ExercisePreferenceWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialPreference != widget.initialPreference) {
+      setState(() {
+        isFavorite = widget.initialPreference == "FAVORITE";
+        isDisliked = widget.initialPreference == "DISLIKE";
+      });
+    }
+  }
+
   void _updatePreference(bool favorite, bool dislike, [String? dislikeReason]) async {
     bool success = await _preferenceService.updatePreference(
       jwtToken: widget.jwtToken,
