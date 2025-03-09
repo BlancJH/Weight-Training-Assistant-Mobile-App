@@ -161,6 +161,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           'gifUrl': e['gifUrl'],
                           'category': e['category'],
                           'primaryMuscle': e['primaryMuscle'],
+                          'userPreference': e['userExercisePreference']
                       }).toList();
               });
           } else {
@@ -293,6 +294,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
                               // Otherwise, build the exercise widget.
                               final gif = exerciseData[index];
+                              final userPreference = gif['userPreference'] as String?;
+
                               Widget gifWidget = Stack(
                                 children: [
                                   GifWidget(
@@ -315,6 +318,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                       child: ExercisePreferenceWidget(
                                         jwtToken: _jwtToken!, 
                                         exerciseId: gif['newExerciseId'] ?? gif['workoutPlanExerciseId'] ?? 0,
+                                        initialPreference: userPreference,
                                       ),
                                     ),
                                   ),
@@ -346,7 +350,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                     onWillAccept: (data) => data != null,
                                     onAccept: (data) {
                                       print("Dropped exercise: ${data['exerciseName']} on ${gif['exerciseName']}");
-                                      // TODO: Implement reordering logic if desired.
                                     },
                                     builder: (context, candidateData, rejectedData) {
                                       return draggableWidget;

@@ -4,11 +4,13 @@ import '../services/exercise_preference_service.dart';
 class ExercisePreferenceWidget extends StatefulWidget {
   final String jwtToken;
   final int exerciseId;
+  final String? initialPreference; // "FAVORITE", "DISLIKE", or null
 
   const ExercisePreferenceWidget({
     Key? key,
     required this.jwtToken,
     required this.exerciseId,
+    this.initialPreference,
   }) : super(key: key);
 
   @override
@@ -30,6 +32,14 @@ class _ExercisePreferenceWidgetState extends State<ExercisePreferenceWidget> {
     "No equipment": "NO_EQUIPMENT",
     "Others": "ETC",
   };
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the internal state based on the initial preference string
+    isFavorite = widget.initialPreference == "FAVORITE";
+    isDisliked = widget.initialPreference == "DISLIKE";
+  }
 
   void _updatePreference(bool favorite, bool dislike, [String? dislikeReason]) async {
     bool success = await _preferenceService.updatePreference(

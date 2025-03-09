@@ -4,6 +4,7 @@ class Exercise {
   final String primaryMuscle;
   final String category;
   final String gifUrl;
+  final String? userPreference;
 
   Exercise({
     required this.id,
@@ -11,6 +12,7 @@ class Exercise {
     required this.primaryMuscle,
     required this.category,
     required this.gifUrl,
+    this.userPreference,
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Exercise {
       primaryMuscle: json['primaryMuscle'] as String? ?? '',
       category: json['category'] as String? ?? '',
       gifUrl: json['gifUrl'] as String? ?? '',
+      userPreference: json['userPreference'],
     );
   }
 }
