@@ -28,13 +28,20 @@ class SpherePage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-            SizedBox(
-              height: 400,
-              child: SphereWidget(
-                  imageUrl: 'assets/images/Rocky.jpeg',
-                level: sphereLevel ?? 1,
-                baseSize: 300,
-              ),
+                // Wrap SphereWidget with GestureDetector for double tap action.
+                GestureDetector(
+                  onDoubleTap: () {
+                    // TODO: navigate to inventory screen.
+                    print('Sphere widget double tapped!');
+                  },
+                  child: SizedBox(
+                    height: 400,
+                    child: SphereWidget(
+                        imageUrl: 'assets/images/Rocky.jpeg',
+                      level: sphereLevel ?? 1,
+                      baseSize: 300,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -46,24 +53,6 @@ class SpherePage extends StatelessWidget {
               style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
                 ),
               ],
-            ),
-          ),
-          // Book icon positioned in the middle right.
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: GestureDetector(
-                onTap: () {
-                  // Add your onClick functionality here.
-                  print('Book icon tapped!');
-                },
-                child: const Icon(
-                  Icons.book,
-                  size: 40,
-                  color: Colors.white,
-                ),
-              ),
             ),
           ),
         ],
