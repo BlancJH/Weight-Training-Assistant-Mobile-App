@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import '../widgets/sphere_widget.dart';
+import '../widgets/locked_overlay.dart'; // Make sure to import the LockedOverlay widget.
 
 class SphereInventoryPage extends StatefulWidget {
   const SphereInventoryPage({Key? key}) : super(key: key);
@@ -87,16 +87,8 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                   imageUrl: selectedSphere['imageUrl'],
                   baseSize: sphereWidgetHeight * 0.8, // Fixed size; level is not passed.
                 ),
-                // If the sphere is not owned, blur it with a transparent grey overlay.
-                if (!selectedOwned)
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.6),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
+                // If not owned, overlay the locked cover.
+                if (!selectedOwned) const LockedOverlay(),
               ],
             ),
           ),
@@ -119,7 +111,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                       .where((owned) => owned['name'] == sphere['name'])
                       .toList();
                   final bool owned = ownedList.isNotEmpty;
-                  // If owned, retrieve its level; otherwise, default level to 0.
+                  // For display in the grid, show level if owned; default to 1 otherwise.
                   final int level = owned ? ownedList.first['level'] : 1;
 
                   return GestureDetector(
@@ -149,15 +141,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                                   fit: BoxFit.cover,
                                 ),
                               ),
-                              if (!owned)
-                                Positioned.fill(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
+                              if (!owned) const LockedOverlay(),
                             ],
                           ),
                           const SizedBox(height: 8),
