@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../widgets/sphere_widget.dart';
 
 class SphereInventoryPage extends StatefulWidget {
@@ -64,6 +65,10 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
     final sphereWidgetHeight = screenHeight * 0.4;
     final theme = Theme.of(context);
 
+    // Check if the selected sphere is owned.
+    final bool selectedOwned = userOwnedSpheres
+        .any((owned) => owned['name'] == selectedSphere['name']);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sphere Inventory'),
@@ -74,9 +79,25 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
           Container(
             height: sphereWidgetHeight,
             alignment: Alignment.center,
-            child: SphereWidget(
-              imageUrl: selectedSphere['imageUrl'],
-              baseSize: sphereWidgetHeight * 0.8, // Fixed size; level is not passed.
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Display the selected sphere's image.
+                SphereWidget(
+                  imageUrl: selectedSphere['imageUrl'],
+                  baseSize: sphereWidgetHeight * 0.8, // Fixed size; level is not passed.
+                ),
+                // If the sphere is not owned, blur it with a transparent grey overlay.
+                if (!selectedOwned)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.6),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           // Bottom section: Grid list of sphere cards.
