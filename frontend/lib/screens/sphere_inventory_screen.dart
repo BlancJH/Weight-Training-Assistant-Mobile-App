@@ -2,36 +2,49 @@ import 'package:flutter/material.dart';
 import '../widgets/sphere_widget.dart';
 
 class SphereInventoryPage extends StatelessWidget {
-  // Example sphere inventory data.
-  final List<Map<String, dynamic>> sphereInventory = [
+  // Complete list of available spheres on the frontend.
+  final List<Map<String, dynamic>> allSpheres = [
     {
       'name': 'Rocky',
-      'level': 3,
       'imageUrl': 'assets/images/Rocky.jpeg',
     },
     {
       'name': 'Flamy',
-      'level': 2,
       'imageUrl': 'assets/images/Flamy.png',
     },
     {
       'name': 'Neo Core',
-      'level': 5,
       'imageUrl': 'assets/images/NeoCore.png',
     },
     {
       'name': 'Neuro Orb',
-      'level': 10,
       'imageUrl': 'assets/images/NeuroOrb.png',
     },
-    // Add more sphere data as needed.
+    {
+      'name': 'Abyss',
+      'imageUrl': 'assets/images/Abyss.png',
+    },
+    // Add more spheres as needed.
+  ];
+
+  // Spheres that the user owns (fetched from backend).
+  // Each entry contains the sphere name and its level.
+  final List<Map<String, dynamic>> userOwnedSpheres = [
+    {
+      'name': 'Rocky',
+      'level': 3,
+    },
+    {
+      'name': 'Neuro Orb',
+      'level': 10,
+    },
   ];
 
   SphereInventoryPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Use MediaQuery to get screen height; 50% will be used for the large sphere.
+    // Use MediaQuery to get screen height; 40% will be used for the large sphere widget.
     final screenHeight = MediaQuery.of(context).size.height;
     final sphereWidgetHeight = screenHeight * 0.4;
 
@@ -41,23 +54,22 @@ class SphereInventoryPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // sphere widget with fixed height.
+          // Top section: Large sphere widget.
           Container(
             height: sphereWidgetHeight,
             alignment: Alignment.center,
             child: SphereWidget(
               imageUrl: 'assets/images/Rocky.jpeg',
-              level: 3, // You can update this value as needed.
-              // Use 80% of the container height as the base size.
-              baseSize: sphereWidgetHeight * 2,
+              level: 3,
+              baseSize: sphereWidgetHeight * 1.5,
             ),
           ),
-          // Bottom half: Grid list of sphere cards.
+          // Bottom section: Grid list of sphere cards.
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: GridView.builder(
-                itemCount: sphereInventory.length,
+                itemCount: allSpheres.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, // Two cards per row.
                   crossAxisSpacing: 16,
@@ -65,7 +77,15 @@ class SphereInventoryPage extends StatelessWidget {
                   childAspectRatio: 1,
                 ),
                 itemBuilder: (context, index) {
-                  final sphere = sphereInventory[index];
+                  final sphere = allSpheres[index];
+                  // Check if the user owns this sphere.
+                  final ownedList = userOwnedSpheres
+                      .where((owned) => owned['name'] == sphere['name'])
+                      .toList();
+                  final bool owned = ownedList.isNotEmpty;
+                  // If owned, retrieve its level; otherwise, default level to 0.
+                  final int level = owned ? ownedList.first['level'] : 1;
+
                   return GestureDetector(
                     onTap: () {
                       // TODO: Add sphere card tap action (e.g., navigate to details).
@@ -79,11 +99,28 @@ class SphereInventoryPage extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Use a smaller SphereWidget for each card.
-                          SphereWidget(
-                            imageUrl: sphere['imageUrl'],
-                            level: sphere['level'],
-                            baseSize: 100, // Fixed base size for cards.
+                          // Render sphere image in a circular clip with an overlay if not owned.
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              ClipOval(
+                                child: Image.asset(
+                                  sphere['imageUrl'],
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              if (!owned)
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.6),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -91,7 +128,7 @@ class SphereInventoryPage extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           Text(
-                            'Level: ${sphere['level']}',
+                            owned ? 'Level: $level' : 'Locked',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
