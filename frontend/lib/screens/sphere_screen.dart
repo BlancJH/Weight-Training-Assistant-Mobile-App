@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/screens/sphere_inventory_screen.dart';
 import 'package:frontend_1/utils/design_utils.dart';
 import '../widgets/sphere_widget.dart';
 import '../utils/design_utils.dart';
@@ -31,7 +32,10 @@ class SpherePage extends StatelessWidget {
                 // Wrap SphereWidget with GestureDetector for double tap action.
                 GestureDetector(
                   onDoubleTap: () {
-                    // TODO: navigate to inventory screen.
+                    // Navigate to SphereInventoryScreen on double tap.
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => SphereInventoryPage(),
+                    ));
                     print('Sphere widget double tapped!');
                   },
                   child: SizedBox(

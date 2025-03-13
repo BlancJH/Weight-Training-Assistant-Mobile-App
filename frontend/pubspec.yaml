@@ -91,6 +91,10 @@ flutter:
   assets:
     - .env
     - assets/images/Rocky.jpeg
+    - assets/images/Flamy.png
+    - assets/images/NeoCore.png
+    - assets/images/NeuroOrb.png
+    - assets/images/Abyss.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
