@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import '../widgets/sphere_widget.dart';
 
-class SphereInventoryPage extends StatelessWidget {
+class SphereInventoryPage extends StatefulWidget {
+  const SphereInventoryPage({Key? key}) : super(key: key);
+
+  @override
+  _SphereInventoryPageState createState() => _SphereInventoryPageState();
+}
+
+class _SphereInventoryPageState extends State<SphereInventoryPage> {
   // Complete list of available spheres on the frontend.
   final List<Map<String, dynamic>> allSpheres = [
     {
@@ -41,13 +48,21 @@ class SphereInventoryPage extends StatelessWidget {
     },
   ];
 
-  SphereInventoryPage({Key? key}) : super(key: key);
+  late Map<String, dynamic> selectedSphere;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set default selected sphere to the first one.
+    selectedSphere = allSpheres[0];
+  }
 
   @override
   Widget build(BuildContext context) {
     // Use MediaQuery to get screen height; 40% will be used for the large sphere widget.
     final screenHeight = MediaQuery.of(context).size.height;
     final sphereWidgetHeight = screenHeight * 0.4;
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -55,14 +70,13 @@ class SphereInventoryPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Top section: Large sphere widget.
+          // Top section: Large sphere widget showing the selected sphere.
           Container(
             height: sphereWidgetHeight,
             alignment: Alignment.center,
             child: SphereWidget(
-              imageUrl: 'assets/images/Rocky.jpeg',
-              level: 3,
-              baseSize: sphereWidgetHeight * 1,
+              imageUrl: selectedSphere['imageUrl'],
+              baseSize: sphereWidgetHeight * 0.8, // Fixed size; level is not passed.
             ),
           ),
           // Bottom section: Grid list of sphere cards.
@@ -89,7 +103,9 @@ class SphereInventoryPage extends StatelessWidget {
 
                   return GestureDetector(
                     onTap: () {
-                      // TODO: Add sphere card tap action (e.g., navigate to details).
+                      setState(() {
+                        selectedSphere = sphere;
+                      });
                       print('Tapped on ${sphere['name']}');
                     },
                     child: Card(
@@ -126,11 +142,11 @@ class SphereInventoryPage extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             sphere['name'],
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: theme.textTheme.titleMedium,
                           ),
                           Text(
                             owned ? 'Level: $level' : 'Locked',
-                            style: Theme.of(context).textTheme.bodySmall,
+                            style: theme.textTheme.bodySmall,
                           ),
                         ],
                       ),

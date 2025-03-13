@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 class SphereWidget extends StatefulWidget {
   final String imageUrl;
-  final int level; 
+  final int? level; // Nullable level parameter.
   final double baseSize;
 
   const SphereWidget({
-    required this.imageUrl, // Now can be asset path
-    this.level = 1,
+    required this.imageUrl,
+    this.level, // If not provided, level is null.
     this.baseSize = 300,
     Key? key,
   }) : super(key: key);
@@ -21,19 +21,20 @@ class _SphereWidgetState extends State<SphereWidget> {
 
   void _onDragUpdate(DragUpdateDetails details) {
     setState(() {
-      // Update drag amount to simulate light movement (left to right)
+      // Update drag amount to simulate light movement.
       _dragAmount += details.primaryDelta! * 0.005;
-      _dragAmount = _dragAmount.clamp(-1.0, 1.0); // Limit drag range
+      _dragAmount = _dragAmount.clamp(-1.0, 1.0);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    // Ensure level is at least 1
-    final int effectiveLevel = widget.level > 0 ? widget.level : 1;
-    // Calculate size: for each level above 1, 10% of maximum size.
-    final double computedSize = widget.baseSize * (effectiveLevel * 0.1);
+    // Use widget.level if provided; otherwise treat as level 10.
+    final int effectiveLevel = widget.level ?? 10;
+    // Ensure level is at least 1.
+    final int validLevel = effectiveLevel < 1 ? 1 : effectiveLevel;
+    // Calculate size: level 10 corresponds to the full baseSize.
+    final double computedSize = widget.baseSize * (validLevel * 0.1);
 
     return GestureDetector(
       onHorizontalDragUpdate: _onDragUpdate,
@@ -47,7 +48,7 @@ class _SphereWidgetState extends State<SphereWidget> {
               color: Colors.cyanAccent.withOpacity(0.6), // Outer neon glow
               blurRadius: 30,
               spreadRadius: 10,
-            )
+            ),
           ],
         ),
         child: Stack(
