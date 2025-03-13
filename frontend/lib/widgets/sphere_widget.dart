@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 class SphereWidget extends StatefulWidget {
   final String imageUrl;
-  final double size;
+  final int level; 
+  final double baseSize;
 
   const SphereWidget({
     required this.imageUrl, // Now can be asset path
-    this.size = 300,
+    this.level = 1,
+    this.baseSize = 300,
     Key? key,
   }) : super(key: key);
 
@@ -27,11 +29,17 @@ class _SphereWidgetState extends State<SphereWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Ensure level is at least 1
+    final int effectiveLevel = widget.level > 0 ? widget.level : 1;
+    // Calculate size: for each level above 1, 10% of maximum size.
+    final double computedSize = widget.baseSize * (effectiveLevel * 0.1);
+
     return GestureDetector(
       onHorizontalDragUpdate: _onDragUpdate,
       child: Container(
-        width: widget.size,
-        height: widget.size,
+        width: computedSize,
+        height: computedSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [
@@ -51,8 +59,8 @@ class _SphereWidgetState extends State<SphereWidget> {
               child: ClipOval(
                 child: Image.asset(
                   widget.imageUrl, // Local asset image
-                  width: widget.size,
-                  height: widget.size,
+                  width: computedSize,
+                  height: computedSize,
                   fit: BoxFit.cover,
                 ),
               ),
