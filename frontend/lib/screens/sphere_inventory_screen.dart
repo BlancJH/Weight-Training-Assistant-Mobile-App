@@ -28,6 +28,7 @@ class SphereInventoryPage extends StatelessWidget {
   ];
 
   // Spheres that the user owns (fetched from backend).
+  // Replace to actual fetched value later.
   // Each entry contains the sphere name and its level.
   final List<Map<String, dynamic>> userOwnedSpheres = [
     {
@@ -61,7 +62,7 @@ class SphereInventoryPage extends StatelessWidget {
             child: SphereWidget(
               imageUrl: 'assets/images/Rocky.jpeg',
               level: 3,
-              baseSize: sphereWidgetHeight * 1.5,
+              baseSize: sphereWidgetHeight * 1,
             ),
           ),
           // Bottom section: Grid list of sphere cards.
