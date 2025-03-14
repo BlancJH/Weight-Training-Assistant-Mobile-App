@@ -1,6 +1,7 @@
 package com.blancJH.weight_assistant_mobile_app_backend.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,5 +13,9 @@ public interface UserSphereRepository extends JpaRepository<UserSphere, Long> {
     List<UserSphere> findByUserId(Long userId);
 
     // Find a specific sphere owned by a user
-    UserSphere findByUserIdAndSphereId(Long userId, Long sphereId);
+    Optional<UserSphere> findByUserIdAndSphereId(Long userId, Long sphereId);
+
+    // Find a representative sphere
+    Optional<UserSphere> findByUserIdAndRepresentatorTrue(Long userId);
+
 }

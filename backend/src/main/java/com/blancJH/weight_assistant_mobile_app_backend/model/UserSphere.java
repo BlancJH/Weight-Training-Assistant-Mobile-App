@@ -35,6 +35,9 @@ public class UserSphere {
     @Column(nullable = false)
     private int level;  // Level of the sphere
 
+    @Column(nullable = false)
+    private boolean representator; // Indicates if this is the representation sphere
+
     public UserSphere() {}
 
     public UserSphere(User user, Sphere sphere, int quantity, int level) {

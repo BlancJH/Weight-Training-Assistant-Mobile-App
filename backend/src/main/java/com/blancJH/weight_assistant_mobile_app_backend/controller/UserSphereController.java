@@ -7,10 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserSphere;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserSphereRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserSphereService;
 import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 
@@ -21,12 +24,14 @@ import jakarta.servlet.http.HttpServletRequest;
 public class UserSphereController {
 
     private final UserSphereService userSphereService;
+    private final UserSphereRepository userSphereRepository;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserSphereController(UserSphereService userSphereService, JwtUtil jwtUtil) {
+    public UserSphereController(UserSphereService userSphereService, JwtUtil jwtUtil, UserSphereRepository userSphereRepository) {
         this.userSphereService = userSphereService;
         this.jwtUtil = jwtUtil;
+        this.userSphereRepository = userSphereRepository;
     }
 
     /**
@@ -69,5 +74,17 @@ public class UserSphereController {
         } catch (Exception e) {
             return ResponseEntity.status(400).body("An error occurred: " + e.getMessage());
         }
+    }
+
+    /**
+     * Endpoint to update a sphere as a representator, ensuring only one can be true.
+     */
+    @PutMapping("/representator")
+    public ResponseEntity<String> markAsRepresentator(@RequestParam Long userId, @RequestParam Long sphereId) {
+        UserSphere userSphere = userSphereRepository.findByUserIdAndSphereId(userId, sphereId)
+                .orElseThrow(() -> new IllegalArgumentException("UserSphere not found for given user and sphere"));
+        
+        userSphereService.markAsRepresentator(userSphere.getId());
+        return ResponseEntity.ok("UserSphere marked as representator successfully.");
     }
 }
