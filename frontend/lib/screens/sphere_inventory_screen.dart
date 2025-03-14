@@ -48,31 +48,54 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
     },
   ];
 
+  // The currently selected sphere from the inventory.
   late Map<String, dynamic> selectedSphere;
+  // The last selected sphere that is owned by the user.
+  late Map<String, dynamic> lastValidOwnedSphere;
 
   @override
   void initState() {
     super.initState();
     // Set default selected sphere to the first one.
     selectedSphere = allSpheres[0];
+    // Initialise lastValidOwnedSphere to the first owned sphere.
+    if (_isOwned(selectedSphere['name'])) {
+      lastValidOwnedSphere = selectedSphere;
+    } else {
+      // If first sphere is locked, find the first owned sphere.
+      lastValidOwnedSphere = allSpheres.firstWhere((s) => _isOwned(s['name']));
+    }
   }
 
-  // Wrap the Scaffold in a WillPopScope to intercept back navigation.
+  bool _isOwned(String sphereName) {
+    return userOwnedSpheres.any((owned) => owned['name'] == sphereName);
+  }
+
+  int _getLevel(String sphereName) {
+    if (_isOwned(sphereName)) {
+      return userOwnedSpheres.firstWhere((owned) => owned['name'] == sphereName)['level'] as int;
+    }
+    return 1; // Default level if not owned.
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Use MediaQuery to get screen height; 40% for the large sphere widget.
     final screenHeight = MediaQuery.of(context).size.height;
     final sphereWidgetHeight = screenHeight * 0.4;
     final theme = Theme.of(context);
 
     // Check if the selected sphere is owned.
-    final bool selectedOwned = userOwnedSpheres
-        .any((owned) => owned['name'] == selectedSphere['name']);
+    final bool selectedOwned = _isOwned(selectedSphere['name']);
 
     return WillPopScope(
       onWillPop: () async {
-        // Return the selected sphere data when navigating back.
-        Navigator.pop(context, selectedSphere);
-        // Prevent the default pop because we've already handled it.
+        // When exiting, if the selected sphere is not owned, return the last valid (owned) sphere.
+        if (!selectedOwned) {
+          Navigator.pop(context, lastValidOwnedSphere);
+        } else {
+          Navigator.pop(context, selectedSphere);
+        }
         return false;
       },
       child: Scaffold(
@@ -93,7 +116,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                     imageUrl: selectedSphere['imageUrl'],
                     baseSize: sphereWidgetHeight * 0.8, // Fixed size; level is not passed.
                   ),
-                  // If not owned, overlay the locked cover.
+                  // If the selected sphere is not owned, overlay the locked cover.
                   if (!selectedOwned) const LockedOverlay(),
                 ],
               ),
@@ -112,18 +135,17 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                   ),
                   itemBuilder: (context, index) {
                     final sphere = allSpheres[index];
-                    // Check if the user owns this sphere.
-                    final ownedList = userOwnedSpheres
-                        .where((owned) => owned['name'] == sphere['name'])
-                        .toList();
-                    final bool owned = ownedList.isNotEmpty;
-                    // For display in the grid, show level if owned; default to 1 otherwise.
-                    final int level = owned ? ownedList.first['level'] : 1;
+                    final bool owned = _isOwned(sphere['name']);
+                    final int level = owned ? _getLevel(sphere['name']) : 1;
 
                     return GestureDetector(
                       onTap: () {
                         setState(() {
                           selectedSphere = sphere;
+                          // If the sphere is owned, update the last valid selection.
+                          if (owned) {
+                            lastValidOwnedSphere = sphere;
+                          }
                         });
                         print('Tapped on ${sphere['name']}');
                       },
@@ -135,7 +157,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Render sphere image in a circular clip with an overlay if not owned.
+                            // Render sphere image in a circular clip.
                             Stack(
                               alignment: Alignment.center,
                               children: [
