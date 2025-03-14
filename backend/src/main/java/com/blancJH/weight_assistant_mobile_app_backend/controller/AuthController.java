@@ -1,13 +1,18 @@
 package com.blancJH.weight_assistant_mobile_app_backend.controller;
 
-import com.blancJH.weight_assistant_mobile_app_backend.model.User;
-import com.blancJH.weight_assistant_mobile_app_backend.service.UserService;
-import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import com.blancJH.weight_assistant_mobile_app_backend.service.UserService;
+import com.blancJH.weight_assistant_mobile_app_backend.service.UserSphereService;
+import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -15,10 +20,12 @@ public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final UserSphereService userSphereService;
 
     @Autowired
-    public AuthController(UserService userService, JwtUtil jwtUtil) {
+    public AuthController(UserService userService, UserSphereService userSphereService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.userSphereService = userSphereService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -35,6 +42,10 @@ public class AuthController {
 
         String result = userService.registerUser(user);
         if (result.equals("User registered successfully!")) {
+            // Retrieve the created user
+            User createdUser = userService.getUserByEmail(email);
+            // Give default sphere "Rocky" to the user.
+            userSphereService.giveDefaultSphereToUser(createdUser);
             return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.badRequest().body(result);

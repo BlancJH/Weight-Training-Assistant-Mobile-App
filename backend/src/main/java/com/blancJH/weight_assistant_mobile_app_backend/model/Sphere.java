@@ -22,7 +22,7 @@ public class Sphere {
     @Column(nullable = false, unique = true)
     private String sphereName;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     private String sphereUrl;
 
     @Enumerated(EnumType.STRING)

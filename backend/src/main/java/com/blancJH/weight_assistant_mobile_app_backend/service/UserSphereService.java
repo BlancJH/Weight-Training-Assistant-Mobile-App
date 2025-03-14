@@ -1,6 +1,7 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,16 +10,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.blancJH.weight_assistant_mobile_app_backend.model.Sphere;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserSphere;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.SphereRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserSphereRepository;
 
 @Service
 public class UserSphereService {
 
     private final UserSphereRepository userSphereRepository;
+    private final SphereRepository sphereRepository;
 
     @Autowired
-    public UserSphereService(UserSphereRepository userSphereRepository) {
+    public UserSphereService(UserSphereRepository userSphereRepository, SphereRepository sphereRepository) {
         this.userSphereRepository = userSphereRepository;
+        this.sphereRepository = sphereRepository;
     }
 
     /**
@@ -32,23 +36,31 @@ public class UserSphereService {
      * Add a sphere to the user's collection or increase quantity if they already own it.
      */
     public void addSphereToUser(User user, Sphere sphere) {
-        UserSphere userSphere = userSphereRepository.findByUserIdAndSphereId(user.getId(), sphere.getId())
-            .orElseThrow(() -> new IllegalArgumentException("UserSphere not found"));
-
-        if (userSphere == null) {
-            // If the user does not have this sphere, create a new entry with level 1
+        Optional<UserSphere> optionalUserSphere = userSphereRepository.findByUserIdAndSphereId(user.getId(), sphere.getId());
+        UserSphere userSphere;
+        if (optionalUserSphere.isPresent()) {
+            // If the user already owns the sphere, increase the quantity.
+            userSphere = optionalUserSphere.get();
+            userSphere.setQuantity(userSphere.getQuantity() + 1);
+        } else {
+            // Otherwise, create a new entry with level 1.
             userSphere = new UserSphere();
             userSphere.setUser(user);
             userSphere.setSphere(sphere);
             userSphere.setQuantity(1);
-            userSphere.setLevel(1); // Ensure level always starts at 1
+            userSphere.setLevel(1); // Ensure level always starts at 1.
             userSphere.setRepresentator(false);
-        } else {
-            // If the user already owns the sphere, increase quantity
-            userSphere.setQuantity(userSphere.getQuantity() + 1);
         }
-
         userSphereRepository.save(userSphere);
+    }
+
+    /**
+     * Give the default sphere "Rocky" to a user when they register.
+     */
+    public void giveDefaultSphereToUser(User user) {
+        Sphere defaultSphere = sphereRepository.findBySphereName("Rocky")
+            .orElseThrow(() -> new IllegalArgumentException("Default sphere 'Rocky' not found"));
+        addSphereToUser(user, defaultSphere);
     }
 
     /**
