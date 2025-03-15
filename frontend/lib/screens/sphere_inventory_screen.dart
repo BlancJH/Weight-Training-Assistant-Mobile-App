@@ -18,8 +18,8 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
       'imageUrl': 'assets/images/Rocky.jpeg',
     },
     {
-      'name': 'Flamy',
-      'imageUrl': 'assets/images/Flamy.png',
+      'name': 'Ember',
+      'imageUrl': 'assets/images/Ember.png',
     },
     {
       'name': 'Neo Core',

@@ -10,12 +10,14 @@ class SpherePage extends StatefulWidget {
   final String? profileUrl;
   final String? sphereName;
   final int? sphereLevel;
+  final int? sphereQuantity;
 
   const SpherePage({
     this.username,
     this.profileUrl,
     this.sphereName,
     this.sphereLevel,
+    this.sphereQuantity,
     Key? key,
   }) : super(key: key);
 
@@ -27,6 +29,7 @@ class _SpherePageState extends State<SpherePage> {
   late String selectedImageUrl;
   late String selectedSphereName;
   late int selectedSphereLevel;
+  int selectedSphereQuantity = 1;
 
   final SphereService _sphereService = SphereService();
 
@@ -37,6 +40,7 @@ class _SpherePageState extends State<SpherePage> {
     selectedImageUrl = 'assets/images/Rocky.jpeg';
     selectedSphereName = widget.sphereName ?? 'Rocky';
     selectedSphereLevel = widget.sphereLevel ?? 1;
+    selectedSphereQuantity = 1;
 
     // Fetch representator data from backend when the widget initializes.
     _fetchRepresentatorData();
@@ -49,6 +53,7 @@ class _SpherePageState extends State<SpherePage> {
         selectedImageUrl = data['imageUrl'] ?? selectedImageUrl;
         selectedSphereName = data['name'] ?? selectedSphereName;
         selectedSphereLevel = data['level'] ?? selectedSphereLevel;
+        selectedSphereQuantity = data['quantity'] ?? selectedSphereQuantity;
       });
       print('Fetched representator data: $data');
     } catch (error) {
@@ -81,7 +86,8 @@ class _SpherePageState extends State<SpherePage> {
                       setState(() {
                         selectedImageUrl = result['imageUrl'];
                         selectedSphereName = result['name'];
-                        selectedSphereLevel = result['level'] ?? 1;
+                        selectedSphereLevel = result['level'] ?? selectedSphereLevel;
+                        selectedSphereQuantity = result['quantity'] ?? selectedSphereQuantity;
                       });
                     }
                     print('Sphere widget double tapped!');
@@ -107,6 +113,22 @@ class _SpherePageState extends State<SpherePage> {
               ],
             ),
           ),
+          // Add an upper arrow button if the selected sphere's quantity is greater than 5.
+          if (selectedSphereQuantity >= 5)
+            Positioned(
+              top: 40, // adjust vertical position as needed.
+              left: 0,
+              right: 0,
+              child: Center(
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_upward, size: 32, color: buttonColor),
+                  onPressed: () {
+                    // Add functionality as needed. For example, you might want to scroll the view up.
+                    print('Upper arrow pressed!');
+                  },
+                ),
+              ),
+            ),
         ],
       ),
     );

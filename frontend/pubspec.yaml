@@ -94,7 +94,7 @@ flutter:
   assets:
     - .env
     - assets/images/Rocky.jpeg
-    - assets/images/Flamy.png
+    - assets/images/Ember.png
     - assets/images/NeoCore.png
     - assets/images/NeuroOrb.png
     - assets/images/Abyss.png
