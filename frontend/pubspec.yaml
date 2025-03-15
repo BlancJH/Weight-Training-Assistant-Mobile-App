@@ -66,6 +66,9 @@ dependencies:
   # Font
   google_fonts: ^6.1.0
 
+  # Shared preference
+  shared_preferences: ^2.0.15
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

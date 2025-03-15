@@ -3,6 +3,7 @@ import 'package:frontend_1/screens/sphere_inventory_screen.dart';
 import 'package:frontend_1/utils/design_utils.dart';
 import '../widgets/sphere_widget.dart';
 import '../utils/design_utils.dart';
+import '../services/sphere_service.dart'; // Import your service
 
 class SpherePage extends StatefulWidget {
   final String? username;
@@ -27,13 +28,32 @@ class _SpherePageState extends State<SpherePage> {
   late String selectedSphereName;
   late int selectedSphereLevel;
 
+  final SphereService _sphereService = SphereService();
+
   @override
   void initState() {
     super.initState();
-    // Initialise with defaults.
+    // Initialise with default values.
     selectedImageUrl = 'assets/images/Rocky.jpeg';
     selectedSphereName = widget.sphereName ?? 'Rocky';
     selectedSphereLevel = widget.sphereLevel ?? 1;
+
+    // Fetch representator data from backend when the widget initializes.
+    _fetchRepresentatorData();
+  }
+
+  Future<void> _fetchRepresentatorData() async {
+    try {
+      final data = await _sphereService.fetchRepresentator();
+      setState(() {
+        selectedImageUrl = data['imageUrl'] ?? selectedImageUrl;
+        selectedSphereName = data['name'] ?? selectedSphereName;
+        selectedSphereLevel = data['level'] ?? selectedSphereLevel;
+      });
+      print('Fetched representator data: $data');
+    } catch (error) {
+      print('Error fetching representator data: $error');
+    }
   }
 
   @override
