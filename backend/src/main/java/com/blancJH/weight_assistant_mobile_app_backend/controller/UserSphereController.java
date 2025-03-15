@@ -22,7 +22,7 @@ import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/user-spheres")
+@RequestMapping("/api/user-spheres")
 public class UserSphereController {
 
     private final UserSphereService userSphereService;

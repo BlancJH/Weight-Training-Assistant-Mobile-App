@@ -61,6 +61,14 @@ public class UserSphereService {
         Sphere defaultSphere = sphereRepository.findBySphereName("Rocky")
             .orElseThrow(() -> new IllegalArgumentException("Default sphere 'Rocky' not found"));
         addSphereToUser(user, defaultSphere);
+
+        // Retrieve the created UserSphere and mark it as the representator.
+        UserSphere userSphere = userSphereRepository
+            .findByUserIdAndSphereId(user.getId(), defaultSphere.getId())
+            .orElseThrow(() -> new IllegalArgumentException("UserSphere not found for default sphere"));
+        
+        userSphere.setRepresentator(true);
+        userSphereRepository.save(userSphere);
     }
 
     /**
