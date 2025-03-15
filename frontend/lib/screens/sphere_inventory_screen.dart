@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/sphere_widget.dart';
-import '../widgets/locked_overlay.dart'; // Make sure to import the LockedOverlay widget.
+import '../widgets/locked_overlay.dart';
+import '../services/sphere_service.dart';
 
 class SphereInventoryPage extends StatefulWidget {
   const SphereInventoryPage({Key? key}) : super(key: key);
@@ -35,35 +36,61 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
     // Add more spheres as needed.
   ];
 
-  // Spheres that the user owns (fetched from backend).
-  // Each entry contains the sphere name and its level.
-  final List<Map<String, dynamic>> userOwnedSpheres = [
-    {
-      'name': 'Rocky',
-      'level': 3,
-    },
-    {
-      'name': 'Neuro Orb',
-      'level': 10,
-    },
-  ];
+  // List of user-owned spheres fetched from the backend.
+  List<Map<String, dynamic>> userOwnedSpheres = [];
 
   // The currently selected sphere from the inventory.
   late Map<String, dynamic> selectedSphere;
   // The last selected sphere that is owned by the user.
   late Map<String, dynamic> lastValidOwnedSphere;
 
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  final SphereService _sphereService = SphereService();
+
   @override
   void initState() {
     super.initState();
-    // Set default selected sphere to the first one.
-    selectedSphere = allSpheres[0];
-    // Initialise lastValidOwnedSphere to the first owned sphere.
-    if (_isOwned(selectedSphere['name'])) {
-      lastValidOwnedSphere = selectedSphere;
-    } else {
-      // If first sphere is locked, find the first owned sphere.
-      lastValidOwnedSphere = allSpheres.firstWhere((s) => _isOwned(s['name']));
+    _fetchSpheresData();
+  }
+
+  Future<void> _fetchSpheresData() async {
+    try {
+      // The backend returns a list of user-owned spheres directly.
+      final data = await _sphereService.fetchSpheres();
+      setState(() {
+        // Since data is a List, assign it directly.
+        userOwnedSpheres = List<Map<String, dynamic>>.from(data);
+
+        // Set default selected sphere from the hard-coded allSpheres list.
+        if (allSpheres.isNotEmpty) {
+          selectedSphere = allSpheres[0];
+          if (_isOwned(selectedSphere['name'])) {
+            lastValidOwnedSphere = selectedSphere;
+          } else {
+            lastValidOwnedSphere = allSpheres.firstWhere(
+              (s) => _isOwned(s['name']),
+              orElse: () => selectedSphere,
+            );
+          }
+        } else {
+          selectedSphere = {'name': 'Rocky', 'imageUrl': 'assets/images/Rocky.jpeg'};
+          lastValidOwnedSphere = selectedSphere;
+        }
+        _isLoading = false;
+      });
+    } catch (error) {
+      print("Error fetching spheres: $error");
+      setState(() {
+        _errorMessage = error.toString();
+        _isLoading = false;
+        userOwnedSpheres = [
+          {'name': 'Rocky', 'level': 1},
+        ];
+        selectedSphere = allSpheres[0];
+        lastValidOwnedSphere = allSpheres[0];
+      });
     }
   }
 
@@ -80,7 +107,38 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Use MediaQuery to get screen height; 40% for the large sphere widget.
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Sphere Inventory')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Sphere Inventory')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $_errorMessage'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _errorMessage = null;
+                  });
+                  _fetchSpheresData();
+                },
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final screenHeight = MediaQuery.of(context).size.height;
     final sphereWidgetHeight = screenHeight * 0.4;
     final theme = Theme.of(context);
