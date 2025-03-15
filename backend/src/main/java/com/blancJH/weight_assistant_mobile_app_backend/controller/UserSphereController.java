@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blancJH.weight_assistant_mobile_app_backend.dto.UserSphereDTO;
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserSphere;
 import com.blancJH.weight_assistant_mobile_app_backend.repository.UserSphereRepository;
 import com.blancJH.weight_assistant_mobile_app_backend.service.UserSphereService;
@@ -39,19 +40,19 @@ public class UserSphereController {
     /**
      * Retrieves spheres owned by the authenticated user.
      */
-    @GetMapping
-    public ResponseEntity<?> getUserSpheres(HttpServletRequest request) {
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getUserSphereDTOs(HttpServletRequest request) {
         try {
             String token = jwtUtil.extractTokenFromRequest(request);
             if (!jwtUtil.validateToken(token)) {
                 return ResponseEntity.status(401).body("Invalid or expired token.");
             }
-
             Long userId = jwtUtil.extractUserId(token);
-            List<UserSphere> userSpheres = userSphereService.getUserSpheres(userId);
-            return ResponseEntity.ok(userSpheres);
+            List<UserSphereDTO> dtos = userSphereService.getUserSpheres(userId);
+            return ResponseEntity.ok(dtos);
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("An error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("An error occurred: " + e.getMessage());
         }
     }
 

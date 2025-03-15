@@ -2,11 +2,13 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.blancJH.weight_assistant_mobile_app_backend.dto.UserSphereDTO;
 import com.blancJH.weight_assistant_mobile_app_backend.model.Sphere;
 import com.blancJH.weight_assistant_mobile_app_backend.model.User;
 import com.blancJH.weight_assistant_mobile_app_backend.model.UserSphere;
@@ -28,9 +30,20 @@ public class UserSphereService {
     /**
      * Get all spheres a user owns.
      */
-    public List<UserSphere> getUserSpheres(Long userId) {
-        return userSphereRepository.findByUserId(userId);
+    public List<UserSphereDTO> getUserSpheres(Long userId) {
+        List<UserSphere> userSpheres = userSphereRepository.findByUserId(userId);
+        return userSpheres.stream().map(us -> {
+            String sphereName = (us.getSphere() != null) ? us.getSphere().getSphereName() : "Unknown";
+            return new UserSphereDTO(
+                us.getId(),
+                sphereName,
+                us.getLevel(),
+                us.getQuantity(),
+                us.isRepresentator()
+            );
+        }).collect(Collectors.toList());
     }
+
 
     /**
      * Add a sphere to the user's collection or increase quantity if they already own it.
