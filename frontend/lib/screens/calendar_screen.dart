@@ -156,7 +156,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   exerciseData = (fetchedPlans.first['exercises'] as List<dynamic>)
                       .map((e) => {
                           'workoutPlanExerciseId': e['workoutPlanExerciseId'],
-                          'newExerciseId': null,
+                          'exerciseId': e['exerciseId'],
                           'exerciseName': e['exerciseName'],
                           'gifUrl': e['gifUrl'],
                           'category': e['category'],
@@ -317,7 +317,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                       height: 40, // adjust height as needed
                                       child: ExercisePreferenceWidget(
                                         jwtToken: _jwtToken!, 
-                                        exerciseId: gif['newExerciseId'] ?? gif['workoutPlanExerciseId'] ?? 0,
+                                        exerciseId: gif['newExerciseId'] ?? gif['exerciseId'] ?? 0,
                                         initialPreference: userPreference,
                                       ),
                                     ),
