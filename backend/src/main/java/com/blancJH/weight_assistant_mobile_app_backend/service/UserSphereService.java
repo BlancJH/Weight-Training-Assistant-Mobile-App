@@ -101,4 +101,11 @@ public class UserSphereService {
         userSphereRepository.save(userSphere);
     }
 
+    /**
+     * Fetch the representator sphere for a user.
+     */
+    public Optional<UserSphere> getRepresentator(Long userId) {
+        return userSphereRepository.findByUserIdAndRepresentatorTrue(userId);
+    }
+
 }
