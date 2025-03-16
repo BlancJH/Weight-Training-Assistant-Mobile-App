@@ -39,7 +39,6 @@ class SphereService {
   /// Update the representator sphere for the authenticated user.
   /// This sends a PUT request to the backend with userId and sphereId as query parameters.
   Future<void> updateRepresentator({
-    required int userId,
     required int sphereId,
   }) async {
     // Retrieve the JWT token from the AuthService.
@@ -48,8 +47,8 @@ class SphereService {
       throw Exception("JWT token not found. User must log in.");
     }
 
-    // Construct the URL with query parameters.
-    final url = Uri.parse('$_baseUrl/representator/set?userId=$userId&sphereId=$sphereId');
+    // Construct the URL with sphereId only.
+    final url = Uri.parse('$_baseUrl/user-spheres/representator/set?sphereId=$sphereId');
 
     final response = await http.put(
       url,

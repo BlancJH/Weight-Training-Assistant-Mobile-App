@@ -14,22 +14,27 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
   // Complete list of available spheres on the frontend.
   final List<Map<String, dynamic>> allSpheres = [
     {
+      'id': 2,
       'name': 'Rocky',
       'imageUrl': 'assets/images/Rocky.jpeg',
     },
     {
+      'id': 3,
       'name': 'Ember',
       'imageUrl': 'assets/images/Ember.png',
     },
     {
+      'id': 4,
       'name': 'Neo Core',
       'imageUrl': 'assets/images/NeoCore.png',
     },
     {
+      'id': 5,
       'name': 'Neuro Orb',
       'imageUrl': 'assets/images/NeuroOrb.png',
     },
     {
+      'id': 6,
       'name': 'Abyss',
       'imageUrl': 'assets/images/Abyss.png',
     },
@@ -94,6 +99,23 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
     }
   }
 
+  Future<void> _updateRepresentator() async {
+    try {
+      if (selectedSphere.containsKey('id')) {
+        // Call the service to update representator using the sphere's id.
+        await _sphereService.updateRepresentator(sphereId: selectedSphere['id'] as int);
+        print("Representator updated successfully with sphere id: ${selectedSphere['id']}");
+        // Update local state if necessary 
+        setState(() {
+        });
+      } else {
+        print("Selected sphere does not contain an 'id'.");
+      }
+    } catch (error) {
+      print("Error updating representator: $error");
+    }
+  }
+
   bool _isOwned(String sphereName) {
     return userOwnedSpheres.any((owned) => owned['name'] == sphereName);
   }
@@ -152,6 +174,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
         if (!selectedOwned) {
           Navigator.pop(context, lastValidOwnedSphere);
         } else {
+          await _updateRepresentator();
           Navigator.pop(context, selectedSphere);
         }
         return false;
