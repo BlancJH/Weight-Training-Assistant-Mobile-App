@@ -12,6 +12,9 @@ public interface UserSphereRepository extends JpaRepository<UserSphere, Long> {
     // Find spheres owned by a user
     List<UserSphere> findByUserId(Long userId);
 
+    // Find spheres by id
+    Optional<UserSphere> findBySphereId(Long sphereId);
+
     // Find a specific sphere owned by a user
     Optional<UserSphere> findByUserIdAndSphereId(Long userId, Long sphereId);
 

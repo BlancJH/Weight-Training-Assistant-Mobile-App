@@ -83,10 +83,23 @@ public class UserSphereController {
      * Endpoint to update a sphere as a representator, ensuring only one can be true.
      */
     @PutMapping("/representator/set")
-    public ResponseEntity<String> markAsRepresentator(@RequestParam Long userId, @RequestParam Long sphereId) {
+    public ResponseEntity<String> markAsRepresentator(HttpServletRequest request, @RequestParam Long sphereId) {
+        // Extract the token from the request header.
+        String token = jwtUtil.extractTokenFromRequest(request);
+        
+        // Optionally validate the token.
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
+        }
+        
+        // Extract the user id from the token.
+        Long userId = jwtUtil.extractUserId(token);
+        
+        // Find the UserSphere record for the user and sphere.
         UserSphere userSphere = userSphereRepository.findByUserIdAndSphereId(userId, sphereId)
                 .orElseThrow(() -> new IllegalArgumentException("UserSphere not found for given user and sphere"));
         
+        // Update representator status.
         userSphereService.markAsRepresentator(userSphere.getId());
         return ResponseEntity.ok("UserSphere marked as representator successfully.");
     }
@@ -105,7 +118,7 @@ public class UserSphereController {
             // Extract user id from the token.
             Long userId = jwtUtil.extractUserId(token);
             
-            Optional<UserSphere> representator = userSphereService.getRepresentator(userId);
+            Optional<UserSphereDTO> representator = userSphereService.getRepresentator(userId);
             if (representator.isPresent()) {
                 return ResponseEntity.ok(representator.get());
             } else {

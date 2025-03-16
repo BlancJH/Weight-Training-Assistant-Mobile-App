@@ -125,8 +125,15 @@ public class UserSphereService {
     /**
      * Fetch the representator sphere for a user.
      */
-    public Optional<UserSphere> getRepresentator(Long userId) {
-        return userSphereRepository.findByUserIdAndRepresentatorTrue(userId);
+    public Optional<UserSphereDTO> getRepresentator(Long userId) {
+        return userSphereRepository.findByUserIdAndRepresentatorTrue(userId)
+            .map(userSphere -> new UserSphereDTO(
+                userSphere.getId(),
+                userSphere.getSphere() != null ? userSphere.getSphere().getSphereName() : null,
+                userSphere.getLevel(),
+                userSphere.getQuantity(),
+                userSphere.isRepresentator()
+            ));
     }
 
 }
