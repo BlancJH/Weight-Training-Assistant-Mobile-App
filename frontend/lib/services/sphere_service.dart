@@ -117,4 +117,52 @@ class SphereService {
     }
   }
 
+  // Fetch the complete list of spheres
+  Future<List<Map<String, dynamic>>> fetchSpheresFromDatabase() async {
+    final jwtToken = await _authService.getToken();
+    if (jwtToken == null) {
+      throw Exception("JWT token not found. User must log in.");
+    }
+
+    final url = Uri.parse('$_baseUrl/user-spheres/get-all');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken',
+      },
+    );
+
+    print("JWT Sent: $jwtToken");
+    print("Response: ${response.statusCode} - ${response.body}");
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      print("Decoded JSON: $decoded");
+      print("Decoded JSON type: ${decoded.runtimeType}");
+
+      if (decoded is List) {
+        // Transform each UserSphere object.
+        return decoded.map<Map<String, dynamic>>((userSphere) {
+          // Check if there's a nested 'sphere' object.
+          final nestedSphere = userSphere['sphere'];
+          // If nestedSphere is not null, use its 'sphereName'; otherwise, fall back to the top-level 'sphereName'.
+          // Provide a default empty string if both are null.
+          final String sphereName = nestedSphere?['sphereName'] ?? userSphere['sphereName'] ?? '';
+          return {
+            'id': userSphere['id'],
+            'name': sphereName,
+            'level': userSphere['level'],
+            'quantity': userSphere['quantity'],
+            'representator': userSphere['representator']
+          };
+        }).toList();
+      } else {
+        throw Exception('Expected a List but got: ${decoded.runtimeType}');
+      }
+    } else {
+      throw Exception('Failed to fetch spheres: ${response.statusCode} ${response.body}');
+    }
+  }
+
 }

@@ -13,34 +13,7 @@ class SphereInventoryPage extends StatefulWidget {
 
 class _SphereInventoryPageState extends State<SphereInventoryPage> {
   // Complete list of available spheres on the frontend.
-  final List<Map<String, dynamic>> allSpheres = [
-    {
-      'id': 2,
-      'name': 'Rocky',
-      'imageUrl': 'assets/images/rocky.png',
-    },
-    {
-      'id': 3,
-      'name': 'Ember',
-      'imageUrl': 'assets/images/ember.png',
-    },
-    {
-      'id': 4,
-      'name': 'Neo Core',
-      'imageUrl': 'assets/images/neocore.png',
-    },
-    {
-      'id': 5,
-      'name': 'Neuro Orb',
-      'imageUrl': 'assets/images/neuroorb.png',
-    },
-    {
-      'id': 6,
-      'name': 'Abyss',
-      'imageUrl': 'assets/images/abyss.png',
-    },
-    // Add more spheres as needed.
-  ];
+  List<Map<String, dynamic>> allSpheres = [];
 
   // List of user-owned spheres fetched from the backend.
   List<Map<String, dynamic>> userOwnedSpheres = [];
@@ -58,18 +31,20 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
   @override
   void initState() {
     super.initState();
-    _fetchSpheresData();
+    _initializeSpheres();
   }
 
-  Future<void> _fetchSpheresData() async {
+  Future<void> _initializeSpheres() async {
     try {
-      // The backend returns a list of user-owned spheres directly.
-      final data = await _sphereService.fetchSpheres();
-      setState(() {
-        // Since data is a List, assign it directly.
-        userOwnedSpheres = List<Map<String, dynamic>>.from(data);
+      // Fetch the complete list of spheres and user-owned spheres asynchronously.
+      final fetchedAllSpheres = await _sphereService.fetchSpheresFromDatabase();
+      final fetchedUserSpheres = await _sphereService.fetchSpheres();
 
-        // Set default selected sphere from the hard-coded allSpheres list.
+      setState(() {
+        allSpheres = List<Map<String, dynamic>>.from(fetchedAllSpheres);
+        userOwnedSpheres = List<Map<String, dynamic>>.from(fetchedUserSpheres);
+
+        // Set default selected sphere from the allSpheres list.
         if (allSpheres.isNotEmpty) {
           selectedSphere = allSpheres[0];
           // Ensure the imageUrl is up-to-date.
@@ -83,7 +58,11 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
             );
           }
         } else {
-          selectedSphere = {'name': 'Rocky', 'imageUrl': getSphereImageUrl('Rocky')};
+          selectedSphere = {
+            'name': 'Rocky',
+            'imageUrl': getSphereImageUrl('Rocky'),
+            'id': 0,
+          };
           lastValidOwnedSphere = selectedSphere;
         }
         _isLoading = false;
@@ -96,8 +75,17 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
         userOwnedSpheres = [
           {'name': 'Rocky', 'level': 1},
         ];
-        selectedSphere = allSpheres[0];
-        lastValidOwnedSphere = allSpheres[0];
+        if (allSpheres.isNotEmpty) {
+          selectedSphere = allSpheres[0];
+          lastValidOwnedSphere = allSpheres[0];
+        } else {
+          selectedSphere = {
+            'name': 'Rocky',
+            'imageUrl': getSphereImageUrl('Rocky'),
+            'id': 0,
+          };
+          lastValidOwnedSphere = selectedSphere;
+        }
       });
     }
   }
@@ -105,7 +93,6 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
   Future<void> _updateRepresentator() async {
     try {
       if (selectedSphere.containsKey('id')) {
-        // Call the service to update representator using the sphere's id.
         await _sphereService.updateRepresentator(sphereId: selectedSphere['id'] as int);
         print("Representator updated successfully with sphere id: ${selectedSphere['id']}");
       } else {
@@ -151,7 +138,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                     _isLoading = true;
                     _errorMessage = null;
                   });
-                  _fetchSpheresData();
+                  _initializeSpheres();
                 },
                 child: const Text('Retry'),
               ),
