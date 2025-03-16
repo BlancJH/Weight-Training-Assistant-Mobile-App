@@ -93,11 +93,11 @@ flutter:
 
   assets:
     - .env
-    - assets/images/Rocky.jpeg
-    - assets/images/Ember.png
-    - assets/images/NeoCore.png
-    - assets/images/NeuroOrb.png
-    - assets/images/Abyss.png
+    - assets/images/rocky.png
+    - assets/images/ember.png
+    - assets/images/neocore.png
+    - assets/images/neuroorb.png
+    - assets/images/abyss.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
