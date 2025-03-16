@@ -4,6 +4,7 @@ import 'package:frontend_1/utils/design_utils.dart';
 import '../widgets/sphere_widget.dart';
 import '../utils/design_utils.dart';
 import '../services/sphere_service.dart'; // Import your service
+import '../utils/sphere_assets.dart';
 
 class SpherePage extends StatefulWidget {
   final String? username;
@@ -26,23 +27,17 @@ class SpherePage extends StatefulWidget {
 }
 
 class _SpherePageState extends State<SpherePage> {
-  late String selectedImageUrl;
-  late String selectedSphereName;
-  late int selectedSphereLevel;
+  String selectedImageUrl = 'assets/images/rocky.png';
+  String selectedSphereName = 'Rocky';
+  int selectedSphereLevel = 1;
   int selectedSphereQuantity = 1;
+  bool _isLoading = true; // Track loading state
 
   final SphereService _sphereService = SphereService();
 
   @override
   void initState() {
     super.initState();
-    // Initialise with default values.
-    selectedImageUrl = 'assets/images/Rocky.jpeg';
-    selectedSphereName = widget.sphereName ?? 'Rocky';
-    selectedSphereLevel = widget.sphereLevel ?? 1;
-    selectedSphereQuantity = 1;
-
-    // Fetch representator data from backend when the widget initializes.
     _fetchRepresentatorData();
   }
 
@@ -50,42 +45,48 @@ class _SpherePageState extends State<SpherePage> {
     try {
       final data = await _sphereService.fetchRepresentator();
       setState(() {
-        selectedImageUrl = data['imageUrl'] ?? selectedImageUrl;
-        selectedSphereName = data['name'] ?? selectedSphereName;
+        selectedSphereName = data['sphereName'] ?? selectedSphereName; // Update name
+        selectedImageUrl = getSphereImageUrl(selectedSphereName); // Compute image dynamically
         selectedSphereLevel = data['level'] ?? selectedSphereLevel;
         selectedSphereQuantity = data['quantity'] ?? selectedSphereQuantity;
+        _isLoading = false; // Set loading state to false
       });
       print('Fetched representator data: $data');
     } catch (error) {
       print('Error fetching representator data: $error');
+      setState(() {
+        _isLoading = false; // Ensure loading stops even if there’s an error
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()), // Show loading indicator
+      );
+    }
+
     final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         children: [
-          // Main content centered on the screen.
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Wrap SphereWidget with GestureDetector for double tap action.
                 GestureDetector(
                   onDoubleTap: () async {
-                    // Navigate to SphereInventoryScreen and wait for the result.
                     final result = await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => SphereInventoryPage(),
                       ),
                     );
-                    // If result is returned (not null), update the selected sphere.
                     if (result != null && result is Map<String, dynamic>) {
                       setState(() {
-                        selectedImageUrl = result['imageUrl'];
                         selectedSphereName = result['name'];
+                        selectedImageUrl = getSphereImageUrl(selectedSphereName);
                         selectedSphereLevel = result['level'] ?? selectedSphereLevel;
                         selectedSphereQuantity = result['quantity'] ?? selectedSphereQuantity;
                       });
@@ -113,17 +114,15 @@ class _SpherePageState extends State<SpherePage> {
               ],
             ),
           ),
-          // Add an upper arrow button if the selected sphere's quantity is greater than 5.
           if (selectedSphereQuantity >= 5)
             Positioned(
-              top: 40, // adjust vertical position as needed.
+              top: 40,
               left: 0,
               right: 0,
               child: Center(
                 child: IconButton(
                   icon: const Icon(Icons.arrow_upward, size: 32, color: buttonColor),
                   onPressed: () {
-                    // Add functionality as needed. For example, you might want to scroll the view up.
                     print('Upper arrow pressed!');
                   },
                 ),

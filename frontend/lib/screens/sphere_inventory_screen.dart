@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/sphere_widget.dart';
 import '../widgets/locked_overlay.dart';
 import '../services/sphere_service.dart';
+import '../utils/sphere_assets.dart';
 
 class SphereInventoryPage extends StatefulWidget {
   const SphereInventoryPage({Key? key}) : super(key: key);
@@ -16,27 +17,27 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
     {
       'id': 2,
       'name': 'Rocky',
-      'imageUrl': 'assets/images/Rocky.jpeg',
+      'imageUrl': 'assets/images/rocky.png',
     },
     {
       'id': 3,
       'name': 'Ember',
-      'imageUrl': 'assets/images/Ember.png',
+      'imageUrl': 'assets/images/ember.png',
     },
     {
       'id': 4,
       'name': 'Neo Core',
-      'imageUrl': 'assets/images/NeoCore.png',
+      'imageUrl': 'assets/images/neocore.png',
     },
     {
       'id': 5,
       'name': 'Neuro Orb',
-      'imageUrl': 'assets/images/NeuroOrb.png',
+      'imageUrl': 'assets/images/neuroorb.png',
     },
     {
       'id': 6,
       'name': 'Abyss',
-      'imageUrl': 'assets/images/Abyss.png',
+      'imageUrl': 'assets/images/abyss.png',
     },
     // Add more spheres as needed.
   ];
@@ -71,6 +72,8 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
         // Set default selected sphere from the hard-coded allSpheres list.
         if (allSpheres.isNotEmpty) {
           selectedSphere = allSpheres[0];
+          // Ensure the imageUrl is up-to-date.
+          selectedSphere['imageUrl'] = getSphereImageUrl(selectedSphere['name']);
           if (_isOwned(selectedSphere['name'])) {
             lastValidOwnedSphere = selectedSphere;
           } else {
@@ -80,7 +83,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
             );
           }
         } else {
-          selectedSphere = {'name': 'Rocky', 'imageUrl': 'assets/images/Rocky.jpeg'};
+          selectedSphere = {'name': 'Rocky', 'imageUrl': getSphereImageUrl('Rocky')};
           lastValidOwnedSphere = selectedSphere;
         }
         _isLoading = false;
@@ -105,9 +108,6 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
         // Call the service to update representator using the sphere's id.
         await _sphereService.updateRepresentator(sphereId: selectedSphere['id'] as int);
         print("Representator updated successfully with sphere id: ${selectedSphere['id']}");
-        // Update local state if necessary 
-        setState(() {
-        });
       } else {
         print("Selected sphere does not contain an 'id'.");
       }
@@ -170,13 +170,25 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
 
     return WillPopScope(
       onWillPop: () async {
-        // When exiting, if the selected sphere is not owned, return the last valid (owned) sphere.
+        // Prepare the return data including the level and dynamic image URL.
+        Map<String, dynamic> returnSphere;
         if (!selectedOwned) {
-          Navigator.pop(context, lastValidOwnedSphere);
+          returnSphere = {
+            'name': lastValidOwnedSphere['name'],
+            'imageUrl': getSphereImageUrl(lastValidOwnedSphere['name']),
+            'level': _getLevel(lastValidOwnedSphere['name']),
+            'id': lastValidOwnedSphere['id'] ?? 0,
+          };
         } else {
           await _updateRepresentator();
-          Navigator.pop(context, selectedSphere);
+          returnSphere = {
+            'name': selectedSphere['name'],
+            'imageUrl': getSphereImageUrl(selectedSphere['name']),
+            'level': _getLevel(selectedSphere['name']),
+            'id': selectedSphere['id'] ?? 0,
+          };
         }
+        Navigator.pop(context, returnSphere);
         return false;
       },
       child: Scaffold(
@@ -192,12 +204,10 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Display the selected sphere's image.
                   SphereWidget(
-                    imageUrl: selectedSphere['imageUrl'],
-                    baseSize: sphereWidgetHeight * 0.8, // Fixed size; level is not passed.
+                    imageUrl: getSphereImageUrl(selectedSphere['name']),
+                    baseSize: sphereWidgetHeight * 0.8,
                   ),
-                  // If the selected sphere is not owned, overlay the locked cover.
                   if (!selectedOwned) const LockedOverlay(),
                 ],
               ),
@@ -209,7 +219,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                 child: GridView.builder(
                   itemCount: allSpheres.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // Two cards per row.
+                    crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                     childAspectRatio: 1,
@@ -223,7 +233,8 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                       onTap: () {
                         setState(() {
                           selectedSphere = sphere;
-                          // If the sphere is owned, update the last valid selection.
+                          // Ensure the image URL is updated based on the sphere name.
+                          selectedSphere['imageUrl'] = getSphereImageUrl(sphere['name']);
                           if (owned) {
                             lastValidOwnedSphere = sphere;
                           }
@@ -238,13 +249,12 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Render sphere image in a circular clip.
                             Stack(
                               alignment: Alignment.center,
                               children: [
                                 ClipOval(
                                   child: Image.asset(
-                                    sphere['imageUrl'],
+                                    getSphereImageUrl(sphere['name']),
                                     width: 100,
                                     height: 100,
                                     fit: BoxFit.cover,

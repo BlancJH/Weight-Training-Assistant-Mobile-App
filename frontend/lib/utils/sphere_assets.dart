@@ -1,6 +1,6 @@
-
-// Mapping of sphere names to asset image paths.
-const Map<String, String> sphereAssetMap = {
-  'Rocky': 'assets/images/Rocky.jpeg',
-  // Add more mappings as needed...
-};
+String getSphereImageUrl(String sphereName) {
+  final normalizedName = sphereName.toLowerCase().replaceAll(' ', '');
+  final path = 'assets/images/$normalizedName.png';
+  print('Asset path: $path');
+  return path;
+}
