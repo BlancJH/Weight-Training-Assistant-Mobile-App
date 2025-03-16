@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/workout-plans/**").authenticated() 
                 .requestMatchers("/api/exercises/**").authenticated()
                 .requestMatchers("/api/user-spheres/**").authenticated()
+                .requestMatchers("/api/spheres/**").authenticated()
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
