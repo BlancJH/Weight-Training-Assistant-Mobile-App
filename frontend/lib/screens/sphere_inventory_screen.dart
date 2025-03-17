@@ -3,6 +3,7 @@ import '../widgets/sphere_widget.dart';
 import '../widgets/locked_overlay.dart';
 import '../services/sphere_service.dart';
 import '../utils/sphere_assets.dart';
+import '../utils/design_utils.dart';
 
 class SphereInventoryPage extends StatefulWidget {
   const SphereInventoryPage({Key? key}) : super(key: key);
@@ -269,6 +270,26 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                                 ),
                                 // If not owned, display a grey overlay.
                                 if (!owned) const LockedOverlay(),
+                                // Overlay quantity count at bottom right.
+                                if (owned) 
+                                Positioned(
+                                  bottom: 4,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: buttonColor, // Use the theme's button color.
+                                    ),
+                                    child: Text(
+                                      quantity.toString(),
+                                      style: TextStyle(
+                                        color: primaryTextColor ?? Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 8),
