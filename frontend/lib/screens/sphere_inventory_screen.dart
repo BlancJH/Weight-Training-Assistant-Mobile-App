@@ -78,7 +78,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
         _isLoading = false;
         // Provide fallback data for userOwnedSpheres.
         userOwnedSpheres = [
-          {'name': 'Rocky', 'level': 1},
+          {'name': 'Rocky', 'level': 1, 'quantity': 1},
         ];
         if (allSpheres.isNotEmpty) {
           selectedSphere = allSpheres[0];
@@ -118,6 +118,13 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
       return userOwnedSpheres.firstWhere((owned) => owned['name'] == sphereName)['level'] as int;
     }
     return 1; // Default level if not owned.
+  }
+
+  int _getQuantity(String sphereName) {
+    if (_isOwned(sphereName)) {
+      return userOwnedSpheres.firstWhere((owned) => owned['name'] == sphereName)['quantity'] as int;
+    }
+    return 1; // Default quantity if not owned.
   }
 
   @override
@@ -163,22 +170,26 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
 
     return WillPopScope(
       onWillPop: () async {
-        // When leaving, return the selected sphere data.
+        // When exiting:
+        // - If the selected sphere is owned, update representator and return updated data.
+        // - Otherwise, return the last valid (owned) sphere's updated data.
         Map<String, dynamic> returnSphere;
-        if (!selectedOwned) {
-          returnSphere = {
-            'name': lastValidOwnedSphere['name'],
-            'imageUrl': getSphereImageUrl(lastValidOwnedSphere['name']),
-            'level': _getLevel(lastValidOwnedSphere['name']),
-            'id': lastValidOwnedSphere['id'] ?? 0,
-          };
-        } else {
+        if (selectedOwned) {
           await _updateRepresentator();
           returnSphere = {
             'name': selectedSphere['name'],
             'imageUrl': getSphereImageUrl(selectedSphere['name']),
             'level': _getLevel(selectedSphere['name']),
+            'quantity': _getQuantity(selectedSphere['name']),
             'id': selectedSphere['id'] ?? 0,
+          };
+        } else {
+          returnSphere = {
+            'name': lastValidOwnedSphere['name'],
+            'imageUrl': getSphereImageUrl(lastValidOwnedSphere['name']),
+            'level': _getLevel(lastValidOwnedSphere['name']),
+            'quantity': _getQuantity(lastValidOwnedSphere['name']),
+            'id': lastValidOwnedSphere['id'] ?? 0,
           };
         }
         Navigator.pop(context, returnSphere);
@@ -201,6 +212,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                     imageUrl: getSphereImageUrl(selectedSphere['name']),
                     baseSize: sphereWidgetHeight * 0.8,
                   ),
+                  // Overlay the locked cover if the selected sphere is not owned.
                   if (!selectedOwned) const LockedOverlay(),
                 ],
               ),
@@ -221,20 +233,18 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                     final sphere = allSpheres[index];
                     final bool owned = _isOwned(sphere['name']);
                     final int level = owned ? _getLevel(sphere['name']) : 1;
+                    final int quantity = owned ? _getQuantity(sphere['name']) : 1;
 
                     return GestureDetector(
                       onTap: () {
-                        // Only allow selection if the sphere is owned.
-                        if (!owned) {
-                          // Optionally, display a message that the sphere is locked.
-                          print('Sphere ${sphere['name']} is locked.');
-                          return;
-                        }
                         setState(() {
                           selectedSphere = sphere;
                           // Update the image URL based on sphere name.
                           selectedSphere['imageUrl'] = getSphereImageUrl(sphere['name']);
-                          lastValidOwnedSphere = sphere;
+                          // If the sphere is owned, update the last valid selection.
+                          if (owned) {
+                            lastValidOwnedSphere = sphere;
+                          }
                         });
                         print('Tapped on ${sphere['name']}');
                       },
@@ -267,7 +277,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                               style: theme.textTheme.titleMedium,
                             ),
                             Text(
-                              owned ? 'Level: $level' : 'Locked',
+                              owned ? 'Level: $level, Qty: $quantity' : 'Locked',
                               style: theme.textTheme.bodySmall,
                             ),
                           ],
