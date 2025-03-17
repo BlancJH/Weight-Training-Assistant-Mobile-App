@@ -12,7 +12,7 @@ class SphereInventoryPage extends StatefulWidget {
 }
 
 class _SphereInventoryPageState extends State<SphereInventoryPage> {
-  // Complete list of available spheres on the frontend.
+  // Complete list of available spheres from the backend.
   List<Map<String, dynamic>> allSpheres = [];
 
   // List of user-owned spheres fetched from the backend.
@@ -44,20 +44,24 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
         allSpheres = List<Map<String, dynamic>>.from(fetchedAllSpheres);
         userOwnedSpheres = List<Map<String, dynamic>>.from(fetchedUserSpheres);
 
-        // Set default selected sphere from the allSpheres list.
+        // Set default selected sphere from the full list.
         if (allSpheres.isNotEmpty) {
+          // Use the first sphere in the full list as default.
           selectedSphere = allSpheres[0];
-          // Ensure the imageUrl is up-to-date.
           selectedSphere['imageUrl'] = getSphereImageUrl(selectedSphere['name']);
+
+          // If the default sphere is owned, mark it as the last valid owned sphere.
           if (_isOwned(selectedSphere['name'])) {
             lastValidOwnedSphere = selectedSphere;
           } else {
+            // Otherwise, try to find the first sphere that is owned.
             lastValidOwnedSphere = allSpheres.firstWhere(
               (s) => _isOwned(s['name']),
               orElse: () => selectedSphere,
             );
           }
         } else {
+          // Fallback to a default sphere if the list is empty.
           selectedSphere = {
             'name': 'Rocky',
             'imageUrl': getSphereImageUrl('Rocky'),
@@ -72,6 +76,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
       setState(() {
         _errorMessage = error.toString();
         _isLoading = false;
+        // Provide fallback data for userOwnedSpheres.
         userOwnedSpheres = [
           {'name': 'Rocky', 'level': 1},
         ];
@@ -103,6 +108,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
     }
   }
 
+  // Checks if the sphere (by name) is in the list of user-owned spheres.
   bool _isOwned(String sphereName) {
     return userOwnedSpheres.any((owned) => owned['name'] == sphereName);
   }
@@ -152,12 +158,12 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
     final sphereWidgetHeight = screenHeight * 0.4;
     final theme = Theme.of(context);
 
-    // Check if the selected sphere is owned.
+    // Check if the currently selected sphere is owned.
     final bool selectedOwned = _isOwned(selectedSphere['name']);
 
     return WillPopScope(
       onWillPop: () async {
-        // Prepare the return data including the level and dynamic image URL.
+        // When leaving, return the selected sphere data.
         Map<String, dynamic> returnSphere;
         if (!selectedOwned) {
           returnSphere = {
@@ -218,13 +224,17 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
 
                     return GestureDetector(
                       onTap: () {
+                        // Only allow selection if the sphere is owned.
+                        if (!owned) {
+                          // Optionally, display a message that the sphere is locked.
+                          print('Sphere ${sphere['name']} is locked.');
+                          return;
+                        }
                         setState(() {
                           selectedSphere = sphere;
-                          // Ensure the image URL is updated based on the sphere name.
+                          // Update the image URL based on sphere name.
                           selectedSphere['imageUrl'] = getSphereImageUrl(sphere['name']);
-                          if (owned) {
-                            lastValidOwnedSphere = sphere;
-                          }
+                          lastValidOwnedSphere = sphere;
                         });
                         print('Tapped on ${sphere['name']}');
                       },
@@ -247,6 +257,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                                     fit: BoxFit.cover,
                                   ),
                                 ),
+                                // If not owned, display a grey overlay.
                                 if (!owned) const LockedOverlay(),
                               ],
                             ),

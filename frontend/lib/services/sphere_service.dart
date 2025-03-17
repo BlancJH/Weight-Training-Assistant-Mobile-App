@@ -124,7 +124,7 @@ class SphereService {
       throw Exception("JWT token not found. User must log in.");
     }
 
-    final url = Uri.parse('$_baseUrl/user-spheres/get-all');
+    final url = Uri.parse('$_baseUrl/spheres/get-all');
     final response = await http.get(
       url,
       headers: {
