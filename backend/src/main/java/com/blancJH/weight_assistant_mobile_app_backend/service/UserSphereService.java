@@ -34,8 +34,11 @@ public class UserSphereService {
         List<UserSphere> userSpheres = userSphereRepository.findByUserId(userId);
         return userSpheres.stream().map(us -> {
             String sphereName = (us.getSphere() != null) ? us.getSphere().getSphereName() : "Unknown";
+            // Extract the sphereId from the nested Sphere object if available.
+            Long sphereId = (us.getSphere() != null) ? us.getSphere().getId() : null;
             return new UserSphereDTO(
                 us.getId(),
+                sphereId,
                 sphereName,
                 us.getLevel(),
                 us.getQuantity(),
@@ -129,6 +132,7 @@ public class UserSphereService {
         return userSphereRepository.findByUserIdAndRepresentatorTrue(userId)
             .map(userSphere -> new UserSphereDTO(
                 userSphere.getId(),
+                userSphere.getSphere() != null ? userSphere.getSphere().getId() : null,
                 userSphere.getSphere() != null ? userSphere.getSphere().getSphereName() : null,
                 userSphere.getLevel(),
                 userSphere.getQuantity(),
