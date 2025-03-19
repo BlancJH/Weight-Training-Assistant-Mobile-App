@@ -165,4 +165,31 @@ class SphereService {
     }
   }
 
+  /// Level up the sphere for the authenticated user if they have enough copies.
+  /// It calls the endpoint: POST {BASE_URL}/user-spheres/level-up/{sphereId}
+  Future<bool> levelUpSphere({required int sphereId}) async {
+    final jwtToken = await _authService.getToken();
+    if (jwtToken == null) {
+      throw Exception("JWT token not found. User must log in.");
+    }
+
+    final url = Uri.parse('$_baseUrl/user-spheres/level-up/$sphereId');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken',
+      },
+    );
+
+    print("JWT Sent: $jwtToken");
+    print("Level up response: ${response.statusCode} - ${response.body}");
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to level up sphere: ${response.statusCode} ${response.body}');
+    }
+  }
+
 }

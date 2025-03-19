@@ -5,6 +5,7 @@ import '../widgets/sphere_widget.dart';
 import '../utils/design_utils.dart';
 import '../services/sphere_service.dart'; // Import your service
 import '../utils/sphere_assets.dart';
+import '../widgets/submit_button.dart';
 
 class SpherePage extends StatefulWidget {
   final String? username;
@@ -33,6 +34,8 @@ class _SpherePageState extends State<SpherePage> {
   int selectedSphereQuantity = 1;
   bool _isLoading = true; // Track loading state
 
+  int? selectedSphereId;
+
   final SphereService _sphereService = SphereService();
 
   @override
@@ -45,6 +48,7 @@ class _SpherePageState extends State<SpherePage> {
     try {
       final data = await _sphereService.fetchRepresentator();
       setState(() {
+        selectedSphereId = data['sphereId'];
         selectedSphereName = data['sphereName'] ?? selectedSphereName; // Update name
         selectedImageUrl = getSphereImageUrl(selectedSphereName); // Compute image dynamically
         selectedSphereLevel = data['level'] ?? selectedSphereLevel;
@@ -103,31 +107,54 @@ class _SpherePageState extends State<SpherePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  selectedSphereName,
-                  style: theme.textTheme.displayLarge,
-                ),
-                Text(
-                  'Level: $selectedSphereLevel',
-                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
-                ),
+
+                // Sphere information
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      selectedSphereName,
+                      style: theme.textTheme.displayLarge,
+                    ),
+                    Text(
+                      'Level: $selectedSphereLevel',
+                      style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
+                    ),
+
+                    // Level up button
+                    if (selectedSphereQuantity >= 5)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: SubmitButton(
+                          text: 'Level Up',
+                          width: 110,
+                          onPressed: () async {
+                            print('Level up button pressed!');
+                            try {
+                              // CALL LEVEL UP SERVICE
+                              bool result = await _sphereService.levelUpSphere(sphereId: selectedSphereId!);
+                              if (result) {
+                                // Refresh representator data after successful upgrade
+                                await _fetchRepresentatorData();
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Insufficient spheres to level up.')),
+                                );
+                              }
+                            } catch (e) {
+                              print('Error during level up: $e');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Error during level up.')),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                  ],
+                )
               ],
             ),
           ),
-          if (selectedSphereQuantity >= 5)
-            Positioned(
-              top: 40,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_upward, size: 32, color: buttonColor),
-                  onPressed: () {
-                    print('Upper arrow pressed!');
-                  },
-                ),
-              ),
-            ),
         ],
       ),
     );

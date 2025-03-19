@@ -298,7 +298,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
                               style: theme.textTheme.titleMedium,
                             ),
                             Text(
-                              owned ? 'Level: $level, Qty: $quantity' : 'Locked',
+                              owned ? 'Level: $level' : 'Locked',
                               style: theme.textTheme.bodySmall,
                             ),
                           ],
