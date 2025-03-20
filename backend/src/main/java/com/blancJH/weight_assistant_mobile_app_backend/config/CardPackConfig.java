@@ -3,10 +3,12 @@ package com.blancJH.weight_assistant_mobile_app_backend.config;
 import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "pack")
+@PropertySource("classpath:sphere_pack_rarity.properties")
 public class CardPackConfig {
 
     /**

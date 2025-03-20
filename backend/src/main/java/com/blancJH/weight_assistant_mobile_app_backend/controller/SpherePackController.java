@@ -20,7 +20,7 @@ import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/sphere-packs")
+@RequestMapping("/api/sphere-packs")
 public class SpherePackController {
 
     private final SpherePackService spherePackService;
@@ -42,7 +42,7 @@ public class SpherePackController {
     @PostMapping("/generate-and-save")
     public ResponseEntity<String> generateAndSaveSpherePack(
             @RequestParam("packType") String packTypeStr,
-            @RequestParam(value = "packSize", defaultValue = "5") int packSize,
+            @RequestParam(value = "packSize", defaultValue = "3") int packSize,
             HttpServletRequest request) {
 
         try {
