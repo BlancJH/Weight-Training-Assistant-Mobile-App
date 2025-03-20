@@ -18,6 +18,7 @@ import '../utils/string_utils.dart';
 import '../widgets/alert_widget.dart';
 import '../widgets/delete_target.dart';
 import '../services/exercise_service.dart';
+import '../services/sphere_pack_service.dart';
 
 class CalendarPage extends StatefulWidget {
   final String? username;
@@ -33,6 +34,8 @@ class _CalendarPageState extends State<CalendarPage> {
   final AuthService _authService = AuthService();
   final ExercisePlanService _exercisePlanService = ExercisePlanService();
   final ExerciseService _exerciseService = ExerciseService();
+  final SpherePackService _spherePackService = SpherePackService();
+
 
   List<Map<String, dynamic>> exerciseData = [];
   DateTime _selectedDate = DateTime.now();
@@ -369,9 +372,19 @@ class _CalendarPageState extends State<CalendarPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: SubmitButton(
-                            text: 'Start workout!',
-                            onPressed: () {
-                              print('Workout button pressed!');
+                            text: 'Workout Completed!',
+                            onPressed: () async {
+                              try {
+                                // Call the API with "BRONZE" as the pack type.
+                                final response = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(response)),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Failed to complete workout: $e")),
+                                );
+                              }
                             },
                           ),
                         ),
