@@ -12,7 +12,7 @@ class SpherePackService {
   ///
   /// [packType] should correspond to a valid pack type (e.g., "COMMON", "RARE").
   /// [packSize] is the number of spheres to generate (defaults to 3 if not specified).
-  Future<String> generateAndSaveSpherePack({
+  Future<List> generateAndSaveSpherePack({
     required String packType,
     int packSize = 3,
   }) async {
@@ -39,8 +39,9 @@ class SpherePackService {
     print("Response: ${response.statusCode} - ${response.body}");
 
     if (response.statusCode == 200) {
-      // Return the success message from the backend.
-      return response.body;
+      // Decode the new spheres as list
+      final List<dynamic> sphereList = jsonDecode(response.body) as List<dynamic>;
+      return sphereList;
     } else {
       throw Exception(
           'Failed to generate and save sphere pack: ${response.statusCode} ${response.body}');

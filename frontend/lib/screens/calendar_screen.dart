@@ -19,6 +19,7 @@ import '../widgets/alert_widget.dart';
 import '../widgets/delete_target.dart';
 import '../services/exercise_service.dart';
 import '../services/sphere_pack_service.dart';
+import '../screens/unpack_reveal_screen.dart';
 
 class CalendarPage extends StatefulWidget {
   final String? username;
@@ -376,9 +377,14 @@ class _CalendarPageState extends State<CalendarPage> {
                             onPressed: () async {
                               try {
                                 // Call the API with "BRONZE" as the pack type.
-                                final response = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(response)),
+                                final sphereList = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
+                                
+                                // Navigate to the reveal screen with the returned sphere list.
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UnpackRevealScreen(spheres: sphereList),
+                                  ),
                                 );
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
