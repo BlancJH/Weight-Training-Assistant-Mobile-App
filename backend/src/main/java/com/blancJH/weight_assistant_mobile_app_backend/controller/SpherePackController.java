@@ -40,7 +40,7 @@ public class SpherePackController {
      * Generate a sphere pack and save it to the user's collection.
      */
     @PostMapping("/generate-and-save")
-    public ResponseEntity<String> generateAndSaveSpherePack(
+    public ResponseEntity<?> generateAndSaveSpherePack(
             @RequestParam("packType") String packTypeStr,
             @RequestParam(value = "packSize", defaultValue = "3") int packSize,
             HttpServletRequest request) {
@@ -73,7 +73,7 @@ public class SpherePackController {
                 userSphereService.addSphereToUser(user, sphere);
             }
 
-            return ResponseEntity.ok("Sphere pack generated and saved successfully!");
+            return ResponseEntity.ok(generatedPack);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid pack type.");
         } catch (Exception e) {
