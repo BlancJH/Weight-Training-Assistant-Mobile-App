@@ -376,6 +376,10 @@ class _CalendarPageState extends State<CalendarPage> {
                             text: 'Workout Completed!',
                             onPressed: () async {
                               try {
+
+                                // Mark the workout plan as done.
+                                await _exercisePlanService.markWorkoutAsDone(_planId!);
+
                                 // Call the API with "BRONZE" as the pack type.
                                 final sphereList = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
                                 

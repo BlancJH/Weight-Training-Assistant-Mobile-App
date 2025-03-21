@@ -88,4 +88,27 @@ class ExercisePlanService {
     }
   }
 
+  // Service to mark workout plan completed
+  Future<String> markWorkoutAsDone(int planId) async {
+    final jwtToken = await _authService.getToken();
+    if (jwtToken == null) {
+      throw Exception("JWT token not found. User must log in.");
+    }
+
+    final url = Uri.parse('$_baseUrl/v1/workout-plans/$planId/complete');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $jwtToken',
+      },
+    );
+
+    print("Mark Workout as Done Response: ${response.statusCode} - ${response.body}");
+    if (response.statusCode == 200) {
+      return response.body; // Expected: "Workout marked as done"
+    } else {
+      throw Exception("Error marking workout as done: ${response.statusCode} ${response.body}");
+    }
+  }
 }

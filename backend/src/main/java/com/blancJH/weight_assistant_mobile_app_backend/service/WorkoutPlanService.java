@@ -167,7 +167,14 @@ public class WorkoutPlanService {
         // Retrieve the workout plan or throw an exception if not found
         WorkoutPlan plan = workoutPlanRepository.findById(planId)
                 .orElseThrow(() -> new RuntimeException("Workout Plan not found"));
-
+        
+        // Compare the planned date with today's date
+        LocalDate plannedDate = plan.getPlannedDate();
+        LocalDate today = LocalDate.now();
+        if (!plannedDate.equals(today)) {
+            throw new RuntimeException("This workout plan is not scheduled for today.");
+        }
+        
         // Mark the plan as done
         plan.setStatus(WorkoutPlanStatus.COMPLETED);
         workoutPlanRepository.save(plan);
