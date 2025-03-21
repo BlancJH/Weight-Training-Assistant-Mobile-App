@@ -42,6 +42,7 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime _selectedDate = DateTime.now();
   bool isEditing = false;
   int? _planId;
+  String? _workoutPlanStatus;
   String? _jwtToken;
 
   @override
@@ -57,6 +58,29 @@ class _CalendarPageState extends State<CalendarPage> {
     setState(() {
       _jwtToken = token;
     });
+  }
+
+  // Helper function: OnPressed Workout Completed button
+  void _handleWorkoutCompleted() async {
+    try {
+      // Mark the workout plan as done.
+      await _exercisePlanService.markWorkoutAsDone(_planId!);
+
+      // Call the API with "BRONZE" as the pack type.
+      final sphereList = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
+      
+      // Navigate to the reveal screen with the returned sphere list.
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UnpackRevealScreen(spheres: sphereList),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to complete workout: $e")),
+      );
+    }
   }
 
   // Helper function: Called when an exercise is selected from the search popup.
@@ -157,6 +181,7 @@ class _CalendarPageState extends State<CalendarPage> {
           if (fetchedPlans.isNotEmpty) {
               setState(() {
                   _planId = fetchedPlans.first['id'] as int;
+                  _workoutPlanStatus = fetchedPlans.first['workoutPlanStatus'] as String?;
                   exerciseData = (fetchedPlans.first['exercises'] as List<dynamic>)
                       .map((e) => {
                           'workoutPlanExerciseId': e['workoutPlanExerciseId'],
@@ -379,27 +404,7 @@ class _CalendarPageState extends State<CalendarPage> {
                           child: isToday
                               ? SubmitButton(
                                   text: 'Workout Completed!',
-                                  onPressed: () async {
-                                    try {
-                                      // Mark the workout plan as done.
-                                      await _exercisePlanService.markWorkoutAsDone(_planId!);
-                                      
-                                      // Call the API with "BRONZE" as the pack type.
-                                      final sphereList = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
-                                      
-                                      // Navigate to the reveal screen with the returned sphere list.
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => UnpackRevealScreen(spheres: sphereList),
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text("Failed to complete workout: $e")),
-                                      );
-                                    }
-                                  },
+                                  onPressed: (_workoutPlanStatus == 'COMPLETED') ? null : _handleWorkoutCompleted,
                                 )
                               : Text(
                                   "This is not today's plan.",
