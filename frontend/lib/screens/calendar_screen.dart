@@ -185,6 +185,10 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context); 
+      // Compare selected date with today's date.
+    bool isToday = _selectedDate.year == DateTime.now().year &&
+      _selectedDate.month == DateTime.now().month &&
+      _selectedDate.day == DateTime.now().day;
 
     return Scaffold(
       body: Stack(
@@ -372,31 +376,35 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: SubmitButton(
-                            text: 'Workout Completed!',
-                            onPressed: () async {
-                              try {
-
-                                // Mark the workout plan as done.
-                                await _exercisePlanService.markWorkoutAsDone(_planId!);
-
-                                // Call the API with "BRONZE" as the pack type.
-                                final sphereList = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
-                                
-                                // Navigate to the reveal screen with the returned sphere list.
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => UnpackRevealScreen(spheres: sphereList),
-                                  ),
-                                );
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text("Failed to complete workout: $e")),
-                                );
-                              }
-                            },
-                          ),
+                          child: isToday
+                              ? SubmitButton(
+                                  text: 'Workout Completed!',
+                                  onPressed: () async {
+                                    try {
+                                      // Mark the workout plan as done.
+                                      await _exercisePlanService.markWorkoutAsDone(_planId!);
+                                      
+                                      // Call the API with "BRONZE" as the pack type.
+                                      final sphereList = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
+                                      
+                                      // Navigate to the reveal screen with the returned sphere list.
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => UnpackRevealScreen(spheres: sphereList),
+                                        ),
+                                      );
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text("Failed to complete workout: $e")),
+                                      );
+                                    }
+                                  },
+                                )
+                              : Text(
+                                  "This is not today's plan.",
+                                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                                ),
                         ),
                       ],
                     )
