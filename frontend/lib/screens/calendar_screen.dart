@@ -66,6 +66,11 @@ class _CalendarPageState extends State<CalendarPage> {
       // Mark the workout plan as done.
       await _exercisePlanService.markWorkoutAsDone(_planId!);
 
+      // Immediately update local state to reflect that the plan is complete.
+      setState(() {
+        _workoutPlanStatus = 'COMPLETED';
+      });
+
       // Call the API with "BRONZE" as the pack type.
       final sphereList = await _spherePackService.generateAndSaveSpherePack(packType: "BRONZE");
       
@@ -75,7 +80,10 @@ class _CalendarPageState extends State<CalendarPage> {
         MaterialPageRoute(
           builder: (context) => UnpackRevealScreen(spheres: sphereList),
         ),
-      );
+      ).then((_) {
+        // Force a rebuild when returning.
+        setState(() {});
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to complete workout: $e")),
