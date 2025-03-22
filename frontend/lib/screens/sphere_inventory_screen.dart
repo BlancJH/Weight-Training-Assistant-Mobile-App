@@ -6,7 +6,10 @@ import '../utils/sphere_assets.dart';
 import '../utils/design_utils.dart';
 
 class SphereInventoryPage extends StatefulWidget {
-  const SphereInventoryPage({Key? key}) : super(key: key);
+
+  final Map<String, dynamic>? representatorData;
+
+  const SphereInventoryPage({Key? key, this.representatorData}) : super(key: key);
 
   @override
   _SphereInventoryPageState createState() => _SphereInventoryPageState();
@@ -21,6 +24,7 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
 
   // The currently selected sphere from the inventory.
   late Map<String, dynamic> selectedSphere;
+
   // The last selected sphere that is owned by the user.
   late Map<String, dynamic> lastValidOwnedSphere;
 
@@ -32,6 +36,15 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
   @override
   void initState() {
     super.initState();
+    // If representator data is passed, use it as the initial selection.
+    if (widget.representatorData != null) {
+      selectedSphere = Map<String, dynamic>.from(widget.representatorData!);
+      // Compute image url
+      selectedSphere['imageUrl'] = getSphereImageUrl(selectedSphere['name']);
+      // For representator data, assume it's owned (if not need to check).
+      lastValidOwnedSphere = selectedSphere;
+    }
+    // Fetch all spheres.
     _initializeSpheres();
   }
 
@@ -45,13 +58,23 @@ class _SphereInventoryPageState extends State<SphereInventoryPage> {
         allSpheres = List<Map<String, dynamic>>.from(fetchedAllSpheres);
         userOwnedSpheres = List<Map<String, dynamic>>.from(fetchedUserSpheres);
 
-        // Set default selected sphere from the full list.
         if (allSpheres.isNotEmpty) {
-          // Use the first sphere in the full list as default.
-          selectedSphere = allSpheres[0];
+          // If representator data is provided, try to find that sphere in the fetched list.
+          if (widget.representatorData != null) {
+            // Try matching by name (or you can match by id if available).
+            final matchingSphere = allSpheres.firstWhere(
+              (s) => s['name'] == widget.representatorData!['name'],
+              orElse: () => allSpheres[0],
+            );
+            selectedSphere = matchingSphere;
+          } else {
+            // If no representatorData was provided, use the first sphere as default.
+            selectedSphere = allSpheres[0];
+          }
+          // Compute the image URL.
           selectedSphere['imageUrl'] = getSphereImageUrl(selectedSphere['name']);
 
-          // If the default sphere is owned, mark it as the last valid owned sphere.
+          // Determine the last valid owned sphere.
           if (_isOwned(selectedSphere['name'])) {
             lastValidOwnedSphere = selectedSphere;
           } else {

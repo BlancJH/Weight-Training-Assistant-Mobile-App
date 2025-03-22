@@ -82,9 +82,17 @@ class _SpherePageState extends State<SpherePage> {
               children: [
                 GestureDetector(
                   onDoubleTap: () async {
+                    final representatorData = {
+                      'name': selectedSphereName,
+                      'imageUrl': selectedImageUrl,
+                      'level': selectedSphereLevel,
+                      'quantity': selectedSphereQuantity,
+                      'id': selectedSphereId,
+                    };
+
                     final result = await Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => SphereInventoryPage(),
+                        builder: (context) => SphereInventoryPage(representatorData: representatorData),
                       ),
                     );
                     if (result != null && result is Map<String, dynamic>) {
