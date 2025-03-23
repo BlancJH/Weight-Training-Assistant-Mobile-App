@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/exercises/**").authenticated()
                 .requestMatchers("/api/user-spheres/**").authenticated()
                 .requestMatchers("/api/spheres/**").authenticated()
+                .requestMatchers("/health").permitAll()
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
