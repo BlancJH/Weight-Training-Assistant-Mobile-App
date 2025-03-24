@@ -55,19 +55,30 @@ class Validators {
 
   // Validate password strength
   static String? validatePassword(String? value) {
-    final passwordRegex = RegExp(
-      r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
-    );
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
 
-    return _validate(
-      value,
-      'Password',
-      minLength: 8, // Enforces minimum length
-      customCondition: (val) => passwordRegex.hasMatch(val),
-      customErrorMessage:
-          'Password must include at least:\nOne uppercase letter\nOne lowercase letter\nOne number\nOne special character',
-    );
-  } //TODO: add error message widget to show invalid option for the password live time.
+    List<String> errors = [];
+
+    if (value.length < 8) {
+      errors.add('Password must be at least 8 characters long.');
+    }
+    if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
+      errors.add('Password must contain at least one uppercase letter.');
+    }
+    if (!RegExp(r'(?=.*[a-z])').hasMatch(value)) {
+      errors.add('Password must contain at least one lowercase letter.');
+    }
+    if (!RegExp(r'(?=.*\d)').hasMatch(value)) {
+      errors.add('Password must contain at least one digit.');
+    }
+    if (!RegExp(r'(?=.*[^A-Za-z0-9])').hasMatch(value)) {
+      errors.add('Password must contain at least one special character.');
+    }
+
+    return errors.isEmpty ? null : errors.join('\n');
+  }
 
   // Validate matching fields
   static String? validateMatch(

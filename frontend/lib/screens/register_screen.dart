@@ -12,7 +12,7 @@ import 'login_screen.dart';
 // Define a stateful widget for the Register screen
 class RegisterScreen extends StatefulWidget {
   @override
-  _RegisterScreenState createState() => _RegisterScreenState(); // Create the state
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
 // State class to manage form fields, validation, and user interactions
@@ -25,7 +25,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _repeatPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
 
+  // Flag to control when required field errors are shown
+  bool _submitted = false;
+
   Future<void> _registerUser() async {
+    setState(() {
+      _submitted = true; // User pressed submit, show required errors now.
+    });
+    
     if (!_formKey.currentState!.validate()) return;
 
     await submitRequest(
@@ -57,47 +64,71 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       // Padding adds space around the form
       body: Padding(
-        padding: EdgeInsets.all(16.0), // 16 pixels padding on all sides
+        padding: EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey, // Attach the form key
-          autovalidateMode: AutovalidateMode.onUserInteraction, // Enable live validation
+          key: _formKey,
+          // Live validation for non-required validations remains enabled.
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch child widgets to full width
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-
               // Name input field
               CustomTextField(
-                labelText: 'User Name', // Label text for the field
+                labelText: 'User Name',
                 controller: _nameController,
-                validator: (value) => Validators.validateRequired(value, 'Name'),
+                validator: (value) {
+                  // Show "required" error only after submission.
+                  if (value == null || value.trim().isEmpty) {
+                    return _submitted ? 'Name is required' : null;
+                  }
+                  // You can add additional validations here if needed.
+                  return null;
+                },
               ),
-              SizedBox(height: 16.0), // Add vertical space between fields
+              SizedBox(height: 16.0),
 
               // Email input field
               CustomTextField(
                 labelText: 'Email',
                 controller: _emailController,
-                validator: (value) => Validators.validateEmail(value)
+                validator: (value) {
+                  // First, check for required condition.
+                  if (value == null || value.trim().isEmpty) {
+                    return _submitted ? 'Email is required' : null;
+                  }
+                  // Then, perform live email format validation.
+                  return Validators.validateEmail(value);
+                },
               ),
-              SizedBox(height: 16.0), // Add vertical space between fields
+              SizedBox(height: 16.0),
 
               // Password input field
               CustomTextField(
                 labelText: 'Password',
                 controller: _passwordController,
-                validator: Validators.validatePassword,
                 obscureText: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return _submitted ? 'Password is required' : null;
+                  }
+                  return Validators.validatePassword(value);
+                },
               ),
-              SizedBox(height: 16.0), // Add vertical space between fields
+              SizedBox(height: 16.0),
 
               // Repeat password input field
               CustomTextField(
                 labelText: 'Repeat Password',
                 controller: _repeatPasswordController,
-                validator: (value) => Validators.validateMatch(value, _passwordController.text, 'Repeat Password'),
                 obscureText: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return _submitted ? 'Repeat Password is required' : null;
+                  }
+                  return Validators.validateMatch(value, _passwordController.text, 'Repeat Password');
+                },
               ),
-              SizedBox(height: 24.0), // Add more space before the button
+              SizedBox(height: 24.0),
 
               // Register button
               SubmitButton(
