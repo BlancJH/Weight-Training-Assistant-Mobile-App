@@ -101,6 +101,7 @@ class _SpherePageState extends State<SpherePage> {
                         selectedImageUrl = getSphereImageUrl(selectedSphereName);
                         selectedSphereLevel = result['level'] ?? selectedSphereLevel;
                         selectedSphereQuantity = result['quantity'] ?? selectedSphereQuantity;
+                        selectedSphereId = result['id'] ?? selectedSphereId;
                       });
                     }
                     print('Sphere widget double tapped!');
