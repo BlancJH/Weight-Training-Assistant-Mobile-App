@@ -32,6 +32,13 @@ final ThemeData spaceTheme = ThemeData(
     onSurface: primaryTextColor,
     onBackground: primaryTextColor,
   ),
+
+  appBarTheme: AppBarTheme(
+    backgroundColor: primaryColor,
+    iconTheme: IconThemeData(
+      color: primaryTextColor, // This sets the back button color globally.
+    ),
+  ),
   textTheme: TextTheme(
     bodyLarge: TextStyle(color: primaryTextColor),
     bodyMedium: TextStyle(color: secondaryTextColor),

@@ -147,11 +147,21 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         constraintsController.text = userDetails['injuriesOrConstraints'] ?? '';
 
         // Workout purpose
-        workoutPurposeController.text = userDetails['purpose'] ?? '';
+        workoutPurposeController.text = userDetails['workoutPurpose'] ?? '';
 
         // Workout Frequency
         if (userDetails['workoutFrequency'] != null) {
-          _selectedWorkoutFrequency = int.tryParse(userDetails['workoutFrequency'].toString());
+          final freqStr = userDetails['workoutFrequency'].toString();
+          final Map<String, int> frequencyMapping = {
+            'ONE': 1,
+            'TWO': 2,
+            'THREE': 3,
+            'FOUR': 4,
+            'FIVE': 5,
+            'SIX': 6,
+            'SEVEN': 7,
+          };
+          _selectedWorkoutFrequency = frequencyMapping[freqStr];
         } else {
           _selectedWorkoutFrequency = null;
         }
@@ -253,7 +263,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         title: const Text('Workout Plan'),
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(),
         centerTitle: true,
       ),
       body: _isLoading
@@ -318,8 +328,8 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeHeightUnit == 'cm'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -334,8 +344,8 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeHeightUnit == 'ft'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -376,8 +386,8 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeWeightUnit == 'kg'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -392,8 +402,8 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeWeightUnit == 'lbs'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -450,12 +460,39 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
               const SizedBox(height: 10),
 
               // Workout purpose
-              CustomTextField(
-                labelText: 'Workout Purpose',
-                controller: workoutPurposeController,
-                validator: (value) => workoutPurposeError,
-                maxLength: workoutPurposeMaxLength,
-                onChanged: _validateWorkoutPurpose, // Live validation
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: workoutPurposeController.text.isNotEmpty
+                        ? workoutPurposeController.text
+                        : null,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('Select Workout Purpose'),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'GAIN_MUSCLE',
+                        child: Text('Gain Muscle'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'LOSS_WEIGHT',
+                        child: Text('Lose Weight'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'IMPROVE_CARDIC_ENDURANCE',
+                        child: Text('Improve Cardiac Endurance'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        workoutPurposeController.text = value ?? '';
+                      });
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
 

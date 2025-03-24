@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/utils/design_utils.dart';
 import 'package:frontend_1/utils/validator.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/custom_text_field.dart';
@@ -30,16 +31,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
-  final TextEditingController constraintsController = TextEditingController();
-  final TextEditingController workoutPurposeController = TextEditingController();
 
   String _activeHeightUnit = 'cm'; // Default unit for height
   String _activeWeightUnit = 'kg'; // Default unit for weight
-  String? constraintsError; // Holds the error message for Constraints field
-  String? workoutPurposeError; // Holds the error message for Workout Purpose field
   
-  int constraintMaxLength = 20; // Charactor limit for constraints/injuries field.
-  int workoutPurposeMaxLength = 20; // Charactor limit for workout purpose field.
 
   File? _profileImage; // Holds the selected profile image file
 
@@ -86,11 +81,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // Gender
         genderController.text = userDetails['gender'] ?? '';
 
-        // Constraints
-        constraintsController.text = userDetails['injuriesOrConstraints'] ?? '';
-
-        // Workout purpose
-        workoutPurposeController.text = userDetails['workoutPurpose'] ?? '';
       });
     } catch (e) {
       // Show error message if loading fails
@@ -120,20 +110,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // You can upload the file to a server or storage service here
       print('Selected Image Path: ${pickedFile.path}');
     }
-  }
-
-  // Function to validate constraints live
-  void _validateConstraints(String value) {
-    setState(() {
-      constraintsError = Validators.validateCharacterLimit(value, 'Constraints/Injuries', constraintMaxLength);
-    });
-  }
-
-  // Function to validate constraints live
-  void _validateWorkoutPurpose(String value) {
-    setState(() {
-      workoutPurposeError = Validators.validateCharacterLimit(value, 'Workout Purpose', workoutPurposeMaxLength);
-    });
   }
 
   // DOB selector config
@@ -198,7 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('Profile'),
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -291,8 +267,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeHeightUnit == 'cm'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -307,8 +283,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeHeightUnit == 'ft'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor,
                                     ),
                                   ),
                                 ),
@@ -349,8 +325,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeWeightUnit == 'kg'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor
                                     ),
                                   ),
                                 ),
@@ -365,8 +341,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ? FontWeight.bold
                                           : FontWeight.normal,
                                       color: _activeWeightUnit == 'lbs'
-                                          ? Colors.blue
-                                          : Colors.black,
+                                          ? buttonColor
+                                          : primaryTextColor
                                     ),
                                   ),
                                 ),
@@ -412,26 +388,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Constraints with Live Error
-              CustomTextField(
-                labelText: 'Constraints/Injuries',
-                controller: constraintsController,
-                validator: (value) => constraintsError,
-                maxLength: constraintMaxLength,
-                onChanged: _validateConstraints, // Live validation
-              ),
-              const SizedBox(height: 10),
-
-              // Workout purpose
-              CustomTextField(
-                labelText: 'Workout Purpose',
-                controller: workoutPurposeController,
-                validator: (value) => workoutPurposeError,
-                maxLength: workoutPurposeMaxLength,
-                onChanged: _validateWorkoutPurpose, // Live validation
-              ),
-              const SizedBox(height: 20),
-
               // Submit button
               SubmitButton(
                 text: 'Save',
@@ -453,8 +409,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     weightValue: weightValue,
                     weightUnit: _activeWeightUnit,
                     gender: genderController.text,
-                    constraints: constraintsController.text,
-                    workoutPurpose: workoutPurposeController.text,
                   );
                 },
               ),

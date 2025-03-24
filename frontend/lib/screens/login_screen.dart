@@ -69,8 +69,10 @@ Future<void> _loginUser() async {
 
   @override // The method is overriding a parent class method
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold( // Scaffold: Basic structure fo UI
       appBar: AppBar( // AppBar: Bar at the top of the screen
+        backgroundColor: theme.colorScheme.surface,
         title: Text('Login'),
       ),
       body: Padding(

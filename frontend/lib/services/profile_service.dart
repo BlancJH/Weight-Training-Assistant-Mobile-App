@@ -57,10 +57,10 @@ class ProfileService {
     if (gender != null && gender.isNotEmpty) {
       profileData['gender'] = gender;
     }
-    if (constraints != null && constraints.isNotEmpty) {
+    if (constraints != null && constraints.isNotEmpty ?? false) {
       profileData['injuriesOrConstraints'] = constraints;
     }
-    if (workoutPurpose != null && workoutPurpose.isNotEmpty) {
+    if (workoutPurpose != null && workoutPurpose.isNotEmpty ?? false) {
       profileData['workoutPurpose'] = workoutPurpose;
     }
     if (workoutFrequency != null) {

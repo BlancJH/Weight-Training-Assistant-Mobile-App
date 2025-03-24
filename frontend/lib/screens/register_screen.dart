@@ -47,10 +47,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     // Scaffold provides the basic visual structure for the screen
     return Scaffold(
       appBar: AppBar(
         // App bar at the top with the screen title
+        backgroundColor: theme.colorScheme.background,
         title: Text('Register'),
       ),
       // Padding adds space around the form
@@ -58,6 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         padding: EdgeInsets.all(16.0), // 16 pixels padding on all sides
         child: Form(
           key: _formKey, // Attach the form key
+          autovalidateMode: AutovalidateMode.onUserInteraction, // Enable live validation
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch child widgets to full width
             children: [
