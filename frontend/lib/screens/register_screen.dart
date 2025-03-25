@@ -2,6 +2,7 @@
 
 // Flutter material package provides UI components and theming
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart'; // Needed for TapGestureRecognizer
 import '../widgets/submit_button.dart';
 import '../utils/http_requester.dart';
 import '../utils/validator.dart';
@@ -27,6 +28,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // Flag to control when required field errors are shown
   bool _submitted = false;
+  // Consent flags
+  bool _consentUsage = false;
+  bool _consentAnalysis = false;
 
   Future<void> _registerUser() async {
     setState(() {
@@ -67,12 +71,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          // Live validation for non-required validations remains enabled.
-          autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: AutovalidateMode.onUserInteraction, // Live validation enabled
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Name input field
+              // User Name Field
               CustomTextField(
                 labelText: 'User Name',
                 controller: _nameController,
@@ -81,13 +84,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return _submitted ? 'Name is required' : null;
                   }
-                  // You can add additional validations here if needed.
                   return null;
                 },
               ),
               SizedBox(height: 16.0),
 
-              // Email input field
+              // Email Field
               CustomTextField(
                 labelText: 'Email',
                 controller: _emailController,
@@ -102,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               SizedBox(height: 16.0),
 
-              // Password input field
+              // Password Field
               CustomTextField(
                 labelText: 'Password',
                 controller: _passwordController,
@@ -116,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               SizedBox(height: 16.0),
 
-              // Repeat password input field
+              // Repeat Password Field
               CustomTextField(
                 labelText: 'Repeat Password',
                 controller: _repeatPasswordController,
@@ -125,12 +127,135 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return _submitted ? 'Repeat Password is required' : null;
                   }
-                  return Validators.validateMatch(value, _passwordController.text, 'Repeat Password');
+                  return Validators.validateMatch(
+                      value, _passwordController.text, 'Repeat Password');
+                },
+              ),
+              SizedBox(height: 16.0),
+
+              // Consent for User Registration and Data Usage as a FormField
+              FormField<bool>(
+                initialValue: _consentUsage,
+                validator: (value) {
+                  if (value != true) {
+                    return 'You must agree to the User Registration and Data Usage Consent';
+                  }
+                  return null;
+                },
+                builder: (FormFieldState<bool> state) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _consentUsage,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                _consentUsage = newValue ?? false;
+                                state.didChange(newValue);
+                              });
+                            },
+                          ),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                text: 'I agree to the ',
+                                style: TextStyle(color: Colors.black),
+                                children: [
+                                  TextSpan(
+                                    text: 'User Registration and Data Usage Consent',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        // TODO: Navigate to or open the User Registration and Data Usage Consent document.
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (state.hasError)
+                        Padding(
+                          padding: EdgeInsets.only(left: 16.0),
+                          child: Text(
+                            state.errorText!,
+                            style: TextStyle(color: Colors.red, fontSize: 12),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+              SizedBox(height: 8.0),
+
+              // Consent for Data Analysis and Model Training as a FormField
+              FormField<bool>(
+                initialValue: _consentAnalysis,
+                validator: (value) {
+                  if (value != true) {
+                    return 'You must agree to the Data Analysis and Model Training Consent';
+                  }
+                  return null;
+                },
+                builder: (FormFieldState<bool> state) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _consentAnalysis,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                _consentAnalysis = newValue ?? false;
+                                state.didChange(newValue);
+                              });
+                            },
+                          ),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                text: 'I agree to the ',
+                                style: TextStyle(color: Colors.black),
+                                children: [
+                                  TextSpan(
+                                    text: 'Data Analysis and Model Training Consent',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        // TODO: Navigate to or open the Data Analysis and Model Training Consent document.
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (state.hasError)
+                        Padding(
+                          padding: EdgeInsets.only(left: 16.0),
+                          child: Text(
+                            state.errorText!,
+                            style: TextStyle(color: Colors.red, fontSize: 12),
+                          ),
+                        ),
+                    ],
+                  );
                 },
               ),
               SizedBox(height: 24.0),
 
-              // Register button
+              // Register Button
               SubmitButton(
                 text: 'Register',
                 onPressed: _registerUser,
