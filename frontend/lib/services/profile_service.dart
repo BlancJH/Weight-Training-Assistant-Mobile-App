@@ -11,7 +11,6 @@ class ProfileService {
       final userDetails = await userService.fetchUserDetails();
       return userDetails;
     } catch (e) {
-      _showSnackBar(context, 'Error loading profile: $e');
       throw e;
     }
   }

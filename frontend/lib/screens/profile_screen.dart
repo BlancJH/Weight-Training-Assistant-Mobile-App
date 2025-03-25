@@ -85,9 +85,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       });
     } catch (e) {
-      // Show error message if loading fails
+      final errorMessage = e.toString().replaceFirst("Exception: ", "");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading profile: $e')),
+        SnackBar(content: Text('$errorMessage')),
       );
     } finally {
       setState(() {

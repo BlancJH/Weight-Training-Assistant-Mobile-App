@@ -31,6 +31,10 @@ public class UserService {
             throw new IllegalStateException("Email is already taken.");
         }
 
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalStateException("Username is already taken.");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return "User registered successfully!";

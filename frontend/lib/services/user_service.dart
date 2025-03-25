@@ -66,13 +66,24 @@ class UserService {
         print('Fetched user details successfully: $data');
         return data;
       } else {
-        print('Failed to fetch user details: ${response.body}');
-        throw Exception('Failed to fetch user details');
+        // Attempt to decode the backend error message.
+        String errorMessage = "Failed to fetch user details";
+        try {
+          final errorData = json.decode(response.body);
+          if (errorData is Map && errorData.containsKey('error')) {
+            errorMessage = errorData['error'];
+          } else {
+            errorMessage = response.body;
+          }
+        } catch (_) {
+          errorMessage = response.body;
+        }
+        throw Exception(errorMessage);
       }
     } catch (e) {
-      print('Error fetching user details: $e');
-      throw Exception('Error fetching user details: $e');
+      // Rethrow the exception with its original clean message.
+      throw Exception(e.toString());
     }
   }
-
+  
 }

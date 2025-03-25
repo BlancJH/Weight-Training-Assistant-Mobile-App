@@ -66,23 +66,33 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        String password = payload.get("password");
+        try {
+            String email = payload.get("email");
+            String password = payload.get("password");
 
-        // Authenticate user and get the token
-        String token = userService.loginUser(email, password);
+            // Authenticate user and get the token.
+            String token = userService.loginUser(email, password);
 
-        // Fetch user details from the database
-        User user = userService.getUserByEmail(email);
+            // Fetch user details from the database.
+            User user = userService.getUserByEmail(email);
 
-        // Return token and additional user info
-        Map<String, Object> response = Map.of(
-                "token", token,
-                "username", user.getUsername(),
-                "profileUrl", user.getProfileUrl() != null ? user.getProfileUrl() : "Default" // Send "Default" as string might need to be fixed later.
-        );
+            // Return token and additional user info.
+            Map<String, Object> response = Map.of(
+                    "token", token,
+                    "username", user.getUsername(),
+                    "profileUrl", user.getProfileUrl() != null ? user.getProfileUrl() : "Default"
+            );
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            // If authentication fails or user not found, return a JSON error message.
+            Map<String, Object> errorResponse = Map.of("error", "Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        } catch (Exception e) {
+            // For all other errors, return a generic error response.
+            Map<String, Object> errorResponse = Map.of("error", "An error occurred. Please try again later.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
     
     /**
