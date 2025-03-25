@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import com.blancJH.weight_assistant_mobile_app_backend.repository.SphereReposito
 
 @Service
 public class SpherePackService {
+
+    private static final Logger logger = LoggerFactory.getLogger(SpherePackService.class);
 
     private final SphereRepository sphereRepository;
     private final CardPackConfig packProperties;
@@ -34,7 +38,8 @@ public class SpherePackService {
         // Retrieve the map of ratios for the specified pack type (e.g., "bronze")
         Map<String, Integer> ratios = packProperties.getRatios().get(packType.name().toLowerCase());
         if (ratios == null) {
-            throw new IllegalArgumentException("No configuration found for pack type: " + packType);
+            logger.error("No configuration found for pack type: {}", packType);
+            throw new IllegalArgumentException("Pack is not found.");
         }
 
         int totalWeight = ratios.values().stream().mapToInt(Integer::intValue).sum();
@@ -58,7 +63,8 @@ public class SpherePackService {
         // Using the repository’s native query to pick a random sphere by rarity.
         Sphere sphere = sphereRepository.findRandomByRank(rarity.name());
         if (sphere == null) {
-            throw new IllegalStateException("No sphere found for rarity: " + rarity);
+            logger.error("No sphere found for the rarity:" + rarity);
+            throw new IllegalStateException("No sphere found ");
         }
         return sphere;
     }

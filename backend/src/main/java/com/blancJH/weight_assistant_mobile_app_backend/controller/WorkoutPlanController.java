@@ -100,10 +100,13 @@ public class WorkoutPlanController {
 
             // 7. Return the generated workout plan.
             return ResponseEntity.ok(Collections.singletonMap("message", "Workout plans generated successfully."));
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid input for generating workout plans", e);
+            return ResponseEntity.badRequest().body("Invalid input provided.");
         } catch (Exception e) {
             logger.error("Error generating or saving workout plan", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body("Error generating or saving workout plan: " + e.getMessage());
+                                .body("An error occurred. Please try again later.");
         }
     }
 
@@ -115,8 +118,9 @@ public class WorkoutPlanController {
             workoutPlanService.markPlanAsDone(planId);
             return ResponseEntity.ok("Workout marked as done");
         } catch (Exception e) {
+            logger.error("Error marking workout as done for plan id: " + planId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Error marking workout as done: " + e.getMessage());
+                                 .body("An error occurred. Please try again later.");
         }
     }
 

@@ -272,7 +272,10 @@ public class WorkoutPlanService {
                     if (newExerciseId != null) {
                         // Existing exercise needs to be replaced.
                         Exercise newExercise = exerciseRepository.findById(newExerciseId)
-                                .orElseThrow(() -> new RuntimeException("Exercise not found for id: " + newExerciseId));
+                                .orElseThrow(() -> {
+                                    logger.error("Exercise not found for id: " + newExerciseId);
+                                    return new IllegalArgumentException("Exercise not found");
+                                });
                         wpe.setExercise(newExercise);
                     }
                     // else: no newExerciseId, just keep the existing exercise (no action needed).
@@ -283,7 +286,11 @@ public class WorkoutPlanService {
             } else if (newExerciseId != null) {
                 // Case 2: New exercise being added.
                 Exercise newExercise = exerciseRepository.findById(newExerciseId)
-                        .orElseThrow(() -> new RuntimeException("Exercise not found for id: " + newExerciseId));
+                        .orElseThrow(() -> {
+                            logger.error("Exercise not found for id: " + newExerciseId);
+                            return new IllegalArgumentException("Exercise not found");
+                        });
+                        
 
                 WorkoutPlanExercise newWpe = new WorkoutPlanExercise();
                 newWpe.setExercise(newExercise);

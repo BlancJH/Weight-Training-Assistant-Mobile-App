@@ -2,6 +2,8 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
     private final WorkoutPlanExerciseRepository workoutPlanExerciseRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(ExerciseService.class);
 
     @Autowired
     public ExerciseService(ExerciseRepository exerciseRepository, WorkoutPlanExerciseRepository workoutPlanExerciseRepository) {
@@ -32,7 +36,10 @@ public class ExerciseService {
 
     public Exercise getExerciseById(Long id) {
         return exerciseRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Exercise not found with id: " + id));
+                .orElseThrow(() -> {
+                    logger.error("Exercise not found for id: " + id);
+                    return new IllegalArgumentException("Exercise not found with id: " + id);
+                });
     }
 
     public void deleteExercise(Long id) {

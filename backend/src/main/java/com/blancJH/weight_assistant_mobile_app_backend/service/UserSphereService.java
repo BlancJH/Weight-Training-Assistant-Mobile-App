@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,8 @@ import com.blancJH.weight_assistant_mobile_app_backend.repository.UserSphereRepo
 
 @Service
 public class UserSphereService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserSphereService.class);
 
     private final UserSphereRepository userSphereRepository;
     private final SphereRepository sphereRepository;
@@ -75,14 +79,19 @@ public class UserSphereService {
      */
     public void giveDefaultSphereToUser(User user) {
         Sphere defaultSphere = sphereRepository.findBySphereName("Rocky")
-            .orElseThrow(() -> new IllegalArgumentException("Default sphere 'Rocky' not found"));
+            .orElseThrow(() -> {
+                logger.error("Sphere Name Rocky is not found");
+                return new IllegalArgumentException("Error to generate default sphere.");
+            });
         addSphereToUser(user, defaultSphere);
 
         // Retrieve the created UserSphere and mark it as the representator.
         UserSphere userSphere = userSphereRepository
             .findByUserIdAndSphereId(user.getId(), defaultSphere.getId())
-            .orElseThrow(() -> new IllegalArgumentException("UserSphere not found for default sphere"));
-        
+            .orElseThrow(() -> {
+                logger.error("Sphere Name Rocky is not found");
+                return new IllegalArgumentException("Error to generate default sphere.");
+            });
         userSphere.setRepresentator(true);
         userSphereRepository.save(userSphere);
     }
@@ -92,7 +101,10 @@ public class UserSphereService {
      */
     public boolean upgradeSphere(Long userId, Long sphereId) {
         UserSphere userSphere = userSphereRepository.findByUserIdAndSphereId(userId, sphereId)
-                .orElseThrow(() -> new IllegalArgumentException("UserSphere not found"));
+                            .orElseThrow(() -> {
+                                logger.error("UserSphere is not found for user Id:{} and sphere Id: {}", userId, sphereId);
+                                return new IllegalArgumentException("Sphere is not found.");
+                            });
 
         if (userSphere == null || userSphere.getQuantity() < 5) {
             return false;  // Not enough spheres to upgrade
@@ -111,7 +123,10 @@ public class UserSphereService {
     @Transactional
     public void markAsRepresentator(Long userSphereId) {
         UserSphere userSphere = userSphereRepository.findById(userSphereId)
-                .orElseThrow(() -> new IllegalArgumentException("UserSphere not found"));
+                            .orElseThrow(() -> {
+                                logger.error("Invalid UserSphere Id");
+                                return new IllegalArgumentException("Sphere is not found.");
+                            });
 
         // Reset the current representative sphere for the user
         userSphereRepository.findByUserIdAndRepresentatorTrue(userSphere.getUser().getId())

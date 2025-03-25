@@ -3,6 +3,8 @@ package com.blancJH.weight_assistant_mobile_app_backend.service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,8 @@ public class UserExercisePreferenceService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserExercisePreferenceService.class);
+
     /**
      * Updates the user's exercise preference.
      * <p>
@@ -47,7 +51,8 @@ public class UserExercisePreferenceService {
         // Extract the user ID from the JWT token.
         Long userId = jwtUtil.extractUserId(jwtToken);
         if (userId == null) {
-            throw new RuntimeException("Invalid JWT token: unable to extract user ID.");
+            logger.error("Invalid JWT:", jwtToken);
+            throw new RuntimeException("Authentication error.");
         }
 
         // Prevent both favorite and dislike from being true.

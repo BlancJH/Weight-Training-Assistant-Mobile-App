@@ -2,6 +2,9 @@ package com.blancJH.weight_assistant_mobile_app_backend.controller;
 
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +25,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/sphere-packs")
 public class SpherePackController {
+
+    private static final Logger logger = LoggerFactory.getLogger(SpherePackController.class);
 
     private final SpherePackService spherePackService;
     private final UserSphereService userSphereService;
@@ -75,9 +80,14 @@ public class SpherePackController {
 
             return ResponseEntity.ok(generatedPack);
         } catch (IllegalArgumentException e) {
+            // Log detailed error internally
+            logger.error("Invalid pack type provided: {}", packTypeStr, e);
+            // Return a generic error message
             return ResponseEntity.badRequest().body("Invalid pack type.");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+            logger.error("Error generating and saving sphere pack", e);
+            // Return a generic error message to the client
+            return ResponseEntity.status(500).body("An error occurred. Please try again later.");
         }
     }
 }

@@ -3,6 +3,8 @@ package com.blancJH.weight_assistant_mobile_app_backend.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/user-spheres")
 public class UserSphereController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserSphereController.class);
 
     private final UserSphereService userSphereService;
     private final UserSphereRepository userSphereRepository;
@@ -75,7 +79,8 @@ public class UserSphereController {
                 return ResponseEntity.badRequest().body("Insufficient spheres to level up.");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("An error occurred: " + e.getMessage());
+            logger.error("Error upgrading sphere: " + e.getMessage());
+            return ResponseEntity.status(400).body("Error upgrading sphere");
         }
     }
 
@@ -122,11 +127,15 @@ public class UserSphereController {
             if (representator.isPresent()) {
                 return ResponseEntity.ok(representator.get());
             } else {
+                logger.warn("No representator found for user id: {}", userId);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No representator found for user id: " + userId);
+                        .body("Representator not found");
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid JWT token or user id");
+            logger.error("Error fetching representator for user", e);
+            // Return a generic error message to the client
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred. Please try again later.");
         }
     }
 }

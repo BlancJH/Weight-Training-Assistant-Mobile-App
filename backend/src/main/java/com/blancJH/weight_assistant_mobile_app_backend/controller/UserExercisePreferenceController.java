@@ -1,5 +1,7 @@
 package com.blancJH.weight_assistant_mobile_app_backend.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/preferences")
 public class UserExercisePreferenceController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserExercisePreferenceController.class);
 
     private final UserExercisePreferenceService preferenceService;
 
@@ -42,9 +46,11 @@ public class UserExercisePreferenceController {
 
             return ResponseEntity.ok(updatedPreference);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            logger.error("Error updating preference: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error updating preference");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error updating preference: " + e.getMessage());
+            logger.error("Error updating preference: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error updating preference");
         }
     }
 }
