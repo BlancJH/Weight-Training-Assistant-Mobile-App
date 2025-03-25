@@ -3,6 +3,9 @@
 // Flutter material package provides UI components and theming
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart'; // Needed for TapGestureRecognizer
+import '../screens/register_consent_screen.dart';
+import '../utils/design_utils.dart';
+import '../utils/consent_documents.dart';
 import '../widgets/submit_button.dart';
 import '../utils/http_requester.dart';
 import '../utils/validator.dart';
@@ -161,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: RichText(
                               text: TextSpan(
                                 text: 'I agree to the ',
-                                style: TextStyle(color: Colors.black),
+                                style: TextStyle(color: primaryTextColor),
                                 children: [
                                   TextSpan(
                                     text: 'User Registration and Data Usage Consent',
@@ -171,7 +174,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        // TODO: Navigate to or open the User Registration and Data Usage Consent document.
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ConsentDocumentScreen(
+                                              title: 'User Register Consent',
+                                              documentContent: ConsentDocuments.userRegistrationAndDataUsage,
+                                            ),
+                                          ),
+                                        );
                                       },
                                   ),
                                 ],
@@ -222,7 +233,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: RichText(
                               text: TextSpan(
                                 text: 'I agree to the ',
-                                style: TextStyle(color: Colors.black),
+                                style: TextStyle(color: primaryTextColor),
                                 children: [
                                   TextSpan(
                                     text: 'Data Analysis and Model Training Consent',
@@ -232,7 +243,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        // TODO: Navigate to or open the Data Analysis and Model Training Consent document.
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ConsentDocumentScreen(
+                                              title: 'Data Usage Consent',
+                                              documentContent: ConsentDocuments.dataAnalysisAndModelTraining,
+                                            ),
+                                          ),
+                                        );
                                       },
                                   ),
                                 ],
