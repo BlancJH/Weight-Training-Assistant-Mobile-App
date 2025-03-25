@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend_1/utils/design_utils.dart';
-import 'package:frontend_1/utils/validator.dart';
+import '../services/auth_service.dart';
+import '../utils/design_utils.dart';
+import '../utils/validator.dart';
+import '../widgets/alert_widget.dart';
 import '../widgets/profile_avatar.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/submit_button.dart';
@@ -411,6 +413,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     gender: genderController.text,
                   );
                 },
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      thickness: 1,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      AlertWidget.show(
+                        context: context,
+                        title: "Delete Account",
+                        content:
+                            "Are you sure you want to delete your account? This action cannot be undone.",
+                        cancelText: "Cancel",
+                        confirmText: "Delete",
+                        onConfirm: () async {
+                          try {
+                            // Call the service to disable the account.
+                            bool success = await AuthService().disableUserAccount();
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Account disabled successfully.")),
+                              );
+                              // Log out the user.
+                              await AuthService().logoutUser();
+                              // Navigate to the login screen or initial screen.
+                              Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Error disabling account: $e")),
+                            );
+                          }
+                        },
+                      );
+                    },
+                    child: const Text(
+                      'Delete Account',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      thickness: 1,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -1,13 +1,12 @@
 package com.blancJH.weight_assistant_mobile_app_backend.service;
 
-import com.blancJH.weight_assistant_mobile_app_backend.model.User;
-import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
-import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import com.blancJH.weight_assistant_mobile_app_backend.model.User;
+import com.blancJH.weight_assistant_mobile_app_backend.repository.UserRepository;
+import com.blancJH.weight_assistant_mobile_app_backend.util.JwtUtil;
 
 @Service
 public class UserService {
@@ -40,6 +39,12 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid email or password");
         }
+
+            // Check if the user's account is active
+        if (!user.isActive()) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+        
 
         // Generate JWT Token
         return jwtUtil.generateToken(user.getId(), user.getUsername(), user.getProfileUrl());
@@ -75,5 +80,19 @@ public class UserService {
     public User findById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+    }
+
+    /**
+     * Disables the user account by setting the active flag to false.
+     *
+     * @param userId the ID of the user to disable
+     * @return the updated User entity
+     * @throws IllegalArgumentException if the user is not found
+     */
+    public User disableUserAccount(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        user.setActive(false);
+        return userRepository.save(user);
     }
 }

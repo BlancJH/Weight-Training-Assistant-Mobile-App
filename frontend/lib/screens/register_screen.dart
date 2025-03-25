@@ -140,7 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               FormField<bool>(
                 initialValue: _consentUsage,
                 validator: (value) {
-                  if (value != true) {
+                  if (_submitted && value != true) {
                     return 'You must agree to the User Registration and Data Usage Consent';
                   }
                   return null;
@@ -209,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               FormField<bool>(
                 initialValue: _consentAnalysis,
                 validator: (value) {
-                  if (value != true) {
+                  if (_submitted && value != true) {
                     return 'You must agree to the Data Analysis and Model Training Consent';
                   }
                   return null;

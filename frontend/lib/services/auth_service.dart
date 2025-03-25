@@ -172,4 +172,31 @@ class AuthService {
     }
   }
 
+  /// Disables the authenticated user's account.
+  /// The [jwt] token is included in the request header for authentication.
+  /// Returns true if the account is successfully disabled (HTTP 200).
+  Future<bool> disableUserAccount() async {
+    final jwtToken = await getToken();
+    final url = Uri.parse('$_baseUrl/auth/delete');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $jwtToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        final responseBody = json.decode(response.body);
+        throw Exception(
+          'Failed to disable account: ${responseBody['message'] ?? response.body}',
+        );
+      }
+    } catch (error) {
+      throw Exception('Error disabling account: $error');
+    }
+  }
 }

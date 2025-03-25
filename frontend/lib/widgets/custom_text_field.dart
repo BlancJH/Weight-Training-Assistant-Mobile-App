@@ -34,6 +34,7 @@ class CustomTextField extends StatelessWidget {
             ),
             counterText: '', // Hide default counter
           ),
+          cursorColor: primaryTextColor,
           obscureText: obscureText,
           validator: validator,
           onChanged: onChanged,

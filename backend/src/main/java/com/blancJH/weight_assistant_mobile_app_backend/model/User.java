@@ -29,4 +29,7 @@ public class User {
     @Column(nullable = true)
     private String profileUrl;
 
+    @Column(nullable = false)
+    private boolean active = true;
+
 }
