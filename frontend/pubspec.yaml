@@ -98,6 +98,8 @@ flutter:
     - assets/images/neocore.png
     - assets/images/neuroorb.png
     - assets/images/abyss.png
+    - assets/images/machina.png
+    - assets/images/serapis.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
