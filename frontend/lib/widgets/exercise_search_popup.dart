@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/utils/design_utils.dart';
 import '../models/exercise.dart';
 import '../services/exercise_service.dart';
 
@@ -75,7 +76,7 @@ class _ExerciseSearchPopupState extends State<ExerciseSearchPopup> {
       ),
       title: Text(
         exercise.exerciseName,
-        style: const TextStyle(color: Colors.black, fontSize: 16.0),
+        style: const TextStyle(color: primaryTextColor, fontSize: 16.0),
       ),
       onTap: () {
         // Call the callback to add the exercise to the plan.

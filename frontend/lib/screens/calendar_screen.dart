@@ -409,15 +409,17 @@ class _CalendarPageState extends State<CalendarPage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: isToday
-                              ? SubmitButton(
-                                  text: 'Workout Completed!',
-                                  onPressed: (_workoutPlanStatus == 'COMPLETED') ? null : _handleWorkoutCompleted,
-                                )
-                              : Text(
-                                  "This is not today's plan.",
-                                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
-                                ),
+                          child: (!isEditing)
+                              ? (isToday
+                                  ? SubmitButton(
+                                      text: 'Workout Completed!',
+                                      onPressed: (_workoutPlanStatus == 'COMPLETED') ? null : _handleWorkoutCompleted,
+                                    )
+                                  : Text(
+                                      "This is not today's plan.",
+                                      style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                                    ))
+                              : SizedBox.shrink(), // When editing, don't show anything.
                         ),
                       ],
                     )
