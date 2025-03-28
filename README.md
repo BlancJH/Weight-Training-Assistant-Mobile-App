@@ -39,6 +39,8 @@ The mobile application which helps users to plan trainings by suggesting recomme
 
 ## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## TODO
 - [ ] Add exercise gifs
   
