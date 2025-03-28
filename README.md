@@ -1,2 +1,60 @@
 # Weight-Training-Assistant-Mobile-App
 The mobile application which helps users to plan trainings by suggesting recommendable training programs based on the users' demographic and the purpose of the workout.
+
+## Table of Contents
+
+## Features
+- User Authentication JWT
+  
+- Workout plan recommendation
+  
+- Chronometric postpone workout plans
+  
+- Random reward collection
+
+## Screenshots
+
+## Technologies
+- Platform: cross-platform
+
+- Programming Languages: Dart, Java
+
+- Frameworks: Flutter, Springs boot
+
+- Backend Services: AWS
+
+- Other Tools: Version control (Git), CI/CD pipelines (GitHub Action), Docker
+
+## Installation
+
+## Usage
+
+## Licence
+
+## TODO
+- [ ] Add exercise gifs
+  
+- [ ] Add marking calendar for completed workout plans
+  
+- [ ] Add Spheres weekly
+  
+- [ ] Update search exercise widget with api pagination
+  
+- [ ] Update search exercise widget exercise category and muscle group
+  
+- [ ] Add 0Auth register with Apple, Google
+  
+- [ ] Add find password function
+  
+- [ ] Add community to share spheres
+  
+- [ ] Add sphere decoration function
+  
+- [ ] Add advertisement banner
+  
+- [ ] Deploy app through Apple app store
+  
+- [ ] Test with Android
+  
+- [ ] Deploy app through Google store
+  
