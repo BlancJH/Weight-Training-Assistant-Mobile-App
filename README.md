@@ -2,6 +2,14 @@
 The mobile application which helps users to plan trainings by suggesting recommendable training programs based on the users' demographic and the purpose of the workout.
 
 ## Table of Contents
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Technologies](#technologies)
+- [Installation](#installation)
+- [Usage](#usage)
+- [License](#license)
+- [TODO](#todo)
+
 
 ## Features
 - User Authentication JWT
@@ -29,7 +37,7 @@ The mobile application which helps users to plan trainings by suggesting recomme
 
 ## Usage
 
-## Licence
+## License
 
 ## TODO
 - [ ] Add exercise gifs
