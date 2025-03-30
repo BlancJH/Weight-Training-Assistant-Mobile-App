@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend_1/screens/home_screen.dart';
+import 'package:frontend_1/utils/design_utils.dart';
 import 'package:frontend_1/utils/validator.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/submit_button.dart';
@@ -177,9 +178,9 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
          :'';
       });
     } catch (e) {
-      // Show error message if loading fails
+      final errorMessage = e.toString().replaceFirst("Exception: ", "");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading profile: $e')),
+        SnackBar(content: Text('$errorMessage')),
       );
     } finally {
       setState(() {
@@ -209,7 +210,26 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
       initialDate: DateTime(2000),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            // Override TextButton theme to change the OK button text color
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: primaryTextColor
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+    if (pickedDate != null) {
+      setState(() {
+        birthdayController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+      });
+    }
+
 
 
     // DOB format

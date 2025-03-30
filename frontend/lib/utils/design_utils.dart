@@ -59,4 +59,13 @@ final ThemeData spaceTheme = ThemeData(
       foregroundColor: Colors.white,
     ),
   ),
+  inputDecorationTheme: const InputDecorationTheme(
+    // Customise the border when the TextField is focused (selected)
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: buttonColor, width: 2.0),
+    ),
+    disabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: buttonColor),
+    ),
+  ),
 );

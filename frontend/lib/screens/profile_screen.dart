@@ -121,13 +121,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       initialDate: DateTime(2000),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            // Override TextButton theme to change the OK button text color
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: primaryTextColor
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
-
-
-    // DOB format
     if (pickedDate != null) {
       setState(() {
-        // Format the date to yyyy-MM-dd
         birthdayController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
       });
     }

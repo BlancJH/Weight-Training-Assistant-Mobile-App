@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend_1/utils/design_utils.dart';
 
 class CustomTimePickerDialog extends StatefulWidget {
   final int initialMinutes; // Initial value in minutes
@@ -77,10 +78,16 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+          foregroundColor: primaryTextColor,
+        ),
           onPressed: () => Navigator.of(context).pop(), // Close dialog without saving
           child: const Text('Cancel'),
         ),
         TextButton(
+          style: TextButton.styleFrom(
+          foregroundColor: primaryTextColor,
+          ),
           onPressed: () => Navigator.of(context).pop((selectedHour * 60) + selectedMinute),
           child: const Text('OK'),
         ),

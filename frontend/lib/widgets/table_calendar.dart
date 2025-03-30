@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend_1/utils/design_utils.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CustomCalendar extends StatefulWidget {
@@ -51,6 +52,9 @@ class _CustomCalendarState extends State<CustomCalendar> {
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
         titleCentered: true,
+        titleTextStyle: TextStyle(
+          color: primaryTextColor,
+        )
       ),
     );
   }
