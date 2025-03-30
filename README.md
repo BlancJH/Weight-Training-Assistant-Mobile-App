@@ -21,6 +21,7 @@ The mobile application which helps users to plan trainings by suggesting recomme
 - Random reward collection
 
 ## Screenshots
+https://youtu.be/ihK2qxZXlEo
 
 ## Technologies
 - Platform: cross-platform
