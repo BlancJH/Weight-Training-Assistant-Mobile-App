@@ -43,6 +43,8 @@ The mobile application which helps users to plan trainings by suggesting recomme
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## TODO
+- [ ] Add user location code to dynamically apply chronometric function
+      
 - [ ] Add exercise gifs
   
 - [ ] Add marking calendar for completed workout plans
