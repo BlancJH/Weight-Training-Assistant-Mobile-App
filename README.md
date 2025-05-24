@@ -37,7 +37,8 @@ The mobile application which helps users to plan trainings by suggesting recomme
 - Other Tools: Version control (Git), CI/CD pipelines (GitHub Action), Docker
 
 ### Architecture Diagram
-![Gymtinued Backend Architecture](./assets/images/Gymtinued_Backend_Architecture.png)
+<img src="./assets/images/Gymtinued_Backend_Architecture.png" alt="Gymtinued Backend Architecture" width="500" />
+
 
 ## Installation
 
