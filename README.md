@@ -23,7 +23,7 @@ The mobile application which helps users to plan trainings by suggesting recomme
 - Random reward collection
 
 ## Screenshots
-[![Video Thumbnail](./assets/images/Gymtinued_Thumbnail.png)](https://www.youtube.com/watch?v=ihK2qxZXlEo)
+[![Video Thumbnail](./assets/images/G)](https://www.youtube.com/watch?v=ihK2qxZXlEo)
 
 ## Technologies
 - Platform: cross-platform
