@@ -13,6 +13,8 @@ The mobile application which helps users to plan trainings by suggesting recomme
 
 ## Features
 - User Authentication JWT
+
+- Secure connection through HTTPs with Amazon Certification Manager (ACM)
   
 - Workout plan recommendation
   
@@ -21,7 +23,7 @@ The mobile application which helps users to plan trainings by suggesting recomme
 - Random reward collection
 
 ## Screenshots
-[![Video Thumbnail](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=ihK2qxZXlEo)
+[![Video Thumbnail](./assets/images/Gymtinued_Thumbnail.png)](https://www.youtube.com/watch?v=ihK2qxZXlEo)
 
 ## Technologies
 - Platform: cross-platform
@@ -33,6 +35,9 @@ The mobile application which helps users to plan trainings by suggesting recomme
 - Backend Services: AWS
 
 - Other Tools: Version control (Git), CI/CD pipelines (GitHub Action), Docker
+
+### Architecture Diagram
+![Gymtinued Backend Architecture](./assets/images/Gymtinued_Backend_Architecture.png)
 
 ## Installation
 
