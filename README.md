@@ -6,7 +6,6 @@ The mobile application which helps users to plan trainings by suggesting recomme
 - [Screenshots](#screenshots)
 - [Technologies](#technologies)
 - [Installation](#installation)
-- [Usage](#usage)
 - [License](#license)
 - [TODO](#todo)
 
@@ -41,8 +40,79 @@ The mobile application which helps users to plan trainings by suggesting recomme
 
 
 ## Installation
+Follow these steps to get the project up and running from the `local` branch:
 
-## Usage
+### Backend Deploy
+
+#### 1. Prerequisites
+- Java 21 JDK:
+  
+  Ensure Java 21 is installed and JAVA_HOME is set.
+
+- Git:
+  
+  To clone the repo.
+
+#### 2. Clone Repository
+    git clone --branch local https://github.com/your-username/your-repo.git
+
+Go to the branch named 'local':
+
+    git checkout local
+
+#### 3. Go to backend Folder Directory
+    cd backend
+
+#### 4. Build the Project
+    ./gradlew clean build
+
+#### 5. Run Java Spring Boot Backend 
+    ./gradlew bootRun
+
+### Frontend Deploy
+#### 1. Prerequisites
+- Flutter:
+  
+  https://docs.flutter.dev/get-started/install
+
+- Emulator / Simulator:
+
+  - Android Emulator, Android Studio, Android SDK, Virtual Device(AVD) or
+
+  - IOS Simulator (macOS only), Xcode command-line tools
+
+#### 2. Go to frontend Folder Directory
+  From the proejct root
+      
+    cd frontend
+#### 2. Fetch Packages
+    flutter pub get
+
+#### 3. Configure Platforms
+- Android:
+
+    Open android/ in Android Studio and let it sync Gradle.
+    
+    Ensure an Android SDK (API level ≥ 21) and a virtual device (AVD) are installed.
+
+- iOS (macOS only):
+
+      cd ios
+      pod install
+      cd ..
+    Make sure you have CocoaPods (gem install cocoapods) and Xcode command-line tools installed.
+
+#### 4. Run Emulator/Simulator or Device
+- Android:
+  
+      flutter emulators --launch <emulator_id>
+
+- IOS:
+  
+      open -a Simulator
+
+#### 5. Run the App
+    flutter run
 
 ## License
 
