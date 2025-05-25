@@ -55,9 +55,6 @@ dependencies {
     //XML
     implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-    //PostgreSQL
-    implementation 'org.postgresql:postgresql:42.7.1'
-
     //Fasterxml
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate6:2.15.2'
 

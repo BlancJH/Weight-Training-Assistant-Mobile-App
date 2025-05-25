@@ -42,24 +42,38 @@ public class UserService {
 
     public String loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
-                logger.error("Invalid Email", email);
+            .orElseThrow(() -> {
+                logger.error("Invalid email: {}", email);
+                return new IllegalArgumentException("Invalid email or password");
+            });
 
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            logger.error("Invalid Password for User", user);
+        boolean ok = passwordEncoder.matches(password, user.getPassword());
+        logger.info("Password match result for {}: {}", email, ok);
+        if (!ok) {
+            logger.error("Password mismatch! raw='{}', storedHash='{}'", password, user.getPassword());
             throw new IllegalArgumentException("Invalid email or password");
         }
 
+
             // Check if the user's account is active
         if (!user.isActive()) {
-            logger.error("The user account id deactivated", user);
+            logger.error("Attempt to login deactivated user id={}", user.getId());
             throw new IllegalArgumentException("Invalid email or password");
         }
         
 
         // Generate JWT Token
-        return jwtUtil.generateToken(user.getId(), user.getUsername(), user.getProfileUrl());
+        String token;
+        try {
+            token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getProfileUrl());
+            logger.info("Generated JWT: {}", token);
+        } catch (Exception ex) {
+            // THIS IS THE NEW PART:
+            logger.error("Failed to generate JWT for user id={} username={}", user.getId(), user.getUsername(), ex);
+            throw ex;  // re-throw so your controller sees it
+        }
+        return token;
     }
 
     public User getUserByEmail(String email) {
